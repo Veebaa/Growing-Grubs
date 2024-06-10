@@ -5,12 +5,17 @@ from flask import Flask, render_template, request, redirect, url_for, send_from_
 
 from database import db, User
 
-app = Flask(__name__, static_folder='../templates')
+app = Flask(__name__)
 
 
 @app.route("/")
 def index():
-    return send_from_directory(app.static_folder, 'index.html')
+    return render_template("index.html")
+
+
+@app.route('/register', methods=['GET'])
+def register_user():
+    return render_template("register_user.html")
 
 
 if __name__ == "__main__":

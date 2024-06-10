@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration Form</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/register_user.css">
 </head>
 
 <body>
@@ -25,7 +25,32 @@
     </div>
 </div>
 
-<script src="script.js"></script>
+<script>
+    function login() {
+    const firstName = document.getElementById('firstName').value;
+    const lastName = document.getElementById('lastName').value;
+    const email = document.getElementById('email').value
+    const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    //Code below displays error messages:
+    const error = document.getElementById('error');
+    if(firstName === '' || lastName === '' || email === '' || password === '' || confirmPassword === '') {
+        error.textContent = 'All fields are required';
+    } else if (!validateEmail(email)) {
+        error.textContent = 'Invalid email address';
+    } else if (password !== confirmPassword) {
+        error.textContent = 'Passwords do not match';
+    } else {
+        // Code to handle successful login
+        alert('Logged in successfully!');
+    }
+}
+
+    function validateEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    }
+</script>
 
 </body>
 </html>
