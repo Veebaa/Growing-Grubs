@@ -1,0 +1,19 @@
+/* responsive font size*/
+html {
+    font-size: calc(15px + 0.390625vw);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial;
+  margin: 0;
+}
+
+@media screen and (max-width: 700px) {
+  .row, .navbar {
+    flex-direction: column;
+  }
+}
