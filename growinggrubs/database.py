@@ -21,11 +21,12 @@ class User(db.Model):
         return self.name
 
 
-# class Todo(db.Model):
+# class Recipes(db.Model):
 #     id = db.Column(Integer, primary_key=True)
-#     name = db.Column(String(100), nullable=False)
-#     recommendations = []
-#     recommendations_json = db.Column(db.JSON)
+#     title = db.Column(String(100), nullable=False)
+#     ingredients = db.Column(String(100), nullable=False)
+#     method = db.Column(String(100), nullable=False)
+#
 #
 #     def __str__(self):
 #         return self.name
