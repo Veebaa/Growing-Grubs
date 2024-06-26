@@ -15,28 +15,37 @@
 
 <body class="homepage">
     <header class="header">
-    Growing Grubs
-        <a href="{{ url_for('register_user') }}">Register</a>
+        <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
     </header>
 
     <nav class="navbar">
         <a href="#">Home</a>
         <a href="#">Recipes</a>
         <a href="#">Feeding</a>
-        <a href="#">Healthy Feeding</a>
+        <a href="#">Healthy Eating</a>
+        <a href="{{ url_for('register_user') }}">Register</a>
     </nav>
 
     <div class="container">
         <main class="container__main-content">
-            Main content
+            <h1>About Us</h1>
+            <p> Text about us </p>
+            <br>
+            <div class="container__main-content__top recipes">
+                <h1>Top recipe</h1>
+                <div class="main-content__top recipes">
+                <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image">
+                <h1>Butternut squash and Chickpea Curry</h1>
+                </div>
+            </div>
         </main>
         <aside class="container__right-sidebar">
-            Right sidebar
+            <h1>Top Stories</h1>
         </aside>
     </div>
 
     <footer class="footer">
-        Footer
+       <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
     </footer>
 
 </body>
