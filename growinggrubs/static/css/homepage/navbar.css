@@ -31,6 +31,7 @@
 
 .navbar a:hover, .navbar_dropdown:hover .dropdown {
   background-color: #ddd;
+  color: #333;
 }
 
 .dropdown_content {
@@ -100,4 +101,12 @@
   .navbar input[type=text] {
     border: 1px solid #ccc;
   }
+}
+
+.navbar-p{
+    font-size: 18px;
+    color: white;
+    padding-left: 100px;
+    padding-right: 200px;
+    text-align: center;
 }

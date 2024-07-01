@@ -2,18 +2,13 @@
   padding: 0px;
   position: relative;
   text-align: center;
-  color: white;
+  color: #333;
 }
 
-<<<<<<< HEAD:growinggrubs/static/css/header.css
 .header-image{
   background-size: cover;
   background-position: center;
-  height: auto; /* Set the height of the header to the full viewport height */
-  width: 100%; /* Set the width of the header to 100% of the viewport width */
+  height: auto;
+  width: 100%;
 }
 
-
-
-=======
->>>>>>> 6084121831105a2b56d0f98fa91264175cdd3f23:growinggrubs/static/css/homepage/header.css

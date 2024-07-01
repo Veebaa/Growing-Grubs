@@ -17,7 +17,6 @@
 <body class="homepage">
     <header class="header">
         <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
-        <p>Grow with us, from weaning to well-rounded meals.</p>
     </header>
 
     <nav class="navbar">
@@ -43,7 +42,9 @@
             </div>
         </div>
         <a href="#">Healthy Eating</a>
+        <a href="{{ url_for('login') }}">Login</a>
         <a href="{{ url_for('register_user') }}">Register</a>
+        <p class="navbar-p">Grow with us, from weaning to well-rounded meals.</p>
         <div class="search-container">
             <form action="/action_page.php">
               <input type="text" placeholder="Search recipes.." name="search">
@@ -67,7 +68,7 @@
                 journey towards healthier and happier mealtimes for your little ones.</p>
             <br>
             <div class="container__main-content__top recipes">
-                <h1>Top recipe</h1>
+                <h1>Today's Top Recipe</h1>
                 <div class="main-content__top recipes">
                 <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image">
                 <h1>Butternut squash and Chickpea Curry</h1>
@@ -75,7 +76,8 @@
             </div>
         </main>
         <aside class="container__right-sidebar">
-            <h1>Top Stories</h1>
+            <h1>Today's Top Story</h1>
+            <p>Weaning your baby - When is your baby ready?</p>
         </aside>
     </div>
 
