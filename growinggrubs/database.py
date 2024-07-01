@@ -1,32 +1,39 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, String
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import Integer, String, create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from flask_sqlalchemy import SQLAlchemy
 
+db = SQLAlchemy()
 
-class Base(DeclarativeBase):
-    pass
+engine = create_engine('sqlite:///growinggrubs.db', echo=True)
 
+Base = declarative_base()
 
-db = SQLAlchemy(model_class=Base)
+Session = sessionmaker(bind=engine)
+session = Session()
 
+class User(Base):
+    __tablename__ = 'users'
 
-class User(db.Model):
     id = db.Column(Integer, primary_key=True, autoincrement=True)
     first_name = db.Column(String(100), nullable=False)
     last_name = db.Column(String(100), nullable=False)
     email = db.Column(String(100), nullable=False)
     password = db.Column(String(100), nullable=False)
 
-    def __str__(self):
-        return self.name
+class Recipe(Base):
+     __tablename__ = 'recipes'
 
+     id = db.Column(Integer, primary_key=True, autoincrement=True)
+     name = db.Column(String(100), nullable=False)
+     ingredients = db.Column(String(255), nullable=False)
+     instructions = db.Column(String(255), nullable=False)
 
-# class Todo(db.Model):
-#     id = db.Column(Integer, primary_key=True)
-#     name = db.Column(String(100), nullable=False)
-#     recommendations = []
-#     recommendations_json = db.Column(db.JSON)
-#
-#     def __str__(self):
-#         return self.name
+Base.metadata.create_all(engine)
 
+print("Database initialized successfully")
+
+users = session.query(User).all()
+for user in users:
+    print(f"ID: {user.id}, Name: {user.first_name} {user.last_name}, Email: {user.email}")

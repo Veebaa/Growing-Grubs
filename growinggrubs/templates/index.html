@@ -5,31 +5,66 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
   <title>Growing Grubs</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/header.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/main-content.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/right-sidebar.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/navbar.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main-content.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/right-sidebar.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/footer.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/navbar.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body class="homepage">
     <header class="header">
         <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
+        <p>Grow with us, from weaning to well-rounded meals.</p>
     </header>
 
     <nav class="navbar">
         <a href="#">Home</a>
-        <a href="#">Recipes</a>
-        <a href="#">Feeding</a>
+         <div class="navbar_dropdown">
+            <button class="dropdown">Recipes
+            <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown_content">
+               <a href="#">All Recipes</a>
+               <a href="#">6 - 9 Months</a>
+                <a href="#">9 - 12 Months</a>
+                <a href="#">1 - 4 Years</a>
+            </div>
+        </div>
+        <div class="navbar_dropdown">
+            <button class="dropdown">Feeding Tips
+            <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown_content">
+               <a href="#">Signs that your baby is ready</a>
+               <a href="#">Feeding Stages 1, 2 & 3</a>
+            </div>
+        </div>
         <a href="#">Healthy Eating</a>
         <a href="{{ url_for('register_user') }}">Register</a>
+        <div class="search-container">
+            <form action="/action_page.php">
+              <input type="text" placeholder="Search recipes.." name="search">
+              <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
     </nav>
 
     <div class="container">
         <main class="container__main-content">
             <h1>About Us</h1>
-            <p> Text about us </p>
+            <p>As a mother who has experienced the challenges of providing nourishing meals for children
+                during the weaning stage, I understand the overwhelming and conflicting information that
+                parents often face. That's why I am excited to introduce our web application, designed to
+                support parents of children aged 6 months to 4 years old. Our mission is to provide a
+                comprehensive guide on weaning, healthy eating habits, and a variety of nutritious recipes
+                perfect for young kids. We understand that parents are busy, which is why our app features
+                quick and easy recipes, tips for introducing a range of foods, and promotes healthy eating
+                habits from an early age. Our user-friendly platform aims to empower parents to confidently
+                nourish their children and cultivate a positive relationship with food. Join us on this
+                journey towards healthier and happier mealtimes for your little ones.</p>
             <br>
             <div class="container__main-content__top recipes">
                 <h1>Top recipe</h1>
