@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<title>Profile</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="/static/css/profile.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/navbar.css">
+</head>
+
+<body class="profile_page">
+
+    <header class="header">
+        <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
+    </header>
+
+    <nav class="navbar">
+        <a href="#">Home</a>
+         <div class="navbar_dropdown">
+            <button class="dropdown">Recipes
+            <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown_content">
+               <a href="#">All Recipes</a>
+               <a href="#">6 - 9 Months</a>
+                <a href="#">9 - 12 Months</a>
+                <a href="#">1 - 4 Years</a>
+            </div>
+        </div>
+        <div class="navbar_dropdown">
+            <button class="dropdown">Feeding Tips
+            <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown_content">
+               <a href="#">Signs that your baby is ready</a>
+               <a href="#">Feeding Stages 1, 2 & 3</a>
+            </div>
+        </div>
+        <a href="#">Healthy Eating</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register_user') }}">Register</a>
+        <p class="navbar-p">Grow with us, from weaning to well-rounded meals.</p>
+        <div class="search-container">
+            <form action="/action_page.php">
+              <input type="text" placeholder="Search recipes.." name="search">
+              <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
+    </nav>
+
+<!-- The flexible grid (content) -->
+<div class="row">
+  <div class="side">
+    <h2>User Name</h2>
+    <h5>Photo of me:</h5>
+    <div class="fakeimg" style="height:200px;">Image</div>
+    <p>Some text about me in culpa qui officia deserunt mollit anim..</p>
+    <h3>More Text</h3>
+    <p>Lorem ipsum dolor sit ame.</p>
+    <div class="fakeimg" style="height:60px;">Image</div><br>
+    <div class="fakeimg" style="height:60px;">Image</div><br>
+    <div class="fakeimg" style="height:60px;">Image</div>
+  </div>
+  <div class="main">
+    <h2>TITLE HEADING</h2>
+    <h5>Title description, Dec 7, 2017</h5>
+    <div class="fakeimg" style="height:200px;">Image</div>
+    <p>Some text..</p>
+    <p>Sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
+    <br>
+    <h2>TITLE HEADING</h2>
+    <h5>Title description, Sep 2, 2017</h5>
+    <div class="fakeimg" style="height:200px;">Image</div>
+    <p>Some text..</p>
+    <p>Sunt in culpa qui officia deserunt mollit anim id est laborum consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco.</p>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <h2>Footer</h2>
+</div>
+
+</body>
+</html>
+
+
