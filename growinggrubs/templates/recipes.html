@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta charset="UTF-8">
-  <title>Growing Grubs</title>
+<title>Profile</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/main.css">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/main-content.css">
@@ -14,12 +14,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
-<body class="homepage">
+<body class="recipes_page">
+
     <header class="header">
         <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
     </header>
 
-    <nav class="navbar">
+   <nav class="navbar">
         <a href="{{ url_for('index') }}">Home</a>
          <div class="navbar_dropdown">
             <button class="dropdown">Recipes
@@ -53,19 +54,11 @@
         </div>
     </nav>
 
-    <div class="container">
+<!-- The flexible grid (content) -->
+<div class="container">
         <main class="container__main-content">
-            <h1>About Us</h1>
-            <p>As a mother who has experienced the challenges of providing nourishing meals for children
-                during the weaning stage, I understand the overwhelming and conflicting information that
-                parents often face. That's why I am excited to introduce our web application, designed to
-                support parents of children aged 6 months to 4 years old. Our mission is to provide a
-                comprehensive guide on weaning, healthy eating habits, and a variety of nutritious recipes
-                perfect for young kids. We understand that parents are busy, which is why our app features
-                quick and easy recipes, tips for introducing a range of foods, and promotes healthy eating
-                habits from an early age. Our user-friendly platform aims to empower parents to confidently
-                nourish their children and cultivate a positive relationship with food. Join us on this
-                journey towards healthier and happier mealtimes for your little ones.</p>
+            <h1>All Recipes</h1>
+            <p>List of all recipes.</p>
             <br>
             <div class="container__main-content__top recipes">
                 <h1>Today's Top Recipe</h1>
@@ -80,11 +73,12 @@
             <p>Weaning your baby - When is your baby ready?</p>
         </aside>
     </div>
-
+<!-- Footer -->
     <footer class="footer">
        <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
     </footer>
 
 </body>
-
 </html>
+
+

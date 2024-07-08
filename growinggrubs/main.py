@@ -78,5 +78,40 @@ def profile():
     return render_template('profile.html')
 
 
+@app.route('/recipes')
+def recipes():
+    return render_template('recipes.html')
+
+
+@app.route('/recipes1')
+def recipes1():
+    return render_template('recipes1.html')
+
+
+@app.route('/recipes2')
+def recipes2():
+    return render_template('recipes2.html')
+
+
+@app.route('/recipes3')
+def recipes3():
+    return render_template('recipes3.html')
+
+
+@app.route('/feeding_stages')
+def feeding_stages():
+    return render_template('feeding_stages.html')
+
+
+@app.route('/signs')
+def signs():
+    return render_template('signs.html')
+
+
+@app.route('/healthy_eating')
+def healthy_eating():
+    return render_template('healthy_eating.html')
+
+
 if __name__ == "__main__":
     app.run(debug=True)
