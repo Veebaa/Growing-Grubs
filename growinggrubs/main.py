@@ -2,8 +2,15 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
-from forms_fields import RegistrationForm, LoginForm
-from models import Users
+from sqlalchemy import Integer, String, create_engine, Column
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import UserMixin
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email
+from passlib.hash import pbkdf2_sha256
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -16,15 +23,101 @@ db = SQLAlchemy(app)  # Initialize the SQLAlchemy instance with the Flask app
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 
+# forms_fields.py
+
+
+def invalid_credentials(form, field):
+    """ Username and password checker """
+
+    password = field.data
+    username = form.username.data
+
+    # Check username is invalid
+    user_data = Users.query.filter_by(username=username).first()
+    if user_data is None:
+        raise ValidationError("Username or password is incorrect")
+
+    # Check password in invalid
+    elif not pbkdf2_sha256.verify(password, user_data.hashed_pswd):
+        raise ValidationError("Username or password is incorrect")
+
+
+class RegistrationForm(FlaskForm):
+    """ Registration form"""
+
+    username = StringField('username',
+                           validators=[InputRequired(message="Username required"),
+                                       Length(min=4, max=25, message="Username must be between 4 and 25 characters")])
+    first_name = StringField('firstname',
+                             validators=[InputRequired(message="First name required"),
+                                         Length(min=1, max=25,
+                                                message="First name must be between 1 and 25 characters")])
+    last_name = StringField('lastname',
+                            validators=[InputRequired(message="Last name required"),
+                                        Length(min=1, max=25, message="Last name must be between 1 and 25 characters")])
+    email = StringField('email',
+                        validators=[InputRequired(message="Email required"), Email()])
+    password = PasswordField('password',
+                             validators=[InputRequired(message="Password required"),
+                                         Length(min=4, max=25, message="Password must be between 4 and 25 characters")])
+    confirm_password = PasswordField('confirm_password',
+                                     validators=[InputRequired(message="Password required"),
+                                                 EqualTo('password', message="Passwords must match")])
+    submit = SubmitField('Sign Up')
+
+    def validate_username(self, username):
+        user_object = Users.query.filter_by(username=username.data).first()
+        if user_object:
+            raise ValidationError("Username already exists. Select a different username.")
+
+
+class LoginForm(FlaskForm):
+    """ Login form """
+
+    username = StringField('username', validators=[InputRequired(message="Username required")])
+    password = PasswordField('password', validators=[InputRequired(message="Password required"), invalid_credentials])
+    remember = BooleanField('Remember Me')
+    submit = SubmitField('Login')
+
+# models.py
+
+
+class Users(UserMixin, db.Model):
+    __tablename__ = 'users'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.String(100), unique=True, nullable=False)
+    first_name = db.Column(db.String(100), nullable=False)
+    last_name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+
+class Recipes(db.Model):
+    __tablename__ = 'recipes'
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String(100), nullable=False)
+    ingredients = Column(String(255), nullable=False)
+    instructions = Column(String(255), nullable=False)
+
+# main.py
+
 
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
 
 
-# @app.before_request
-# def before_request():
-#     db.create_all()
+@app.before_request
+def before_request():
+    db.create_all()
 
 
 @app.route("/")
@@ -34,6 +127,7 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
+
     form = RegistrationForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -43,15 +137,19 @@ def register_user():
         password = form.password.data
 
         user = Users(username=username, first_name=first_name, last_name=last_name, email=email, password=password)
+
         db.session.add(user)
         db.session.commit()
+
         flash('User registered successfully!')
+
         return redirect(url_for('login'))
     return render_template('register_user.html', title='Register', form=form)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
     form = LoginForm()

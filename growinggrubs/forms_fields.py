@@ -3,7 +3,6 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email
 
 from passlib.hash import pbkdf2_sha256
-from models import Users
 
 
 def invalid_credentials(form, field):
