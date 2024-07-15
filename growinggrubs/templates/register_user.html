@@ -11,21 +11,41 @@
 
 <body>
 <div class="container">
-    <h2>Register</h2>
-    <h3>Complete all fields</h3>
-    <form action="/register" method="POST" >
-    <input type="text" name="username" placeholder="Username">
-    <input type="text" name="first_name" placeholder="First Name">
-    <input type="text" name="last_name" placeholder="Last Name">
-    <input type="email" name="email" placeholder="Email Address">
-    <input type="password" name="password" placeholder="Password">
-    <input type="password" name="confirm_password" placeholder="Confirm Password">
-        <button type="submit">
-        Submit
-    </button>
+    <form class="container_form" action="/register" method="POST" >
+        <h2>Register</h2>
+        <h3>Complete all fields</h3>
+        <input type="text" name="username" placeholder="Username">
+        <input type="text" name="first_name" placeholder="First Name">
+        <input type="text" name="last_name" placeholder="Last Name">
+        <input type="email" name="email" placeholder="Email Address">
+        <input type="password" name="password" placeholder="Password">
+        <input type="password" name="confirm_password" placeholder="Confirm Password">
+        <button type="submit">Submit</button>
     </form>
-
 </div>
 
+<!--function register() {-->
+<!--   const username = document.getElementById(username').value;-->
+<!--    const first_name = document.getElementById('first_name').value;-->
+<!--    const last_name = document.getElementById('last_name').value;-->
+<!--    const email = document.getElementById('email').value-->
+<!--    const password = document.getElementById('password').value;-->
+<!--    const confirm_password = document.getElementById('confirm_password').value;-->
+<!--    //Code below displays error messages:-->
+<!--    const error = document.getElementById('error');-->
+<!--    if(username === ' ' || first_name === '' || last_name === '' || email === '' || password === '' || confirm_password === '') {-->
+<!--        error.textContent = 'All fields are required';-->
+<!--    } else if (!validateEmail(email)) {-->
+<!--        error.textContent = 'Invalid email address';-->
+<!--    } else if (password !== confirmPassword) {-->
+<!--        error.textContent = 'Passwords do not match';-->
+<!--    } else {-->
+<!--        // Code to handle successful login-->
+<!--        alert('Registered successfully!');-->
+<!--    }-->
+<!--}-->
+
+
 </body>
+
 </html>

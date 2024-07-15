@@ -2,15 +2,14 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Integer, String, create_engine, Column
+from sqlalchemy import Integer, String, Column
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email
+from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email, Regexp
 from passlib.hash import pbkdf2_sha256
-
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret_key'
@@ -23,8 +22,8 @@ db = SQLAlchemy(app)  # Initialize the SQLAlchemy instance with the Flask app
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 
-# forms_fields.py
 
+# forms_fields.py
 
 def invalid_credentials(form, field):
     """ Username and password checker """
@@ -47,7 +46,9 @@ class RegistrationForm(FlaskForm):
 
     username = StringField('username',
                            validators=[InputRequired(message="Username required"),
-                                       Length(min=4, max=25, message="Username must be between 4 and 25 characters")])
+                                       Length(min=4, max=25, message="Username must be between 4 and 25 characters"),
+                                       Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
+                                              'Usernames must have only letters, numbers, dots, or underscores', )])
     first_name = StringField('firstname',
                              validators=[InputRequired(message="First name required"),
                                          Length(min=1, max=25,
@@ -59,16 +60,20 @@ class RegistrationForm(FlaskForm):
                         validators=[InputRequired(message="Email required"), Email()])
     password = PasswordField('password',
                              validators=[InputRequired(message="Password required"),
-                                         Length(min=4, max=25, message="Password must be between 4 and 25 characters")])
+                                         EqualTo('confirm_password', message='Passwords do not match.')])
     confirm_password = PasswordField('confirm_password',
-                                     validators=[InputRequired(message="Password required"),
-                                                 EqualTo('password', message="Passwords must match")])
-    submit = SubmitField('Sign Up')
+                                     validators=[InputRequired(message="Password required"), ])
+    submit = SubmitField('Register')
 
-    def validate_username(self, username):
-        user_object = Users.query.filter_by(username=username.data).first()
-        if user_object:
-            raise ValidationError("Username already exists. Select a different username.")
+    def validate_email(self, field):
+        """ Email in db checker"""
+        if Users.query.filter_by(email=field.data).first():
+            raise ValidationError('Email already registered.')
+
+    def validate_username(self, field):
+        """ Username in db checker"""
+        if Users.query.filter_by(username=field.data).first():
+            raise ValidationError('Sorry! Username already in use.')
 
 
 class LoginForm(FlaskForm):
@@ -79,10 +84,12 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
+
 # models.py
 
 
 class Users(UserMixin, db.Model):
+    """ Table for users """
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -100,12 +107,14 @@ class Users(UserMixin, db.Model):
 
 
 class Recipes(db.Model):
+    """ Table for recipes """
     __tablename__ = 'recipes'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), nullable=False)
     ingredients = Column(String(255), nullable=False)
     instructions = Column(String(255), nullable=False)
+
 
 # main.py
 
@@ -127,7 +136,6 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_user():
-
     form = RegistrationForm()
     if form.validate_on_submit():
         username = form.username.data
@@ -149,7 +157,6 @@ def register_user():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
     form = LoginForm()

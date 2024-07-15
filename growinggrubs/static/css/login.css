@@ -1,52 +1,71 @@
-body {
+body, html {
     font-family: Arial, sans-serif;
-    background-color: #f2f2f2;
-    margin: 0;
-    padding: 0;
+    background-image: url("/static/images/login/gg_background_1.png");
+    min-height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 .login-container {
-    max-width: 400px;
-    margin: 100px auto;
-    padding: 20px;
-    background-color: white;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 30%;
+    left: 18%;
+    width: 40%;
 }
 
 h2 {
     text-align: center;
     color: #333;
+    font-size: 40px;
 }
 
-form {
-    margin-top: 20px;
+.login-container_form {
+    position: absolute;
+    right: 0;
+    margin: 20px;
+    max-width: 300px;
+    padding: 16px;
 }
 
 label {
+    font-size: 15px;
     display: block;
     margin-bottom: 5px;
     color: #333;
 }
 
-input {
+input[type=text], input[type=password] {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: 1px solid black;
     border-radius: 5px;
+    background: #f1f1f1;
+    font-size: 18px;
 }
 
 button {
     width: 100%;
-    padding: 8px;
-    background-color: #007bff;
+    padding: 16px 20px;
+    background-color: #01452c;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 20px;
+    opacity: 0.9;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: #04AA6D;
 }
+
+@media (max-width: 480px) {
+  body {
+    background-size: contain;
+  }

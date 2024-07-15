@@ -1,54 +1,60 @@
-body {
+body, html {
     font-family: Arial, sans-serif;
-    background-color: #bf92e4;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    background-image: url("/static/images/login/gg_background_1.png");
+    min-height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-h2 {
-    color: #4b0076;
+* {
+  box-sizing: border-box;
+}
+
+
+h2, h3 {
     text-align: center;
-    font-size: 30px;
-}
-
-h3 {
-    color: #4b0076;
-    text-align: left;
-    font-size: 12px;
+    color: black;
 }
 
 .container {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    width: 300px;
+    position: absolute;
+    top: 20%;
+    left: 18%;
+    width: 40%;
+}
+
+.container_form {
+    position: absolute;
+    right: 0;
+    margin: 20px;
+    max-width: 300px;
+    padding: 16px;
 }
 
 input {
-    width: 90%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: 1px solid black;
     border-radius: 5px;
+    background: #f1f1f1;
 }
 
 button {
-    width: 98%;
-    padding: 10px;
-    background-color: #4b0076;
-    color: #fff;
+    width: 100%;
+    padding: 16px 20px;
+    background-color: #01452c;
+    color: white;
     border: none;
-    cursor: pointer;
     border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+
 }
 
 button:hover {
-    background-color: #2c041d;
+    background-color: #04AA6D;
 }
 
 .error {
