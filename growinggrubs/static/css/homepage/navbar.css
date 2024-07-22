@@ -62,6 +62,7 @@
 
 .search-container {
   float: right;
+  padding-left: 500px;
 }
 
 .navbar input[type=text] {
@@ -101,12 +102,4 @@
   .navbar input[type=text] {
     border: 1px solid #ccc;
   }
-}
-
-.navbar-p{
-    font-size: 18px;
-    color: white;
-    padding-left: 100px;
-    padding-right: 200px;
-    text-align: center;
 }

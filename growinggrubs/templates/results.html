@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal Search Results</title>
+</head>
+<body>
+    <!-- Check if recipes are available-->
+    {% if meals%}
+    <h2>Results for "{{ search_query }}"</h2>
+    <ul>
+        {% for recipe in meals %}
+        <li>
+            <h3 class="recipe-title">{{ recipe.title }}</h3>
+            {% if recipe.image %}
+            <img src="{{ recipe.imageUrl }}" alt="{{ recipe.title }}">
+            {% endif %}
+            <a href="{{ url_for('meal_detail', meal_id=recipe.id) }}">View</a>
+        </li>
+        {% endfor %}
+    </ul>
+    <!-- If no recipes are found -->
+    {% else %}
+    <p>No recipes found.</p>
+    {% endif %}
+</body>
+</html>

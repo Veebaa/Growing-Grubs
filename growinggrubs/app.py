@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
+import requests
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
-from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String, Column
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
@@ -10,10 +10,16 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email, Regexp
 from passlib.hash import pbkdf2_sha256
+from spoonacular import API
 
 app = Flask(__name__)
+# API base URL
+api_key = 'c676336b8de04c04b131f2f91eb14b33'
+spoonacular_api = API(api_key)
+
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
+# adding configuration for using a sqlite database
 app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///site.db'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -24,21 +30,6 @@ login_manager.init_app(app)
 
 
 # forms_fields.py
-
-def invalid_credentials(form, field):
-    """ Username and password checker """
-
-    password = field.data
-    username = form.username.data
-
-    # Check username is invalid
-    user_data = Users.query.filter_by(username=username).first()
-    if user_data is None:
-        raise ValidationError("Username or password is incorrect")
-
-    # Check password in invalid
-    elif not pbkdf2_sha256.verify(password, user_data.hashed_pswd):
-        raise ValidationError("Username or password is incorrect")
 
 
 class RegistrationForm(FlaskForm):
@@ -76,6 +67,22 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Sorry! Username already in use.')
 
 
+def invalid_credentials(form, field):
+    """ Username and password checker """
+
+    password = field.data
+    username = form.username.data
+
+    # Check username is invalid
+    user_data = Users.query.filter_by(username=username).first()
+    if user_data is None:
+        raise ValidationError("Username or password is incorrect")
+
+    # Check password in invalid
+    elif not pbkdf2_sha256.verify(password, user_data.hashed_pswd):
+        raise ValidationError("Username or password is incorrect")
+
+
 class LoginForm(FlaskForm):
     """ Login form """
 
@@ -105,18 +112,11 @@ class Users(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
-
-class Recipes(db.Model):
-    """ Table for recipes """
-    __tablename__ = 'recipes'
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(100), nullable=False)
-    ingredients = Column(String(255), nullable=False)
-    instructions = Column(String(255), nullable=False)
+    with app.app_context():
+        db.create_all()
 
 
-# main.py
+# app.py
 
 
 @login_manager.user_loader
@@ -124,9 +124,9 @@ def load_user(user_id):
     return Users.query.get(int(user_id))
 
 
-@app.before_request
-def before_request():
-    db.create_all()
+# @app.before_request
+# def before_request():
+#     db.create_all()
 
 
 @app.route("/")
@@ -138,20 +138,26 @@ def index():
 def register_user():
     form = RegistrationForm()
     if form.validate_on_submit():
-        username = form.username.data
-        first_name = form.first_name.data
-        last_name = form.last_name.data
-        email = form.email.data
-        password = form.password.data
-
-        user = Users(username=username, first_name=first_name, last_name=last_name, email=email, password=password)
+        user = Users()
+        Users.username = form.username.data
+        Users.first_name = form.first_name.data
+        Users.last_name = form.last_name.data
+        Users.email = form.email.data
+        Users.password = form.password.data
 
         db.session.add(user)
         db.session.commit()
 
-        flash('User registered successfully!')
-
+        app.logger.info("User registered successfully!")
         return redirect(url_for('login'))
+
+        # except Exception as e:
+        # app.logger.error("Registration failed!")
+        # db.session.rollback()
+        # return f"Commit failed. Error: {e}"
+
+    app.logger.info("Invalid Form")
+
     return render_template('register_user.html', title='Register', form=form)
 
 
@@ -216,6 +222,42 @@ def signs():
 @app.route('/healthy_eating')
 def healthy_eating():
     return render_template('healthy_eating.html')
+
+
+@app.route('/search', methods=['POST'])
+def search():
+    meal_name = request.form.get('search')
+    try:
+        # Search for recipes based on the criteria
+        results = spoonacular_api.get_recipes_complex_search(query=meal_name)
+        meals = results.get('results', [])
+    except Exception as e:
+        flash(f"Error fetching data from Spoonacular: {e}")
+        return redirect(url_for('recipes'))
+
+    # Redirect to recipes page with search results
+    if meals:
+        return render_template('recipes.html', meals=meals, search_query=meal_name)
+    else:
+        flash("No meals found with that name.")
+        return redirect(url_for('recipes'))
+
+
+@app.route('/meal/<int:meal_id>')
+def meal_detail(meal_id):
+    try:
+        # Fetch meal information
+        meal_info = spoonacular_api.get_recipe_information(meal_id)
+    except Exception as e:
+        flash(f"Error fetching meal details: {e}")
+        return redirect(url_for('recipes'))
+
+    return render_template('meal_detail.html', meal=meal_info)
+
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('404.html'), 404
 
 
 if __name__ == "__main__":
