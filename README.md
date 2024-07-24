@@ -2,7 +2,6 @@ Growing Grubs.
 
 Grow with us, from weaning to well-rounded meals.
 
-Introduction
 As a mother myself, I understand the challenges and confusion that come with providing
 healthy meals for children, especially during the weaning stage. The conflicting information
 available online and in books often leaves parents feeling overwhelmed and unsure. This
