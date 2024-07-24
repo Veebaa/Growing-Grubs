@@ -27,8 +27,27 @@
             document.getElementById('toprecipe_link').href = recipe.sourceUrl; // link to the recipe source
         }
 
+        function showPopup(message) {
+            const popup = document.getElementById('popup');
+            const overlay = document.getElementById('overlay');
+            popup.innerText = message;
+            popup.classList.add('show');
+            overlay.classList.add('show');
+
+            setTimeout(() => {
+                popup.classList.remove('show');
+                overlay.classList.remove('show');
+            }, 3000); // Auto-hide after 3 seconds
+        }
+
         // Call the function when the page loads
-        window.onload = fetchPopularRecipe;
+        window.onload = function() {
+            fetchPopularRecipe();
+            const messages = {{ get_flashed_messages()|tojson }};
+            if (messages.length > 0) {
+                showPopup(messages[0]); // Show the first message
+            }
+        };
     </script>
 
 </head>
@@ -71,6 +90,16 @@
         </div>
     </nav>
 
+    {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for message in messages %}
+        <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
     <div class="container">
         <main class="container__main-content">
             <h1>About Us</h1>
@@ -103,6 +132,9 @@
     <footer class="footer">
        <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
     </footer>
+
+<div id="overlay" class="overlay"></div>
+<div id="popup" class="popup"></div>
 
 </body>
 

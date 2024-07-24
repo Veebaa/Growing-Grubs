@@ -6,10 +6,11 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email, Regexp
 from passlib.hash import pbkdf2_sha256
 from spoonacular import API
+from flask_migrate import Migrate
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -27,6 +28,7 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)  # Initialize the SQLAlchemy instance with the Flask app
+migrate = Migrate(app, db)
 
 login_manager = LoginManager(app)
 login_manager.init_app(app)
@@ -61,6 +63,13 @@ class RegistrationForm(FlaskForm):
                                          EqualTo('confirm_password', message='Passwords do not match.')])
     confirm_password = PasswordField('confirm_password',
                                      validators=[InputRequired(message="Password required"), ])
+    profile_image = SelectField('Profile Image', choices=[
+        ('avo.jpg', 'Avocado'),
+        ('cherries.jpg', 'Cherries'),
+        ('orange.jpg', 'Orange'),
+        ('strawberry.jpg', 'Strawberry'),
+        ('watermelon.jpg', 'Watermelon'),
+    ], validators=[InputRequired(message="Please select a profile image")])
     submit = SubmitField('Register')
 
     def validate_email(self, field):
@@ -107,6 +116,7 @@ class Users(UserMixin, db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    profile_image = db.Column(db.String(100), nullable=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     first_name = db.Column(db.String(100), nullable=False)
     last_name = db.Column(db.String(100), nullable=False)
@@ -140,7 +150,7 @@ def register_user():
         app.logger.info(f"Registering new User {form.username.data}")
         try:
             user = Users(username=form.username.data, first_name=form.first_name.data,
-                         last_name=form.last_name.data, email=form.email.data)
+                         last_name=form.last_name.data, email=form.email.data, profile_image=form.profile_image.data)
             user.set_password(form.password.data)  # Hash the password
             db.session.add(user)
             db.session.commit()
@@ -183,9 +193,11 @@ def login():
     return render_template('login.html', title='Log In', form=form)
 
 
-@app.route('/logout')
+@app.route('/logout', methods=['POST'])
+@login_required
 def logout():
     logout_user()
+    flash("You have been logged out.")
     return redirect(url_for('index'))
 
 
@@ -193,12 +205,38 @@ def logout():
 @login_required
 def profile():
     user_info = {
+        'profile_image': current_user.profile_image,
         'username': current_user.username,
         'first_name': current_user.first_name,
         'last_name': current_user.last_name,
         'email': current_user.email
     }
     return render_template('profile.html', user=user_info)
+
+
+@app.route('/edit_profile', methods=['POST'])
+@login_required
+def edit_profile():
+    first_name = request.form.get('first_name')
+    last_name = request.form.get('last_name')
+    email = request.form.get('email')
+    profile_image = request.form.get('profile_image')
+
+    try:
+        # Update user information
+        current_user.first_name = first_name
+        current_user.last_name = last_name
+        current_user.email = email
+        current_user.profile_image = profile_image
+
+        db.session.commit()
+        flash('Profile updated successfully!')
+    except Exception as e:
+        db.session.rollback()
+        flash('Error updating profile: ' + str(e))
+
+    return redirect(url_for('profile'))
+
 
 
 @app.route('/recipes')
@@ -271,9 +309,6 @@ def meal_detail(meal_id):
 def not_found_error(error):
     return render_template('404.html'), 404
 
-
-with app.app_context():
-    db.create_all()
 
 if __name__ == "__main__":
     app.run(debug=True)
