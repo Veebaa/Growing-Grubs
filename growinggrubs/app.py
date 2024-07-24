@@ -275,29 +275,47 @@ def healthy_eating():
 
 @app.route('/search', methods=['POST'])
 def search():
-    meal_name = request.form.get('search')
-    try:
-        # Search for recipes based on the criteria
-        results = spoonacular_api.get_recipes_complex_search(query=meal_name)
-        meals = results.get('results', [])
-    except Exception as e:
-        flash(f"Error fetching data from Spoonacular: {e}")
+    search_term = request.form.get('search')
+    app.logger.info(f"Searching for meals with query: {search_term}")
+
+    if not search_term:
+        flash("Please enter a search term.")
         return redirect(url_for('recipes'))
 
-    # Redirect to recipes page with search results
-    if meals:
-        return render_template('recipes.html', meals=meals, search_query=meal_name)
-    else:
-        flash("No meals found with that name.")
-        return redirect(url_for('recipes'))
+    try:
+        # This uses the API endpoint that allows searching for both recipe names and ingredients
+        results = spoonacular_api.get_recipes_complex_search(query=search_term)
+        app.logger.info(f"Search results: {results}")
+
+        if not results or 'results' not in results:
+            flash("Invalid response from the API.")
+            return redirect(url_for('recipes'))
+
+        meals = results.get('results', [])
+
+        if meals:  # Check if meals were returned
+            return render_template('recipes.html', meals=meals, search_query=search_term)
+        else:
+            flash("No meals found matching your search term.")
+
+    except Exception as e:
+        app.logger.error(f"Error fetching data from Spoonacular: {e}")
+        flash("Error fetching data from Spoonacular: " + str(e))
+
+    return redirect(url_for('recipes'))
 
 
 @app.route('/meal/<int:meal_id>')
 def meal_detail(meal_id):
+    app.logger.info(f"Fetching details for meal ID: {meal_id}")
     try:
-        # Fetch meal information
         meal_info = spoonacular_api.get_recipe_information(meal_id)
+        app.logger.info(f"Meal information fetched successfully: {meal_info}")
+        if meal_info is None:
+            flash("Invalid meal information received.")
+            return redirect(url_for('recipes'))
     except Exception as e:
+        app.logger.error(f"Error fetching meal details: {e}")
         flash(f"Error fetching meal details: {e}")
         return redirect(url_for('recipes'))
 

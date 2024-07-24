@@ -17,10 +17,21 @@
         async function fetchPopularRecipe() {
             const apiKey = 'c676336b8de04c04b131f2f91eb14b33';
             const response = await fetch(`https://api.spoonacular.com/recipes/random?number=1&apiKey=${apiKey}`);
+
+            if (!response.ok) {
+                console.error("Failed to fetch popular recipe:", response.statusText);
+                return; // Early return if the fetch fails
+            }
+
             const data = await response.json();
+            console.log("Popular recipe data fetched:", data);
 
             // Update the HTML with the fetched recipe
             const recipe = data.recipes[0];
+            if (!recipe) {
+                console.error("No recipe found in response"); // Add this line
+                return; // Early return if no recipe is found
+            }
 
             document.getElementById('toprecipe_image').src = recipe.image;
             document.getElementById('toprecipe_title').innerText = recipe.title;
@@ -89,16 +100,6 @@
             </form>
         </div>
     </nav>
-
-    {% with messages = get_flashed_messages() %}
-  {% if messages %}
-    <ul class="flashes">
-      {% for message in messages %}
-        <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
-{% endwith %}
 
     <div class="container">
         <main class="container__main-content">
