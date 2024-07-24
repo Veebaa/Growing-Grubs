@@ -52,29 +52,35 @@
         </div>
     </nav>
 
-    <div class="container">
-        <main class="container__main-content">
-            <h1>Profile Page</h1>
-            <p>Profile image with basic details of registration information</p>
-            <br>
-            <div class="container__main-content__top recipes">
-                <h1>Favourite Recipe</h1>
-                <div class="main-content__top recipes">
-                <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image">
-                <h1>Butternut squash and Chickpea Curry</h1>
-                </div>
+<main>
+        <div class="profile-container">
+            <div class="profile-header">
+                <img class="profile-image" src="static/images/profile_image.jpg" alt="Profile Image">
+                <h1>Welcome, <span class="username">{{ user.username }}</span>!</h1>
             </div>
-        </main>
-        <aside class="container__right-sidebar">
-            <h1>Today's Top Story</h1>
-            <p>Weaning your baby - When is your baby ready?</p>
-        </aside>
-    </div>
+            <div class="registered-details">
+                <h2>Registered Details</h2>
+                <ul>
+                    <li>First Name: <span class="first-name">{{ user.first_name }}</span></li>
+                    <li>Last Name: <span class="last-name">{{ user.last_name }}</span></li>
+                    <li>Email: <span class="email">{{ user.email }}</span></li>
+                </ul>
+            </div>
+            <div class="favourites">
+                <h2>Favourite Recipes</h2>
+                <ul>
+                    <li>Recipe 1</li>
+                    <li>Recipe 2</li>
+                    <li>Recipe 3</li>
+                    <!-- Add more recipes as needed -->
+                </ul>
+            </div>
+        </div>
+    </main>
 
     <footer class="footer">
        <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
     </footer>
 
 </body>
-
 </html>

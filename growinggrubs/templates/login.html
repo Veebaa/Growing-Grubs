@@ -8,13 +8,37 @@
     <link rel="stylesheet" href="/static/css/login.css">
 </head>
 <body>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <ul class=flashes>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
     <div class="login-container">
-        <form class="login-container_form" action="/login" method="GET">
-            <h2>Login</h2>
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <label>No Account? <a href="{{ url_for('register_user') }}">Click here to Register</a> </label>
-            <button type="submit">Login</button>
+        <form method="POST" action="{{ url_for('login') }}">
+            {{ form.hidden_tag() }}  <!-- CSRF token -->
+            <div>
+                {{ form.username.label }} {{ form.username() }}
+                {% for error in form.username.errors %}
+                    <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div>
+                {{ form.password.label }} {{ form.password() }}
+                {% for error in form.password.errors %}
+                    <span class="error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div>
+                {{ form.remember() }} {{ form.remember.label }}
+            </div>
+            <div>
+                {{ form.submit() }}
+            </div>
         </form>
     </div>
 </body>

@@ -1,5 +1,6 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
+import logging
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required, UserMixin
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
@@ -13,10 +14,15 @@ from spoonacular import API
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 app = Flask(__name__)
+
+# Logging configuration
+logging.basicConfig(level=logging.INFO)
+
 # adding configuration for using a sqlite database
-app.config['SQLALCHEMY_DATABASE_URI'] =\
-        'sqlite:///' + os.path.join(basedir, 'database.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = \
+    'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SECRET_KEY'] = 'secret_key'
+app.config['WTF_CSRF_SECRET_KEY'] = 'your_csrf_secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -28,6 +34,7 @@ login_manager.init_app(app)
 # Recipe API
 api_key = 'c676336b8de04c04b131f2f91eb14b33'
 spoonacular_api = API(api_key)
+
 
 # forms_fields.py
 
@@ -79,7 +86,7 @@ def invalid_credentials(form, field):
         raise ValidationError("Username or password is incorrect")
 
     # Check password in invalid
-    elif not pbkdf2_sha256.verify(password, user_data.hashed_pswd):
+    elif not user_data.check_password(password):
         raise ValidationError("Username or password is incorrect")
 
 
@@ -133,7 +140,8 @@ def register_user():
         app.logger.info(f"Registering new User {form.username.data}")
         try:
             user = Users(username=form.username.data, first_name=form.first_name.data,
-                         last_name=form.last_name.data, email=form.email.data, password=form.password.data)
+                         last_name=form.last_name.data, email=form.email.data)
+            user.set_password(form.password.data)  # Hash the password
             db.session.add(user)
             db.session.commit()
 
@@ -151,16 +159,27 @@ def register_user():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
+        app.logger.info(f'User {current_user.username} is authenticated. Redirecting to profile page.')
         return redirect(url_for('profile'))
+
     form = LoginForm()
-    if form.validate():
+
+    if form.validate_on_submit():
         user = Users.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
-            return redirect(url_for('login'))
+            flash('Invalid username or password')  # Flash the error message
+            return redirect(url_for('login'))  # Redirect back to login
+
         login_user(user, remember=form.remember.data)
-        next_page = request.args.get('next')
-        return redirect(next_page) if next_page else redirect(url_for('profile'))
+        app.logger.info(f'User {user.username} logged in successfully.')
+
+        next_page = request.args.get('next')   # Get the 'next' parameter
+        if next_page:  # User tried to access a protected route
+            return redirect(next_page)
+        else:
+            app.logger.info(f'Redirecting user {user.username} to profile page.')
+            return redirect(next_page) if next_page else redirect(url_for('profile'))  # Redirect to profile page
+
     return render_template('login.html', title='Log In', form=form)
 
 
@@ -173,7 +192,13 @@ def logout():
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template('profile.html')
+    user_info = {
+        'username': current_user.username,
+        'first_name': current_user.first_name,
+        'last_name': current_user.last_name,
+        'email': current_user.email
+    }
+    return render_template('profile.html', user=user_info)
 
 
 @app.route('/recipes')
