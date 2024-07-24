@@ -1,10 +1,8 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
-import requests
-from flask_login import LoginManager, login_user, current_user, logout_user, login_required
-from sqlalchemy import Integer, String, Column
+from flask_login import LoginManager, login_user, current_user, logout_user, login_required, UserMixin
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin
+from sqlalchemy.exc import SQLAlchemyError
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
@@ -12,15 +10,14 @@ from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, 
 from passlib.hash import pbkdf2_sha256
 from spoonacular import API
 
-app = Flask(__name__)
-# API base URL
-api_key = 'c676336b8de04c04b131f2f91eb14b33'
-spoonacular_api = API(api_key)
+basedir = os.path.abspath(os.path.dirname(__file__))
 
+app = Flask(__name__)
+# adding configuration for using a sqlite database
+app.config['SQLALCHEMY_DATABASE_URI'] =\
+        'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SECRET_KEY'] = 'secret_key'
 app.config['SESSION_TYPE'] = 'filesystem'
-# adding configuration for using a sqlite database
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///site.db'
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 db = SQLAlchemy(app)  # Initialize the SQLAlchemy instance with the Flask app
@@ -28,6 +25,9 @@ db = SQLAlchemy(app)  # Initialize the SQLAlchemy instance with the Flask app
 login_manager = LoginManager(app)
 login_manager.init_app(app)
 
+# Recipe API
+api_key = 'c676336b8de04c04b131f2f91eb14b33'
+spoonacular_api = API(api_key)
 
 # forms_fields.py
 
@@ -112,9 +112,6 @@ class Users(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
-    with app.app_context():
-        db.create_all()
-
 
 # app.py
 
@@ -122,11 +119,6 @@ class Users(UserMixin, db.Model):
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
-
-
-# @app.before_request
-# def before_request():
-#     db.create_all()
 
 
 @app.route("/")
@@ -138,25 +130,20 @@ def index():
 def register_user():
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = Users()
-        Users.username = form.username.data
-        Users.first_name = form.first_name.data
-        Users.last_name = form.last_name.data
-        Users.email = form.email.data
-        Users.password = form.password.data
+        app.logger.info(f"Registering new User {form.username.data}")
+        try:
+            user = Users(username=form.username.data, first_name=form.first_name.data,
+                         last_name=form.last_name.data, email=form.email.data, password=form.password.data)
+            db.session.add(user)
+            db.session.commit()
 
-        db.session.add(user)
-        db.session.commit()
+            app.logger.info(f"User {form.username.data} registered successfully!")
+            return redirect(url_for('login'))
 
-        app.logger.info("User registered successfully!")
-        return redirect(url_for('login'))
-
-        # except Exception as e:
-        # app.logger.error("Registration failed!")
-        # db.session.rollback()
-        # return f"Commit failed. Error: {e}"
-
-    app.logger.info("Invalid Form")
+        except SQLAlchemyError as e:
+            app.logger.error("Registration failed!")
+            db.session.rollback()
+            return f"Commit failed. Error: {e}"
 
     return render_template('register_user.html', title='Register', form=form)
 
@@ -166,7 +153,7 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('profile'))
     form = LoginForm()
-    if form.validate_on_submit():
+    if form.validate():
         user = Users.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash('Invalid username or password')
