@@ -47,8 +47,8 @@
         <a href="{{ url_for('login') }}">Login</a>
         <a href="{{ url_for('register_user') }}">Register</a>
         <div class="search-container">
-            <form action="/action_page.php">
-                <input type="text" placeholder="Search recipes.." name="search">
+            <form action="{{ url_for('search') }}" method="post">
+                <input type="text" placeholder="Search recipes.." name="search" required>
                 <button type="submit"><i class="fa fa-search"></i></button>
             </form>
         </div>
@@ -57,27 +57,33 @@
     <!-- The flexible grid (content) -->
     <div class="recipes_container">
         <main class="recipes_container__main-content">
+
+            {% if meals %}
+                <div class="search-results">
+                    <h2>Search Results for "{{ search_query }}"</h2>
+                    <div class="search_recipes">
+                        {% for meal in meals %}
+                            <a class="recipe-card" href="{{ url_for('meal_detail', meal_id=meal.id) }}">
+                                <img src="{{ meal.image }}" alt="{{ meal.title }}">
+                                <h2>{{ meal.title }}</h2>
+                                <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% else %}
+                <p>No recipes found.</p>
+            {% endif %}
+
             <h2>Popular Recipes</h2>
             <p>Welcome to our Recipes Page, where you'll find a delightful selection of popular recipes
                 carefully curated for your culinary inspiration. Explore and indulge in a variety of dishes, each
                 designed to tantalize your taste buds.
                 If you're looking for something specific, simply use the search bar above to find recipes by ingredient,
                 making it easier than ever to whip up your next favorite meal!</p>
+
             <div class="recipes"></div>
-            {% if meals %}
-            <div class="search-results">
-                <h2>Search Results for "{{ search_query }}"</h2>
-                <div class="recipes">
-                    {% for meal in meals %}
-                    <a class="recipe-card" href="{{ url_for('meal_detail', meal_id=meal.id) }}">
-                        <img src="{{ meal.image }}" alt="{{ meal.title }}">
-                        <h2>{{ meal.title }}</h2>
-                        <p>{{ "Vegetarian" if meal.vegetarian else meal.dishTypes.join(", ") }}</p>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
+
         </main>
         <aside class="container__right-sidebar">
             <h1>Today's Top Story</h1>

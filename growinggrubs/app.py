@@ -1,4 +1,6 @@
 import os
+
+import requests
 from flask import Flask, render_template, request, redirect, url_for, flash
 import logging
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required, UserMixin
@@ -283,8 +285,10 @@ def search():
         return redirect(url_for('recipes'))
 
     try:
-        # This uses the API endpoint that allows searching for both recipe names and ingredients
-        results = spoonacular_api.get_recipes_complex_search(query=search_term)
+        # Correctly querying the Spoonacular API for complex search
+        endpoint = f'https://api.spoonacular.com/recipes/complexSearch?apiKey={api_key}&query={search_term}'
+        response = requests.get(endpoint)
+        results = response.json()
         app.logger.info(f"Search results: {results}")
 
         if not results or 'results' not in results:
@@ -310,8 +314,7 @@ def meal_detail(meal_id):
     app.logger.info(f"Fetching details for meal ID: {meal_id}")
     try:
         meal_info = spoonacular_api.get_recipe_information(meal_id)
-        app.logger.info(f"Meal information fetched successfully: {meal_info}")
-        if meal_info is None:
+        if meal_info is None or 'error' in meal_info:
             flash("Invalid meal information received.")
             return redirect(url_for('recipes'))
     except Exception as e:

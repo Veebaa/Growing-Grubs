@@ -29,6 +29,12 @@ body {
     gap: 16px;
 }
 
+.search_recipes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+}
+
 .recipe-card {
     background-color: #fff;
     border: 1px solid #e8e8e8;
