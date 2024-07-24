@@ -238,7 +238,6 @@ def edit_profile():
     return redirect(url_for('profile'))
 
 
-
 @app.route('/recipes')
 def recipes():
     return render_template('recipes.html')
