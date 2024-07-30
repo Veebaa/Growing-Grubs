@@ -2,68 +2,96 @@
 <html lang="en">
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta charset="UTF-8">
-  <title>Growing Grubs</title>
+    <title>Profile</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/main.css">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/main-content.css">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/right-sidebar.css">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/footer.css">
     <link rel="stylesheet" type="text/css" href="/static/css/homepage/navbar.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/recipes.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
-<body class="homepage">
+<body class="recipes_page">
+
     <header class="header">
         <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
     </header>
 
-   <nav class="navbar">
+    <nav class="navbar">
         <a href="{{ url_for('index') }}">Home</a>
-         <div class="navbar_dropdown">
+        <div class="navbar_dropdown">
             <button class="dropdown">Recipes
-            <i class="fa fa-caret-down"></i>
+                <i class="fa fa-caret-down"></i>
             </button>
             <div class="dropdown_content">
-               <a href="{{ url_for('recipes') }}">All Recipes</a>
-               <a href="{{ url_for('recipes1') }}">6 - 9 Months</a>
+                <a href="{{ url_for('recipes') }}">All Recipes</a>
+                <a href="{{ url_for('recipes1') }}">6 - 9 Months</a>
                 <a href="{{ url_for('recipes2') }}">9 - 12 Months</a>
-                <a href="{{ url_for('recipes2') }}">1 - 4 Years</a>
+                <a href="{{ url_for('recipes3') }}">1 - 4 Years</a>
             </div>
         </div>
         <div class="navbar_dropdown">
             <button class="dropdown">Feeding Tips
-            <i class="fa fa-caret-down"></i>
+                <i class="fa fa-caret-down"></i>
             </button>
             <div class="dropdown_content">
-               <a href="{{ url_for('signs') }}">Signs that your baby is ready</a>
-               <a href="{{ url_for('feeding_stages') }}">Feeding Stages</a>
+                <a href="{{ url_for('signs') }}">Signs that your baby is ready</a>
+                <a href="{{ url_for('feeding_stages') }}">Feeding Stages</a>
             </div>
         </div>
         <a href="{{ url_for('healthy_eating') }}">Healthy Eating</a>
         <a href="{{ url_for('login') }}">Login</a>
         <a href="{{ url_for('register_user') }}">Register</a>
         <div class="search-container">
-            <form action="/action_page.php">
-              <input type="text" placeholder="Search recipes.." name="search">
-              <button type="submit"><i class="fa fa-search"></i></button>
+            <form action="{{ url_for('search') }}" method="post">
+                <input type="text" placeholder="Search recipes.." name="search" required>
+                <button type="submit"><i class="fa fa-search"></i></button>
             </form>
         </div>
     </nav>
 
-    <div class="container">
-        <main class="container__main-content">
-            <h1>1 - 4 Years</h1>
-            <p>List of recipes.</p>
-            <br>
-            <div class="container__main-content__top recipes">
-                <h1>Today's Top Recipe</h1>
-                <div class="main-content__top recipes">
-                <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image">
-                <h1>Butternut squash and Chickpea Curry</h1>
+    <!-- The flexible grid (content) -->
+    <div class="recipes_container">
+        <main class="recipes_container__main-content">
+
+            {% if meals %}
+                <div class="search-results">
+                    <h2>Search Results for "{{ search_query }}"</h2>
+                    <div class="search_recipes">
+                        {% for meal in meals %}
+                            <a class="recipe-card" href="{{ url_for('meal_detail', meal_id=meal.id) }}">
+                                <img src="{{ meal.image }}" alt="{{ meal.title }}">
+                                <h2>{{ meal.title }}</h2>
+                                <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
+                            </a>
+                        {% endfor %}
+                    </div>
                 </div>
+            {% else %}
+                <p>No recipes found.</p>
+            {% endif %}
+
+            <h2>Popular Recipes</h2>
+            <p>Welcome to our Recipes Page, where you'll find a delightful selection of popular recipes
+                carefully curated for your culinary inspiration. Explore and indulge in a variety of dishes, each
+                designed to tantalize your taste buds.
+                If you're looking for something specific, simply use the search bar above to find recipes by ingredient,
+                making it easier than ever to whip up your next favorite meal!</p>
+
+            <div class="recipes">
+                {% for meal in meals %}
+                    <a class="recipe-card" href="{{ url_for('meal_detail', meal_id=meal.id) }}">
+                        <img src="{{ meal.image }}" alt="{{ meal.title }}">
+                        <h2>{{ meal.title }}</h2>
+                        <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
+                    </a>
+                {% endfor %}
             </div>
+
         </main>
         <aside class="container__right-sidebar">
             <h1>Today's Top Story</h1>
@@ -71,10 +99,71 @@
         </aside>
     </div>
 
+    <!-- Footer -->
     <footer class="footer">
-       <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
+        <p class="footer_text">&#169; Copyright Growing Grubs - Created 2024</p>
     </footer>
 
-</body>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const apiKey = 'c676336b8de04c04b131f2f91eb14b33';
+            const endpoint = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${apiKey}&number=10&diet=vegetarian&maxReadyTime=30&sort=random&cuisine=Italian,American,Indian,Asian&intolerances=gluten,peanut`;
 
+            fetch(endpoint)
+                .then(response => {
+                    if (!response.ok) {
+                        console.error('Network response was not ok ', response.statusText);
+                        throw new Error('Network response was not ok ' + response.statusText);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Recipes fetched successfully:", data);
+                    const recipes = data.results;
+                    const recipesContainer = document.querySelector('.recipes');
+
+                    if (!recipesContainer) {
+                        console.error('Recipes container not found.');
+                        return;
+                    }
+
+                    if (!recipes || recipes.length === 0) {
+                        recipesContainer.innerHTML = '<p>No recipes found.</p>';
+                        return;
+                    }
+
+                    recipesContainer.innerHTML = '';
+
+                    recipes.forEach(meal => {
+                        const recipeCard = document.createElement('a');
+                        recipeCard.classList.add('recipe-card');
+                        recipeCard.href = `https://spoonacular.com/recipes/${meal.id}`;
+
+                        const recipeImg = document.createElement('img');
+                        recipeImg.src = meal.image || 'default_image_url.jpg';
+                        recipeImg.alt = meal.title;
+
+                        const title = document.createElement('h2');
+                        title.textContent = meal.title;
+
+                        const description = document.createElement('p');
+                        description.textContent = meal.dishTypes ? meal.dishTypes.join(", ") : "No type available";
+
+                        recipeCard.appendChild(recipeImg);
+                        recipeCard.appendChild(title);
+                        recipeCard.appendChild(description);
+                        recipesContainer.appendChild(recipeCard);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error fetching recipes:', error);
+                    const recipesContainer = document.querySelector('.recipes');
+                    if (recipesContainer) {
+                        recipesContainer.innerHTML = '<p>Failed to load recipes. Please try again later.</p>';
+                    }
+                });
+        });
+    </script>
+
+</body>
 </html>

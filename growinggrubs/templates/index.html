@@ -29,13 +29,13 @@
             // Update the HTML with the fetched recipe
             const recipe = data.recipes[0];
             if (!recipe) {
-                console.error("No recipe found in response"); // Add this line
+                console.error("No recipe found in response");
                 return; // Early return if no recipe is found
             }
 
             document.getElementById('toprecipe_image').src = recipe.image;
             document.getElementById('toprecipe_title').innerText = recipe.title;
-            document.getElementById('toprecipe_link').href = recipe.sourceUrl; // link to the recipe source
+            document.getElementById('toprecipe_link').href = `/meal/${recipe.id}`;
         }
 
         function showPopup(message) {
@@ -120,13 +120,13 @@
                 <div class="main-content__top recipes">
                     <img id="toprecipe_image" class="toprecipe_image" src="" alt="recipe image">
                     <h1 id="toprecipe_title"></h1>
-                    <a id="toprecipe_link" href="" target="_blank">View Recipe</a> <!-- Link to the recipe source -->
+                    <a id="toprecipe_link" href="" target="_blank">View Recipe</a> <!-- Link to the recipe -->
                 </div>
             </div>
         </main>
-        <aside class="container__right-sidebar">
-            <h1>Today's Top Story</h1>
-            <p>Weaning your baby - When is your baby ready?</p>
+        <aside class="container__right-sidebar", id="sidebar">
+            <h1>Today's Top Stories</h1>
+            <script src="/rightsidebar.js"></script>
         </aside>
     </div>
 

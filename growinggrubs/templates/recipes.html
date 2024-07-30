@@ -82,7 +82,15 @@
                 If you're looking for something specific, simply use the search bar above to find recipes by ingredient,
                 making it easier than ever to whip up your next favorite meal!</p>
 
-            <div class="recipes"></div>
+            <div class="recipes">
+                {% for meal in meals %}
+                    <a class="recipe-card" href="{{ url_for('meal_detail', meal_id=meal.id) }}">
+                        <img src="{{ meal.image }}" alt="{{ meal.title }}">
+                        <h2>{{ meal.title }}</h2>
+                        <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
+                    </a>
+                {% endfor %}
+            </div>
 
         </main>
         <aside class="container__right-sidebar">

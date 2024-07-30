@@ -8,16 +8,36 @@
 <body>
     <h1>{{ meal.title }}</h1>
     <img src="{{ meal.image }}" alt="{{ meal.title }}">
+
     <h3>Ingredients</h3>
     <ul>
         {% for ingredient in meal.extendedIngredients %}
             <li>{{ ingredient.original }}</li>
         {% endfor %}
     </ul>
+
     <h3>Instructions</h3>
     <p>{{ meal.instructions }}</p>
+
+    <h3>Dietary Information</h3>
+    <ul>
+        {% if meal.dietaryRestrictions %}
+            {{ meal.dietaryRestrictions | join(', ') }}
+            <li>Vegetarian: {{ meal.vegetarian | yesno("Yes","No") }}</li>
+            <li>Vegan: {{ meal.vegan | yesno("Yes","No")}}</li>
+            <li>Gluten Free: {{ meal.glutenFree | yesno("Yes","No") }}</li>
+            <li>Dairy Free: {{ meal.dairyFree | yesno("Yes","No") }}</li>
+            <li>Low FODMAP: {{ meal.lowFodmap | yesno("Yes","No") }}</li>
+            <li>GAPS: {{ meal.gaps }}</li>
+        {% else %}
+            <li>No dietary restrictions listed.</li>
+        {% endif %}
+    </ul>
+
+<!--Nutrition Widget-->
+    <h3>Nutritional Information</h3>
+    <iframe src="{{ url_for('nutrition_widget', meal_id=meal.id) }}" width="100%" height="800px" frameborder="0"></iframe>
 
     <a href="{{ url_for('recipes') }}">Back to Recipes</a>
 </body>
 </html>
-

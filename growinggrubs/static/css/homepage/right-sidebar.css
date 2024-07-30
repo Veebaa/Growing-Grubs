@@ -1,6 +1,25 @@
+
+
 .container__right-sidebar {
-    flex: 30%;
-    background-color: #f1f1f1;
-    padding: 20px;
+    width: 300px;
+    float: right;
+    padding: 15px;
+    background-color: #f4f4f4;
+    border-left: 1px solid #ddd;
+}
+.container__right-sidebar h1 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+.container__right-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+.container__right-sidebar li {
+    margin-bottom: 10px;
+}
+.container__right-sidebar a {
+    text-decoration: none;
+    color: #333;
 }
 

@@ -1,7 +1,7 @@
 import os
-
+import xml.etree.ElementTree as ET
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 import requests
-from flask import Flask, render_template, request, redirect, url_for, flash
 import logging
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required, UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -10,9 +10,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, SelectField
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email, Regexp
-from passlib.hash import pbkdf2_sha256
 from spoonacular import API
 from flask_migrate import Migrate
+
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -20,8 +20,12 @@ app = Flask(__name__)
 
 # Logging configuration
 logging.basicConfig(level=logging.INFO)
+app.logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.INFO)
+app.logger.addHandler(console_handler)
 
-# adding configuration for using a sqlite database
+# adding configuration for using sqlite database
 app.config['SQLALCHEMY_DATABASE_URI'] = \
     'sqlite:///' + os.path.join(basedir, 'database.db')
 app.config['SECRET_KEY'] = 'secret_key'
@@ -38,7 +42,6 @@ login_manager.init_app(app)
 # Recipe API
 api_key = 'c676336b8de04c04b131f2f91eb14b33'
 spoonacular_api = API(api_key)
-
 
 # forms_fields.py
 
@@ -140,9 +143,42 @@ def load_user(user_id):
     return Users.query.get(int(user_id))
 
 
+@login_manager.user_loader
+def load_user(user_id):
+    return Users.query.get(int(user_id))
+
+
+@app.route("/topics")
+def get_topics():
+    file_path = os.path.join(basedir, 'static', 'healthtopics.xml')
+
+    try:
+        tree = ET.parse(file_path)
+        root = tree.getroot()
+
+        articles = []
+
+        if root.find('.//count') is not None and int(root.find('.//count').text) > 0:
+            for item in root.findall('.//result'):
+                title = item.find('title').text if item.find('title') is not None else 'No Title'
+                description = item.find('description').text if item.find('description') is not None else 'No Description'
+                url = item.find('url').text if item.find('url') is not None else '#'
+                articles.append({'title': title, 'description': description, 'url': url})
+        else:
+            app.logger.info("No articles found in the local file.")
+        return articles
+    except ET.ParseError:
+        app.logger.error("Error parsing the local XML file.")
+        return []
+    except Exception as e:
+        app.logger.error(f"Error reading the local file: {e}")
+        return []
+
+
 @app.route("/")
 def index():
-    return render_template("index.html")
+    articles = get_topics()
+    return render_template("index.html", articles=articles)
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -270,11 +306,6 @@ def signs():
     return render_template('signs.html')
 
 
-@app.route('/healthy_eating')
-def healthy_eating():
-    return render_template('healthy_eating.html')
-
-
 @app.route('/search', methods=['POST'])
 def search():
     search_term = request.form.get('search')
@@ -285,7 +316,7 @@ def search():
         return redirect(url_for('recipes'))
 
     try:
-        # Correctly querying the Spoonacular API for complex search
+        # Querying the Spoonacular API for complex search
         endpoint = f'https://api.spoonacular.com/recipes/complexSearch?apiKey={api_key}&query={search_term}'
         response = requests.get(endpoint)
         results = response.json()
@@ -312,17 +343,90 @@ def search():
 @app.route('/meal/<int:meal_id>')
 def meal_detail(meal_id):
     app.logger.info(f"Fetching details for meal ID: {meal_id}")
+
     try:
-        meal_info = spoonacular_api.get_recipe_information(meal_id)
-        if meal_info is None or 'error' in meal_info:
-            flash("Invalid meal information received.")
-            return redirect(url_for('recipes'))
+        response = spoonacular_api.get_recipe_information(meal_id)
+        meal_info = response.json()  # Converts the response to JSON
+        app.logger.info(f"Meal info: {meal_info}")  # Logs the meal structure
+
+        if not meal_info or 'error' in meal_info:
+            app.logger.error("Invalid meal info received or Meal ID not found.")
+            return render_template('404.html'), 404  # Serve 404 page
+
+    except requests.HTTPError as http_err:
+        app.logger.error(f"HTTP error occurred: {http_err}")
+        return render_template('404.html'), 404  # Serve 404 page
+
     except Exception as e:
-        app.logger.error(f"Error fetching meal details: {e}")
-        flash(f"Error fetching meal details: {e}")
-        return redirect(url_for('recipes'))
+        app.logger.error(f"Unexpected error occurred: {e}")
+        return render_template('404.html'), 404  # Serve 404 page
+
+    # Successful retrieval
+    app.logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
 
     return render_template('meal_detail.html', meal=meal_info)
+
+
+@app.route('/nutrition_widget/<int:meal_id>')
+def nutrition_widget(meal_id):
+    app.logger.info(f"Generating nutrition widget for meal ID: {meal_id}")
+
+    try:
+        # Fetching meal information
+        response = spoonacular_api.get_recipe_information(meal_id)
+        meal_info = response.json()
+
+        if not meal_info or 'error' in meal_info:
+            app.logger.error("Invalid meal info received or Meal ID not found.")
+            return "Error: Meal information not found.", 404
+
+        # Preparing ingredient list for the widget
+        ingredients = "\n".join([ingredient['original'] for ingredient in meal_info['extendedIngredients']])
+        servings = meal_info.get('servings', 1)
+        api_key = 'c676336b8de04c04b131f2f91eb14b33'
+
+        # Preparing POST data for the widget
+        post_data = {
+            'defaultCss': True,
+            'ingredientList': ingredients,
+            'servings': servings
+        }
+
+        # Calling Spoonacular API to get the widget HTML
+        widget_response = requests.post(
+            f'https://api.spoonacular.com/recipes/visualizeNutrition?apiKey={api_key}',
+            data=post_data
+        )
+        widget_html = widget_response.text
+
+        return widget_html
+
+    except requests.HTTPError as http_err:
+        app.logger.error(f"HTTP error occurred: {http_err}")
+        return "Error: Unable to generate widget.", 500
+    except Exception as e:
+        app.logger.error(f"Unexpected error occurred: {e}")
+        return "Error: Unable to generate widget.", 500
+
+
+@app.route('/healthy_eating')
+def healthy_eating():
+    baby_tips = get_health_tips('baby')
+    toddler_tips = get_health_tips('toddler')
+    family_tips = get_health_tips('family')
+
+    return render_template('healthy_eating.html', baby_tips=baby_tips, toddler_tips=toddler_tips, family_tips=family_tips)
+
+
+def get_health_tips(category):
+    api_key: str = 'c676336b8de04c04b131f2f91eb14b33'
+    endpoint = f'https://api.spoonacular.com/food/search?apiKey={api_key}&query={category}&number=10'
+    response = requests.get(endpoint)
+    if response.status_code == 200:
+        data = response.json()
+        return data['searchResults']
+    else:
+        return []
 
 
 @app.errorhandler(404)
@@ -331,4 +435,4 @@ def not_found_error(error):
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=5000)

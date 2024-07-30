@@ -1,80 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
-  <title>Growing Grubs</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main-content.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/right-sidebar.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/footer.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/navbar.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <title>Growing Grubs - Healthy Eating</title>
+  <link rel="stylesheet" type="text/css" href="/static/css/homepage/main.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/homepage/main-content.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/homepage/right-sidebar.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/homepage/footer.css">
+  <link rel="stylesheet" type="text/css" href="/static/css/homepage/navbar.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
 <body class="homepage">
-    <header class="header">
-        <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
-    </header>
+  <header class="header">
+    <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
+  </header>
 
-   <nav class="navbar">
-        <a href="{{ url_for('index') }}">Home</a>
-         <div class="navbar_dropdown">
-            <button class="dropdown">Recipes
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('recipes') }}">All Recipes</a>
-               <a href="{{ url_for('recipes1') }}">6 - 9 Months</a>
-                <a href="{{ url_for('recipes2') }}">9 - 12 Months</a>
-                <a href="{{ url_for('recipes2') }}">1 - 4 Years</a>
-            </div>
-        </div>
-        <div class="navbar_dropdown">
-            <button class="dropdown">Feeding Tips
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('signs') }}">Signs that your baby is ready</a>
-               <a href="{{ url_for('feeding_stages') }}">Feeding Stages</a>
-            </div>
-        </div>
-        <a href="{{ url_for('healthy_eating') }}">Healthy Eating</a>
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register_user') }}">Register</a>
-        <div class="search-container">
-            <form action="/action_page.php">
-              <input type="text" placeholder="Search recipes.." name="search">
-              <button type="submit"><i class="fa fa-search"></i></button>
-            </form>
-        </div>
-    </nav>
-
-    <div class="container">
-        <main class="container__main-content">
-            <h1>Healthy Eating</h1>
-            <p>Tips for healthy eating</p>
-            <br>
-            <div class="container__main-content__top recipes">
-                <h1>Today's Top Recipe</h1>
-                <div class="main-content__top recipes">
-                <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image">
-                <h1>Butternut squash and Chickpea Curry</h1>
-                </div>
-            </div>
-        </main>
-        <aside class="container__right-sidebar">
-            <h1>Today's Top Story</h1>
-            <p>Weaning your baby - When is your baby ready?</p>
-        </aside>
+  <nav class="navbar">
+    <a href="{{ url_for('index') }}">Home</a>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Recipes
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('recipes') }}">All Recipes</a>
+        <a href="{{ url_for('recipes1') }}">6 - 9 Months</a>
+        <a href="{{ url_for('recipes2') }}">9 - 12 Months</a>
+        <a href="{{ url_for('recipes2') }}">1 - 4 Years</a>
+      </div>
     </div>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Feeding Tips
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('signs') }}">Signs that your baby is ready</a>
+        <a href="{{ url_for('feeding_stages') }}">Feeding Stages</a>
+      </div>
+    </div>
+    <a href="{{ url_for('healthy_eating') }}">Healthy Eating</a>
+    <a href="{{ url_for('login') }}">Login</a>
+    <a href="{{ url_for('register_user') }}">Register</a>
+    <div class="search-container">
+      <form action="{{ url_for('search') }}" method="post">
+        <input type="text" placeholder="Search recipes.." name="search" required>
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+  </nav>
 
-    <footer class="footer">
-       <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
-    </footer>
+  <div class="container">
+    <main class="container__main-content">
+      <h1>Healthy Eating Tips</h1>
+      <br>
+      <div class="healthy-eating-section">
+        <h2>Tips for Babies</h2>
+          <ul>
+              {% for tip in baby_tips %}
+                  <li>{{ tip.title }}: {{ tip.description }}</li>
+              {% endfor %}
+          </ul>
+
+          <h2>Tips for Toddlers</h2>
+          <ul>
+              {% for tip in toddler_tips %}
+                  <li>{{ tip.title }}: {{ tip.description }}</li>
+              {% endfor %}
+          </ul>
+
+          <h2>Tips for the Whole Family</h2>
+          <ul>
+              {% for tip in family_tips %}
+                  <li>{{ tip.title }}: {{ tip.description }}</li>
+              {% endfor %}
+          </ul>
+      </div>
+    </main>
+
+    <aside class="container__right-sidebar">
+      <h1>Today's Top Story</h1>
+      <p>Weaning your baby - When is your baby ready?</p>
+    </aside>
+  </div>
+
+  <footer class="footer">
+    <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
+  </footer>
+
+  <div id="overlay" class="overlay"></div>
+  <div id="popup" class="popup"></div>
+
+  <script>
+    async function fetchPopularRecipe() {
+      const apiKey = 'c676336b8de04c04b131f2f91eb14b33';
+      const response = await fetch(`https://api.spoonacular.com/recipes/random?number=1&apiKey=${apiKey}`);
+
+      if (!response.ok) {
+        console.error("Failed to fetch popular recipe:", response.statusText);
+        return; // Early return if the fetch fails
+      }
+
+      const data = await response.json();
+      console.log("Popular recipe data fetched:", data);
+
+      // Update the HTML with the fetched recipe
+      const recipe = data.recipes[0];
+      if (!recipe) {
+        console.error("No recipe found in response");
+        return; // Early return if no recipe is found
+      }
+
+      document.getElementById('toprecipe_image').src = recipe.image;
+      document.getElementById('toprecipe_title').innerText = recipe.title;
+      document.getElementById('toprecipe_link').href = `/meal/${recipe.id}`;
+    }
+
+    function showPopup(message) {
+      const popup = document.getElementById('popup');
+      const overlay = document.getElementById('overlay');
+      popup.innerText = message;
+      popup.classList.add('show');
+      overlay.classList.add('show');
+
+      setTimeout(() => {
+        popup.classList.remove('show');
+        overlay.classList.remove('show');
+      }, 3000); // Auto-hide after 3 seconds
+    }
+
+    // Call the function when the page loads
+    window.onload = function() {
+      fetchPopularRecipe();
+      const messages = {{ get_flashed_messages()|tojson }};
+      if (messages.length > 0) {
+        showPopup(messages[0]); // Show the first message
+      }
+    };
+  </script>
 
 </body>
-
 </html>
