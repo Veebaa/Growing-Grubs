@@ -1,0 +1,96 @@
+.recipe-hero {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.recipe-hero img {
+    width: 100%;
+    max-height: 500px;
+    object-fit: cover;
+}
+
+.recipe-details {
+    margin: 20px;
+}
+
+.recipe-meta {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.recipe-meta div {
+    margin: 10px;
+}
+
+.favourite-button {
+    background-color: transparent;
+    border: none;
+    color: red;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.favourite-button i {
+    margin-right: 8px;
+}
+
+.details-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.ingredients, .instructions {
+    width: 45%;
+}
+
+.ingredients ul {
+    list-style: none; /* Removes default bullets */
+    padding: 0;
+    margin: 0;
+}
+
+.ingredients li {
+    margin: 5px 0;
+    position: relative;
+    padding-left: 2em; /* Adjust for bullet position */
+}
+
+.ingredients li::before {
+    content: '\2022'; /* Unicode character for bullet */
+    color: black;
+    font-size: 1.2em;
+    position: absolute;
+    left: 0; /* Adjust bullet position */
+    top: 0;
+}
+
+.instructions ol {
+    padding-left: 3em; /* Adjust space for custom numbers */
+    margin: 0;
+    list-style: none; /* Remove default numbers */
+    counter-reset: step; /* Initialize counter */
+}
+
+.instruction-step {
+    position: relative;
+    counter-increment: step; /* Increment counter */
+    padding-left: 2.5em; /* Adjust for number position */
+}
+
+.instruction-step::before {
+    content: counter(step); /* Display counter */
+    background-color: green;
+    color: white;
+    border-radius: 50%;
+    width: 1.5em;
+    height: 1.5em;
+    display: inline-block;
+    text-align: center;
+    line-height: 1.5em;
+    position: absolute;
+    left: 0; /* Position circle */
+    top: 0;
+}

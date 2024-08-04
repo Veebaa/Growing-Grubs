@@ -4,47 +4,125 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ meal.title }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main-content.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/right-sidebar.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/footer.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/homepage/navbar.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/meal_detail.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body>
-    <h1>{{ meal.title }}</h1>
-    <img src="{{ meal.image }}" alt="{{ meal.title }}">
+<body class="homepage">
+    <header class="header">
+        <img class="header-image" src="/static/images/growinggrubs_header_3.jpeg" alt="header-image">
+    </header>
 
-    <!-- Favourite Button -->
-    <form action="{{ url_for('favourite_recipe', recipe_id=meal.id) }}" method="POST">
-        <input type="hidden" name="recipe_title" value="{{ meal.title }}">
-        <input type="hidden" name="recipe_image" value="{{ meal.image }}">
-        <button type="submit">Add to Favourites</button>
-    </form>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}">Home</a>
+        <div class="navbar_dropdown">
+            <button class="dropdown">Recipes
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown_content">
+                <a href="{{ url_for('recipes') }}">All Recipes</a>
+                <a href="{{ url_for('recipes1') }}">6 - 9 Months</a>
+                <a href="{{ url_for('recipes2') }}">9 - 12 Months</a>
+                <a href="{{ url_for('recipes2') }}">1 - 4 Years</a>
+            </div>
+        </div>
+        <div class="navbar_dropdown">
+            <button class="dropdown">Feeding Tips
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown_content">
+                <a href="{{ url_for('signs') }}">Signs that your baby is ready</a>
+                <a href="{{ url_for('feeding_stages') }}">Feeding Stages</a>
+            </div>
+        </div>
+        <a href="{{ url_for('healthy_eating') }}">Healthy Eating</a>
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('register_user') }}">Register</a>
+        <div class="search-container">
+            <form action="{{ url_for('search') }}" method="post">
+                <input type="text" placeholder="Search recipes.." name="search" required>
+                <button type="submit"><i class="fa fa-search"></i></button>
+            </form>
+        </div>
+    </nav>
 
-    <h3>Ingredients</h3>
-    <ul>
-        {% for ingredient in meal.extendedIngredients %}
-            <li>{{ ingredient.original }}</li>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <main class="container__main-content">
+            <div class="recipe-hero">
+                <img src="{{ meal.image }}" alt="{{ meal.title }}">
+                <h1>{{ meal.title }}</h1>
+            </div>
 
-    <h3>Instructions</h3>
-    <p>{{ meal.instructions }}</p>
+            <!-- Favourite Button -->
+            <form action="{{ url_for('favourite_recipe', recipe_id=meal.id) }}" method="POST">
+                <input type="hidden" name="recipe_title" value="{{ meal.title }}">
+                <input type="hidden" name="recipe_image" value="{{ meal.image }}">
+                <button type="submit" class ='favourite-button'>
+                    <i class="fa fa-heart"></i>
+                    Add to Favourites
+                </button>
+            </form>
 
-    <h3>Dietary Information</h3>
-    <ul>
-        {% if meal.dietaryRestrictions %}
-            {{ meal.dietaryRestrictions | join(', ') }}
-            <li>Vegetarian: {{ meal.vegetarian | yesno("Yes","No") }}</li>
-            <li>Vegan: {{ meal.vegan | yesno("Yes","No")}}</li>
-            <li>Gluten Free: {{ meal.glutenFree | yesno("Yes","No") }}</li>
-            <li>Dairy Free: {{ meal.dairyFree | yesno("Yes","No") }}</li>
-            <li>Low FODMAP: {{ meal.lowFodmap | yesno("Yes","No") }}</li>
-            <li>GAPS: {{ meal.gaps }}</li>
-        {% else %}
-            <li>No dietary restrictions listed.</li>
-        {% endif %}
-    </ul>
+            <section class="recipe-details">
+                <div class="recipe-meta">
+                    <div>
+                        <strong>Prep Time:</strong> {{ meal.preparationMinutes }} minutes
+                    </div>
+                    <div>
+                        <strong>Cook Time:</strong> {{ meal.cookingMinutes }} minutes
+                    </div>
+                    <div>
+                        <strong>Total Time:</strong> {{ meal.readyInMinutes }} minutes
+                    </div>
+                </div>
 
-<!--Nutrition Widget-->
-    <h3>Nutritional Information</h3>
-    <iframe src="{{ url_for('nutrition_widget', meal_id=meal.id) }}" width="100%" height="800px" frameborder="0"></iframe>
+                <div class="details-container">
+                    <div class="ingredients">
+                        <h3>Ingredients</h3>
+                        <ul>
+                            {% for ingredient in meal.extendedIngredients %}
+                                <li>&#8226; {{ ingredient.original }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
 
-    <a href="{{ url_for('recipes') }}">Back to Recipes</a>
+                    <div class="instructions">
+                        <h3>Instructions</h3>
+                        <ol>
+                            {% for step in meal.analyzedInstructions[0].steps %}
+                                <li class="instruction-step">{{ step.step }}</li>
+                            {% endfor %}
+                        </ol>
+                    </div>
+                </div>
+
+                <h3>Dietary Information</h3>
+                <ul>
+                    <li>Vegetarian: {{ meal.vegetarian | yesno("Yes", "No") }}</li>
+                    <li>Vegan: {{ meal.vegan | yesno("Yes", "No") }}</li>
+                    <li>Gluten Free: {{ meal.glutenFree | yesno("Yes", "No") }}</li>
+                    <li>Dairy Free: {{ meal.dairyFree | yesno("Yes", "No") }}</li>
+                    <li>Low FODMAP: {{ meal.lowFodmap | yesno("Yes", "No") }}</li>
+                    <li>GAPS: {{ meal.gaps }}</li>
+                </ul>
+
+                <h3>Nutritional Information</h3>
+                <iframe src="{{ url_for('nutrition_widget', meal_id=meal.id) }}" width="100%" height="800px" frameborder="0"></iframe>
+            </section>
+        </main>
+        <aside class="container__right-sidebar" id="sidebar">
+            <h1>Today's Top Stories</h1>
+            <!-- Populate sidebar content with JavaScript or server-side rendering -->
+        </aside>
+    </div>
+
+    <footer class="footer">
+        <p class="footer_text">&#169; Copyright Growing Grubs - Created 2024</p>
+    </footer>
 </body>
 </html>

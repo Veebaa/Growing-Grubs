@@ -2,7 +2,7 @@ openai
 flask~=3.0.3
 flask-login
 flask-wtf
-spoonacular
+spoonacular~=3.0
 flask[async]
 flask_sqlalchemy
 sqlalchemy~=2.0.30
@@ -14,3 +14,5 @@ passlib~=1.7.4
 mdurl~=0.1.2
 Werkzeug~=3.0.3
 requests~=2.32.3
+python-dotenv~=1.0.1
+alembic~=1.13.2

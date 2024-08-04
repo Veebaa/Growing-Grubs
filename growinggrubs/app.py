@@ -162,6 +162,13 @@ class Favourites(db.Model):
 # app.py
 
 
+def yesno(value, yes='Yes', no='No'):
+    return yes if value else no
+
+
+app.jinja_env.filters['yesno'] = yesno
+
+
 @login_manager.user_loader
 def load_user(user_id):
     return Users.query.get(int(user_id))
@@ -368,7 +375,7 @@ def meal_detail(meal_id):
     app.logger.info(f"Fetching details for meal ID: {meal_id}")
 
     try:
-        response = spoonacular_api.get_recipe_information(meal_id)
+        response = requests.get(f'https://api.spoonacular.com/recipes/{meal_id}/information?apiKey=c676336b8de04c04b131f2f91eb14b33')
         meal_info = response.json()  # Converts the response to JSON
         app.logger.info(f"Meal info: {meal_info}")  # Logs the meal structure
 
@@ -384,10 +391,19 @@ def meal_detail(meal_id):
         app.logger.error(f"Unexpected error occurred: {e}")
         return render_template('404.html'), 404  # Serve 404 page
 
+    meal_info['id'] = meal_id
+    meal_info['image'] = meal_info.get('image', '/static/images/default-recipe.jpg')
+    meal_info['instructions'] = meal_info.get('instructions', 'No instructions provided.')
+    meal_info['extendedIngredients'] = meal_info.get('extendedIngredients', [])
+    meal_info['preparationMinutes'] = meal_info.get('preparationMinutes', 'N/A')
+    meal_info['cookingMinutes'] = meal_info.get('cookingMinutes', 'N/A')
+    meal_info['readyInMinutes'] = meal_info.get('readyInMinutes', 'N/A')
+
     # Successful retrieval
     app.logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
 
     return render_template('meal_detail.html', meal=meal_info)
+
 
 
 # app.py
