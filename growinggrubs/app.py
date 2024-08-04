@@ -12,9 +12,11 @@ from wtforms import StringField, PasswordField, SubmitField, BooleanField, Selec
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email, Regexp
 from spoonacular import API
 from flask_migrate import Migrate
-
+from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -42,6 +44,11 @@ login_manager.init_app(app)
 # Recipe API
 api_key = 'c676336b8de04c04b131f2f91eb14b33'
 spoonacular_api = API(api_key)
+
+#  Health API
+CDC_API_KEY = 'xbq22hetm32yj5rl2ogu4ewj'
+CDC_API_SECRET = '5gmwqwzx1ke94m2i1wlx3e8hzvs4nnerfgekudxhao4g1x73lo'
+
 
 # forms_fields.py
 
@@ -115,6 +122,12 @@ class LoginForm(FlaskForm):
 
 # models.py
 
+# Association table for the many-to-many relationship
+user_favourites = db.Table('user_favourites',
+                           db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+                           db.Column('favourite_id', db.Integer, db.ForeignKey('favourites.id'), primary_key=True)
+                           )
+
 
 class Users(UserMixin, db.Model):
     """ Table for users """
@@ -134,6 +147,17 @@ class Users(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
+    # Relationship to Favourites
+    favourites = db.relationship('Favourites', secondary=user_favourites, backref=db.backref('users', lazy='dynamic'))
+
+
+class Favourites(db.Model):
+    __tablename__ = 'favourites'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    recipe_id = db.Column(db.Integer, nullable=False)
+    recipe_title = db.Column(db.String(200), nullable=False)
+    recipe_image = db.Column(db.String(200), nullable=False)
 
 # app.py
 
@@ -150,29 +174,26 @@ def load_user(user_id):
 
 @app.route("/topics")
 def get_topics():
-    file_path = os.path.join(basedir, 'static', 'healthtopics.xml')
-
+    endpoint = ' https://data.cdc.gov/resource/wxz7-ekz9.json'
     try:
-        tree = ET.parse(file_path)
-        root = tree.getroot()
+        response = requests.get(endpoint)
+        response.raise_for_status()
+        data = response.json()
 
         articles = []
+        for item in data:
+            title = item.get('title', 'No Title')
+            description = item.get('description', 'No Description')
+            url = item.get('url', '#')
+            articles.append({'title': title, 'description': description, 'url': url})
 
-        if root.find('.//count') is not None and int(root.find('.//count').text) > 0:
-            for item in root.findall('.//result'):
-                title = item.find('title').text if item.find('title') is not None else 'No Title'
-                description = item.find('description').text if item.find('description') is not None else 'No Description'
-                url = item.find('url').text if item.find('url') is not None else '#'
-                articles.append({'title': title, 'description': description, 'url': url})
-        else:
-            app.logger.info("No articles found in the local file.")
-        return articles
-    except ET.ParseError:
-        app.logger.error("Error parsing the local XML file.")
-        return []
-    except Exception as e:
-        app.logger.error(f"Error reading the local file: {e}")
-        return []
+        if not articles:
+            app.logger.info("No articles found from the API.")
+        return jsonify(articles)
+
+    except requests.RequestException as e:
+        app.logger.error(f"Error fetching data from CDC API: {e}")
+        return jsonify([]), 500
 
 
 @app.route("/")
@@ -221,7 +242,7 @@ def login():
         login_user(user, remember=form.remember.data)
         app.logger.info(f'User {user.username} logged in successfully.')
 
-        next_page = request.args.get('next')   # Get the 'next' parameter
+        next_page = request.args.get('next')  # Get the 'next' parameter
         if next_page:  # User tried to access a protected route
             return redirect(next_page)
         else:
@@ -247,8 +268,10 @@ def profile():
         'username': current_user.username,
         'first_name': current_user.first_name,
         'last_name': current_user.last_name,
-        'email': current_user.email
+        'email': current_user.email,
+        'favourites': current_user.favourites
     }
+    app.logger.info(f"User favourites: {user_info['favourites']}")
     return render_template('profile.html', user=user_info)
 
 
@@ -367,6 +390,39 @@ def meal_detail(meal_id):
     return render_template('meal_detail.html', meal=meal_info)
 
 
+# app.py
+
+@app.route('/favourite/<int:recipe_id>', methods=['POST'])
+@login_required
+def favourite_recipe(recipe_id):
+    user_id = current_user.id
+
+    # Check if the recipe is already in the user's favourites
+    existing_favourite = db.session.query(Favourites).join(user_favourites).filter(
+        user_favourites.c.user_id == user_id,
+        user_favourites.c.favourite_id == Favourites.id,
+        Favourites.recipe_id == recipe_id
+    ).first()
+
+    if existing_favourite is None:
+        # If not, add the new favourite
+        recipe_title = request.form['recipe_title']
+        recipe_image = request.form['recipe_image']
+        new_favourite = Favourites(recipe_id=recipe_id, recipe_title=recipe_title, recipe_image=recipe_image)
+        db.session.add(new_favourite)
+        db.session.commit()
+
+        # Associate the favourite with the user
+        current_user.favourites.append(new_favourite)
+        db.session.commit()
+
+        flash('Recipe added to favourites!', 'success')
+    else:
+        flash('Recipe already in favourites.', 'info')
+
+    return redirect(url_for('profile'))
+
+
 @app.route('/nutrition_widget/<int:meal_id>')
 def nutrition_widget(meal_id):
     app.logger.info(f"Generating nutrition widget for meal ID: {meal_id}")
@@ -415,7 +471,8 @@ def healthy_eating():
     toddler_tips = get_health_tips('toddler')
     family_tips = get_health_tips('family')
 
-    return render_template('healthy_eating.html', baby_tips=baby_tips, toddler_tips=toddler_tips, family_tips=family_tips)
+    return render_template('healthy_eating.html', baby_tips=baby_tips, toddler_tips=toddler_tips,
+                           family_tips=family_tips)
 
 
 def get_health_tips(category):

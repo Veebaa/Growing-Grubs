@@ -59,6 +59,24 @@
                 showPopup(messages[0]); // Show the first message
             }
         };
+
+         async function fetchTopics() {
+      try {
+        const response = await fetch('/topics');
+        if (!response.ok) throw new Error('Failed to fetch topics');
+        const data = await response.json();
+
+        let sidebarContent = '';
+        data.forEach(topic => {
+          sidebarContent += `<li><a href="${topic.url}">${topic.title}</a></li>`;
+        });
+
+        document.getElementById('sidebar').innerHTML = `<ul>${sidebarContent}</ul>`;
+      } catch (error) {
+        console.error('Error fetching topics:', error);
+        document.getElementById('sidebar').innerHTML = '<p>Error loading topics. Please try again later.</p>';
+      }
+    };
     </script>
 
 </head>
@@ -124,9 +142,8 @@
                 </div>
             </div>
         </main>
-        <aside class="container__right-sidebar", id="sidebar">
+        <aside class="container__right-sidebar" id="sidebar">
             <h1>Today's Top Stories</h1>
-            <script src="/rightsidebar.js"></script>
         </aside>
     </div>
 

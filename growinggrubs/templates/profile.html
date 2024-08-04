@@ -82,11 +82,11 @@
             <br>
             <label for="profile_image">Profile Image:</label>
             <select id="profile_image" name="profile_image">
-                <option value="avo.jpg" {% if user.profile_image == 'avo.jpg' %}selected{% endif %}>Avocado</option>
-                <option value="cherries.jpg" {% if user.profile_image == 'cherries.jpg' %}selected{% endif %}>Cherries</option>
-                <option value="orange.jpg" {% if user.profile_image == 'orange.jpg' %}selected{% endif %}>Orange</option>
-                <option value="strawberry.jpg" {% if user.profile_image == 'strawberry.jpg' %}selected{% endif %}>Strawberry</option>
-                <option value="watermelon.jpg" {% if user.profile_image == 'watermelon.jpg' %}selected{% endif %}>Watermelon</option>
+                <option value="avo.jpg" {% if user.profile_image =='avo.jpg' %}selected{% endif %}>Avocado</option>
+                <option value="cherries.jpg" {% if user.profile_image =='cherries.jpg' %}selected{% endif %}>Cherries</option>
+                <option value="orange.jpg" {% if user.profile_image =='orange.jpg' %}selected{% endif %}>Orange</option>
+                <option value="strawberry.jpg" {% if user.profile_image =='strawberry.jpg' %}selected{% endif %}>Strawberry</option>
+                <option value="watermelon.jpg" {% if user.profile_image =='watermelon.jpg' %}selected{% endif %}>Watermelon</option>
             </select>
             <br>
             <button type="submit">Save Changes</button>
@@ -106,34 +106,22 @@
             }
         </script>
 
-        <h2 class="section-title">My Recipes</h2>
-            <div class="recipe-grid">
-                <div class="recipe-card">
-                    <img src="recipe1.jpg" alt="Recipe 1" class="recipe-image">
-                    <div class="recipe-info">
-                        <h3 class="recipe-title">Spaghetti Carbonara</h3>
-                        <p class="recipe-description">A classic Italian pasta dish with eggs, cheese, pancetta, and pepper.</p>
-                    </div>
-                </div>
-            <div class="favorites">
-                <div class="card">
-                    <img src="static/images/recipe1.jpg" alt="Recipe 1">
-                    <h3>Recipe Title 1</h3>
-                </div>
-                <div class="card">
-                    <img src="static/images/recipe2.jpg" alt="Recipe 2">
-                    <h3>Recipe Title 2</h3>
-                </div>
-                <div class="card">
-                    <img src="static/images/recipe3.jpg" alt="Recipe 3">
-                    <h3>Recipe Title 3</h3>
-                </div>
-                <div class="card">
-                    <img src="static/images/recipe4.jpg" alt="Recipe 4">
-                    <h3>Recipe Title 4</h3>
-                </div>
+        <h2>My Favourite Recipes</h2>
+        <div class="favourite-recipes">
+            {% if user.favourites %}
+            {% for favourite in user.favourites %}
+            <div class="card">
+                <a href="{{ url_for('meal_detail', meal_id=favourite.recipe_id) }}">
+                    <img src="{{ favourite.recipe_image }}" alt="{{ favourite.recipe_title }}">
+                    <h3>{{ favourite.recipe_title }}</h3>
+                </a>
             </div>
-            </div>
+                {% endfor %}
+            {% else %}
+                <p>No favourites found.</p>
+            {% endif %}
+        </div>
+
     </div>
 </main>
 
@@ -145,30 +133,6 @@
     <div id="popup" class="popup"></div>
 
     <script>
-        async function fetchPopularRecipe() {
-            const apiKey = 'c676336b8de04c04b131f2f91eb14b33';
-            const response = await fetch(`https://api.spoonacular.com/recipes/random?number=1&apiKey=${apiKey}`);
-
-            if (!response.ok) {
-                console.error("Failed to fetch popular recipe:", response.statusText);
-                return; // Early return if the fetch fails
-            }
-
-            const data = await response.json();
-            console.log("Popular recipe data fetched:", data);
-
-            // Update the HTML with the fetched recipe
-            const recipe = data.recipes[0];
-            if (!recipe) {
-                console.error("No recipe found in response");
-                return; // Early return if no recipe is found
-            }
-
-            document.getElementById('toprecipe_image').src = recipe.image;
-            document.getElementById('toprecipe_title').innerText = recipe.title;
-            document.getElementById('toprecipe_link').href = `/meal/${recipe.id}`;
-        }
-
         function showPopup(message) {
             const popup = document.getElementById('popup');
             const overlay = document.getElementById('overlay');
@@ -182,14 +146,6 @@
             }, 3000); // Auto-hide after 3 seconds
         }
 
-        // Call the function when the page loads
-        window.onload = function() {
-            fetchPopularRecipe();
-            const messages = {{ get_flashed_messages()|tojson }};
-            if (messages.length > 0) {
-                showPopup(messages[0]); // Show the first message
-            }
-        };
     </script>
 
 </body>

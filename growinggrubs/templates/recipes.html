@@ -110,34 +110,19 @@
             const endpoint = `https://api.spoonacular.com/recipes/complexSearch?apiKey=${apiKey}&number=10&diet=vegetarian&maxReadyTime=30&sort=random&cuisine=Italian,American,Indian,Asian&intolerances=gluten,peanut`;
 
             fetch(endpoint)
-                .then(response => {
-                    if (!response.ok) {
-                        console.error('Network response was not ok ', response.statusText);
-                        throw new Error('Network response was not ok ' + response.statusText);
-                    }
-                    return response.json();
-                })
+                .then(response => response.json())
                 .then(data => {
-                    console.log("Recipes fetched successfully:", data);
                     const recipes = data.results;
                     const recipesContainer = document.querySelector('.recipes');
 
-                    if (!recipesContainer) {
-                        console.error('Recipes container not found.');
-                        return;
-                    }
-
-                    if (!recipes || recipes.length === 0) {
-                        recipesContainer.innerHTML = '<p>No recipes found.</p>';
-                        return;
-                    }
+                    if (!recipesContainer) return;
 
                     recipesContainer.innerHTML = '';
 
                     recipes.forEach(meal => {
                         const recipeCard = document.createElement('a');
                         recipeCard.classList.add('recipe-card');
-                        recipeCard.href = `https://spoonacular.com/recipes/${meal.id}`;
+                        recipeCard.href = `/meal/${meal.id}`;  // Ensure this matches your Flask route
 
                         const recipeImg = document.createElement('img');
                         recipeImg.src = meal.image || 'default_image_url.jpg';
