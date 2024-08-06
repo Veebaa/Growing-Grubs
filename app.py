@@ -174,11 +174,6 @@ def load_user(user_id):
     return Users.query.get(int(user_id))
 
 
-@login_manager.user_loader
-def load_user(user_id):
-    return Users.query.get(int(user_id))
-
-
 @app.route("/topics")
 def get_topics():
     endpoint = ' https://data.cdc.gov/resource/wxz7-ekz9.json'
@@ -403,7 +398,6 @@ def meal_detail(meal_id):
     app.logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
 
     return render_template('meal_detail.html', meal=meal_info)
-
 
 
 # app.py
