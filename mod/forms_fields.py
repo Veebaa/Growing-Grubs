@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, Length, EqualTo, ValidationError, Email
-
+from models import Users
 from passlib.hash import pbkdf2_sha256
 
 

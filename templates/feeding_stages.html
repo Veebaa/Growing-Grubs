@@ -4,13 +4,13 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
-  <title>Growing Grubs</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main-content.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/right-sidebar.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/footer.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/navbar.css">
+  <title>Growing Grubs - Feeding Stages</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main-content.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/right-sidebar.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 
@@ -20,16 +20,16 @@
     </header>
 
     <nav class="navbar">
-        <a href="{{ url_for('index') }}">Home</a>
+        <a href="{{ url_for('other_routes.index') }}">Home</a>
          <div class="navbar_dropdown">
             <button class="dropdown">Recipes
             <i class="fa fa-caret-down"></i>
             </button>
             <div class="dropdown_content">
-               <a href="{{ url_for('recipes') }}">All Recipes</a>
-               <a href="{{ url_for('recipes1') }}">6 - 9 Months</a>
-                <a href="{{ url_for('recipes2') }}">9 - 12 Months</a>
-                <a href="{{ url_for('recipes2') }}">1 - 4 Years</a>
+               <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
+               <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
+                <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
+                <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
             </div>
         </div>
         <div class="navbar_dropdown">
@@ -37,15 +37,15 @@
             <i class="fa fa-caret-down"></i>
             </button>
             <div class="dropdown_content">
-               <a href="{{ url_for('signs') }}">Signs that your baby is ready</a>
-               <a href="{{ url_for('feeding_stages') }}">Feeding Stages</a>
+               <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
+               <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
             </div>
         </div>
-        <a href="healthy_eating">Healthy Eating</a>
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register_user') }}">Register</a>
+        <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
+        <a href="{{ url_for('other_routes.login') }}">Login</a>
+        <a href="{{ url_for('other_routes.register_user') }}">Register</a>
         <div class="search-container">
-            <form action="{{ url_for('search') }}" method="post">
+            <form action="{{ url_for('other_routes.search') }}" method="post">
                 <input type="text" placeholder="Search recipes.." name="search" required>
                 <button type="submit"><i class="fa fa-search"></i></button>
             </form>

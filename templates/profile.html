@@ -5,148 +5,132 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
   <title>Growing Grubs</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/header.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/main-content.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/right-sidebar.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/footer.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/homepage/navbar.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main-content.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/right-sidebar.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/profile.css') }}">
 </head>
 
 <body class="homepage">
-    <header class="header">
-        <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
-    </header>
+  <header class="header">
+    <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
+  </header>
 
-    <nav class="navbar">
-        <a href="{{ url_for('index') }}">Home</a>
-         <div class="navbar_dropdown">
-            <button class="dropdown">Recipes
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('recipes') }}">All Recipes</a>
-               <a href="{{ url_for('recipes1') }}">6 - 9 Months</a>
-                <a href="{{ url_for('recipes2') }}">9 - 12 Months</a>
-                <a href="{{ url_for('recipes2') }}">1 - 4 Years</a>
-            </div>
-        </div>
-        <div class="navbar_dropdown">
-            <button class="dropdown">Feeding Tips
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('signs') }}">Signs that your baby is ready</a>
-               <a href="{{ url_for('feeding_stages') }}">Feeding Stages</a>
-            </div>
-        </div>
-        <a href="{{ url_for('healthy_eating') }}">Healthy Eating</a>
-        <a href="{{ url_for('login') }}">Login</a>
-        <a href="{{ url_for('register_user') }}">Register</a>
-        <div class="search-container">
-            <form action="{{ url_for('search') }}" method="post">
-                <input type="text" placeholder="Search recipes.." name="search" required>
-                <button type="submit"><i class="fa fa-search"></i></button>
-            </form>
-        </div>
-    </nav>
-
-<main>
-    <div class="profile-container">
-        <div class="profile-header">
-                <img class="profile_image"  src="{{ url_for('static', filename='images/profiles/' + (user.profile_image if user.profile_image else 'default.jpg')) }}" alt="Profile Image">
-                <h1>Welcome, <span class="username">{{ user.username }}</span>!</h1>
-        </div>
-
-        <div class="registered-details">
-        <h2>My Details</h2>
-        <ul>
-            <li>First Name: <span class="first-name">{{ user.first_name }}</span></li>
-            <li>Last Name: <span class="last-name">{{ user.last_name }}</span></li>
-            <li>Email: <span class="email">{{ user.email }}</span></li>
-        </ul>
-        <button onclick="toggleEditForm()">Edit Profile</button>
-
-        <!-- Edit Profile -->
-        <form id="edit-profile-form" style="display:none;" method="POST" action="{{ url_for('edit_profile') }}">
-            <h3>Edit Your Details</h3>
-            <label for="first_name">First Name:</label>
-            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
-            <br>
-            <label for="last_name">Last Name:</label>
-            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
-            <br>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ user.email }}" required>
-            <br>
-            <label for="profile_image">Profile Image:</label>
-            <select id="profile_image" name="profile_image">
-                <option value="avo.jpg" {% if user.profile_image =='avo.jpg' %}selected{% endif %}>Avocado</option>
-                <option value="cherries.jpg" {% if user.profile_image =='cherries.jpg' %}selected{% endif %}>Cherries</option>
-                <option value="orange.jpg" {% if user.profile_image =='orange.jpg' %}selected{% endif %}>Orange</option>
-                <option value="strawberry.jpg" {% if user.profile_image =='strawberry.jpg' %}selected{% endif %}>Strawberry</option>
-                <option value="watermelon.jpg" {% if user.profile_image =='watermelon.jpg' %}selected{% endif %}>Watermelon</option>
-            </select>
-            <br>
-            <button type="submit">Save Changes</button>
-        </form>
-
-        <!-- Logout Button -->
-        <form method="POST" action="{{ url_for('logout') }}">
-            <button type="submit">Logout</button>
-        </form>
-
-        </div>
-
-        <script>
-            function toggleEditForm() {
-                var form = document.getElementById('edit-profile-form');
-                form.style.display = form.style.display === 'none' ? 'block' : 'none';
-            }
-        </script>
-
-        <h2>My Favourite Recipes</h2>
-        <div class="favourite-recipes">
-            {% if user.favourites %}
-            {% for favourite in user.favourites %}
-            <div class="card">
-                <a href="{{ url_for('meal_detail', meal_id=favourite.recipe_id) }}">
-                    <img src="{{ favourite.recipe_image }}" alt="{{ favourite.recipe_title }}">
-                    <h3>{{ favourite.recipe_title }}</h3>
-                </a>
-            </div>
-                {% endfor %}
-            {% else %}
-                <p>No favourites found.</p>
-            {% endif %}
-        </div>
-
+  <nav class="navbar">
+    <a href="{{ url_for('other_routes.index') }}">Home</a>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Recipes
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
+        <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
+        <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
+        <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+      </div>
     </div>
-</main>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Feeding Tips
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
+        <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
+      </div>
+    </div>
+    <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
+    <a href="{{ url_for('other_routes.login') }}">Login</a>
+    <a href="{{ url_for('other_routes.register_user') }}">Register</a>
+    <div class="search-container">
+      <form action="{{ url_for('other_routes.search') }}" method="post">
+        <input type="text" placeholder="Search recipes.." name="search" required>
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+  </nav>
 
-    <footer class="footer">
-       <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
-    </footer>
+  <main>
+    <div class="profile-container">
+      <div class="profile-header">
+        <div class="profile-image">
+          <img src="{{ url_for('static', filename='images/profiles/' + (user.profile_image if user.profile_image else 'default.jpg')) }}" alt="Profile Image">
+        </div>
+        <div class="profile-info">
+          <h1>{{ user.username }}</h1>
+          <p>{{ user.first_name }} {{ user.last_name }}</p>
+          <p>{{ user.email }}</p>
+        </div>
+      </div>
 
-    <div id="overlay" class="overlay"></div>
-    <div id="popup" class="popup"></div>
+      <div class="profile-actions">
+        <button onclick="toggleEditForm()">Edit Profile</button>
+        <form method="POST" action="{{ url_for('other_routes.logout') }}">
+          <button type="submit">Logout</button>
+        </form>
+      </div>
 
-    <script>
-        function showPopup(message) {
-            const popup = document.getElementById('popup');
-            const overlay = document.getElementById('overlay');
-            popup.innerText = message;
-            popup.classList.add('show');
-            overlay.classList.add('show');
+      <!-- Edit Profile Form -->
+      <form id="edit-profile-form" style="display:none;" method="POST" action="{{ url_for('other_routes.edit_profile') }}">
+        <div class="form-group">
+          <label for="first_name">First Name:</label>
+          <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+        </div>
+        <div class="form-group">
+          <label for="last_name">Last Name:</label>
+          <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" value="{{ user.email }}" required>
+        </div>
+        <div class="form-group">
+          <label for="profile_image">Profile Image:</label>
+          <select id="profile_image" name="profile_image">
+            <option value="avo.jpg" {% if user.profile_image =='avo.jpg' %}selected{% endif %}>Avocado</option>
+            <option value="cherries.jpg" {% if user.profile_image =='cherries.jpg' %}selected{% endif %}>Cherries</option>
+            <option value="orange.jpg" {% if user.profile_image =='orange.jpg' %}selected{% endif %}>Orange</option>
+            <option value="strawberry.jpg" {% if user.profile_image =='strawberry.jpg' %}selected{% endif %}>Strawberry</option>
+            <option value="watermelon.jpg" {% if user.profile_image =='watermelon.jpg' %}selected{% endif %}>Watermelon</option>
+          </select>
+        </div>
+        <button type="submit">Save Changes</button>
+      </form>
 
-            setTimeout(() => {
-                popup.classList.remove('show');
-                overlay.classList.remove('show');
-            }, 3000); // Auto-hide after 3 seconds
-        }
+      <h2>My Favourite Recipes</h2>
+      <div class="favourite-recipes">
+        {% if user.favourites %}
+        {% for favourite in user.favourites %}
+        <div class="card">
+          <a href="{{ url_for('other_routes.meal_detail', meal_id=favourite.recipe_id) }}">
+            <img src="{{ favourite.recipe_image }}" alt="{{ favourite.recipe_title }}">
+            <h3>{{ favourite.recipe_title }}</h3>
+          </a>
+        </div>
+        {% endfor %}
+        {% else %}
+        <p>No favourites found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </main>
 
-    </script>
+  <footer class="footer">
+    <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
+  </footer>
 
+  <div id="overlay" class="overlay"></div>
+  <div id="popup" class="popup"></div>
+
+  <script>
+    function toggleEditForm() {
+      var form = document.getElementById('edit-profile-form');
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    }
+  </script>
 </body>
+
 </html>

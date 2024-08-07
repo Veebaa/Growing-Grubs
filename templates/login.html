@@ -5,12 +5,12 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
-    <link rel="stylesheet" href="/static/css/login.css">
+    <link rel="stylesheet" href="{{ url_for('other_routes.static', filename='css/login.css') }}">
 </head>
 <body>
     {% with messages = get_flashed_messages() %}
       {% if messages %}
-        <ul class=flashes>
+        <ul class="flashes">
         {% for message in messages %}
           <li>{{ message }}</li>
         {% endfor %}
@@ -19,7 +19,7 @@
     {% endwith %}
 
     <div class="login-container">
-        <form method="POST" action="{{ url_for('login') }}">
+        <form method="POST" action="{{ url_for('other_routes.login') }}">
             {{ form.hidden_tag() }}  <!-- CSRF token -->
             <div>
                 {{ form.username.label }} {{ form.username() }}
@@ -43,5 +43,3 @@
     </div>
 </body>
 </html>
-
-
