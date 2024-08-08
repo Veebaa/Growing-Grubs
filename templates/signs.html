@@ -4,97 +4,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta charset="UTF-8">
   <title>Growing Grubs - Signs that your baby is ready</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main-content.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/right-sidebar.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/signs.css') }}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
+<body class="signs-page">
+  <header class="header">
+    <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
+  </header>
+  <nav class="navbar">
+    <a href="{{ url_for('other_routes.index') }}">Home</a>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Recipes <i class="fa fa-caret-down"></i></button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
+        <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
+        <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
+        <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+      </div>
+    </div>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Feeding Tips <i class="fa fa-caret-down"></i></button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
+        <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
+      </div>
+    </div>
+    <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
+    <a href="{{ url_for('other_routes.login') }}">Login</a>
+    <a href="{{ url_for('other_routes.register_user') }}">Register</a>
+    <div class="search-container">
+      <form action="{{ url_for('other_routes.search') }}" method="post">
+        <input type="text" placeholder="Search recipes.." name="search" required>
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+  </nav>
 
-<body class="homepage">
-    <header class="header">
-        <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
-    </header>
-
-    <nav class="navbar">
-        <a href="{{ url_for('other_routes.index') }}">Home</a>
-         <div class="navbar_dropdown">
-            <button class="dropdown">Recipes
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
-               <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
-                <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-                <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
-            </div>
-        </div>
-        <div class="navbar_dropdown">
-            <button class="dropdown">Feeding Tips
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
-               <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
-            </div>
-        </div>
-        <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
-        <a href="{{ url_for('other_routes.login') }}">Login</a>
-        <a href="{{ url_for('other_routes.register_user') }}">Register</a>
-        <div class="search-container">
-            <form action="{{ url_for('other_routes.search') }}" method="post">
-                <input type="text" placeholder="Search recipes.." name="search" required>
-                <button type="submit"><i class="fa fa-search"></i></button>
-            </form>
-        </div>
-    </nav>
+  <div id="top"></div> <!-- Invisible anchor for "Back to Top" links -->
 
   <div class="signs-container">
+    <aside class="container__left-sidebar">
+      <h1>Table of Contents</h1>
+      <ul class="toc">
+        <li><a href="#intro">Introduction</a></li>
+        <li><a href="#signs">Signs of Readiness</a></li>
+        <li><a href="#false-signs">False Signs</a></li>
+        <li><a href="#premature">Weaning a Premature Baby</a></li>
+      </ul>
+    </aside>
     <main class="signs-container__main-content">
-      <h1>Signs that your baby is ready for weaning</h1>
-      <p>Between 17 and 26 weeks (4 to 6 months), your baby may begin to show some signs they are ready to start eating solid food.</p>
-      <p>Your baby should show more than 1 of these signs before you think about introducing solid foods. Especially if they are 17 weeks.</p>
-      <ul>
-        <li>They are able to sit up with support and can control their head movements.</li>
-        <li>Co-ordination - they can look at food, pick it up and put it in their mouth by themselves.</li>
-        <li>They can swallow food instead of spitting it back out.</li>
-      </ul>
-      <p>These signs show that your baby is ready for you to introduce foods other than milk.</p>
-      <h2>False signs</h2>
-      <p>Some signs can be mistaken for a baby being ready for solid foods.</p>
-      <ul>
-        <li>Chewing fists</li>
-        <li>Waking in the night when they have previously slept through</li>
-        <li>Wanting extra milk feeds now and then</li>
-      </ul>
-      <p>These are normal baby behaviours. They are not necessarily a sign of hunger or an interest in solid food.</p>
-      <p>Starting solid foods will not make your baby any more likely to sleep through the night. Sometimes a little extra milk will help until they are ready for solid food.</p>
-      <h2>Weaning a premature baby</h2>
-      <p>If your baby was born early (before 37 weeks), introduce solid foods when your baby shows signs that they are ready.</p>
-      <p>Your baby may have developed all the skills they need to eat solid foods from a corrected age of about 5 to 6 months.</p>
-      <p>Corrected age is your baby's age minus the number of weeks or months they were born early. For example, if your 7-month baby was born 2 months early, their corrected age is 5 months.</p>
+      <section id="intro">
+        <h1>Introduction <a href="#top" class="back-to-top">Back to Top</a> </h1>
+        <p>Between 17 and 26 weeks (4 to 6 months), your baby may begin to show some signs they are ready to start eating solid food.</p>
+        <p>Your baby should show more than one of these signs before you think about introducing solid foods. Especially if they are 17 weeks.</p>
+      </section>
+
+      <section id="signs">
+        <h2>Signs of Readiness <a href="#top" class="back-to-top">Back to Top</a> </h2>
+        <ul>
+          <li>They are able to sit up with support and can control their head movements.</li>
+          <li>Co-ordination - they can look at food, pick it up, and put it in their mouth by themselves.</li>
+          <li>They can swallow food instead of spitting it back out.</li>
+        </ul>
+        <p>These signs show that your baby is ready for you to introduce foods other than milk.</p>
+      </section>
+
+      <section id="false-signs">
+        <h2>False Signs <a href="#top" class="back-to-top">Back to Top</a> </h2>
+        <p>Some signs can be mistaken for a baby being ready for solid foods.</p>
+        <ul>
+          <li>Chewing fists</li>
+          <li>Waking in the night when they have previously slept through</li>
+          <li>Wanting extra milk feeds now and then</li>
+        </ul>
+        <p>These are normal baby behaviors. They are not necessarily a sign of hunger or an interest in solid food.</p>
+        <p>Starting solid foods will not make your baby any more likely to sleep through the night. Sometimes a little extra milk will help until they are ready for solid food.</p>
+      </section>
+
+      <section id="premature">
+        <h2>Weaning a Premature Baby <a href="#top" class="back-to-top">Back to Top</a> </h2>
+        <p>If your baby was born early (before 37 weeks), introduce solid foods when your baby shows signs that they are ready.</p>
+        <p>Your baby may have developed all the skills they need to eat solid foods from a corrected age of about 5 to 6 months.</p>
+        <p>Corrected age is your baby's age minus the number of weeks or months they were born early. For example, if your 7-month-old baby was born 2 months early, their corrected age is 5 months.</p>
+      </section>
 
       <div class="container__main-content__top-recipes">
         <h1>Today's Top Recipe</h1>
         <div class="main-content__top-recipes">
           <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image" id="toprecipe_image">
-          <h1 id="toprecipe_title">Butternut squash and Chickpea Curry</h1>
-          <a href="#" id="toprecipe_link">View Recipe</a>
+          <div class="toprecipe_info">
+            <h2 id="toprecipe_title">Butternut Squash and Chickpea Curry</h2>
+            <a href="#" id="toprecipe_link">View Recipe</a>
+          </div>
         </div>
       </div>
     </main>
-    <aside class="container__right-sidebar">
-      <h1>Today's Top Story</h1>
-      <p>Weaning your baby - When is your baby ready?</p>
-    </aside>
-  </div>
+
   <footer class="footer">
     <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
   </footer>
+
   <div id="overlay" class="overlay"></div>
   <div id="popup" class="popup"></div>
+
   <script>
     async function fetchPopularRecipe() {
       const apiKey = 'c676336b8de04c04b131f2f91eb14b33';
@@ -115,6 +131,7 @@
       document.getElementById('toprecipe_title').innerText = recipe.title;
       document.getElementById('toprecipe_link').href = `/meal/${recipe.id}`;
     }
+
     function showPopup(message) {
       const popup = document.getElementById('popup');
       const overlay = document.getElementById('overlay');
@@ -126,6 +143,7 @@
         overlay.classList.remove('show');
       }, 3000); // Auto-hide after 3 seconds
     }
+
     // Call the function when the page loads
     window.onload = function() {
       fetchPopularRecipe();
@@ -135,5 +153,6 @@
       }
     };
   </script>
+
 </body>
 </html>

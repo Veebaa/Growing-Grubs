@@ -1,10 +1,18 @@
 .footer {
-  padding: 5px;
-  text-align: center;
-  background:#1abc9c;
-  color: white
+    position: absolute;
+    left:0px;
+    bottom:0px;
+    height:40px;
+    width:100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background:#333;
+    color: white;
 }
 
 .footer_text {
-    font-size: 10px;
+    font-size: 12px;
+    margin: 0;
 }

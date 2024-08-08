@@ -1,4 +1,4 @@
-.signs-page {
+.feeding-stages {
   font-family: Arial;
   margin: 0;
   display: flex;
@@ -9,39 +9,22 @@
   align-items: flex-start;
 }
 
-/* Main container styling */
-.signs-container {
+.feeding-stages-page {
+  display: flex;
+  align-items: flex-start;
+}
+
+.feeding-stages-container {
   display: flex;
   flex: 1;
   margin: 20px;
   overflow-x: visible;
-  position: relative;
 }
 
-/* Main content styling */
-.signs-container__main-content {
+.feeding-stages-container__main-content {
   flex: 1;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-left: 40px;
-}
-
-.signs-container__main-content h1, .signs-container__main-content h2 {
-  color: #333;
-  margin-bottom: 10px;
-}
-
-.signs-container__main-content p, .signs-container__main-content ul {
-  color: #666;
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
-.signs-container__main-content {
-  flex: 1;
-  padding: 20px;
+  margin-top: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -77,7 +60,20 @@
   text-decoration: underline;
 }
 
-/* Recipe card styling */
+.feeding-stages-container__main-content h1,
+.feeding-stages-container__main-content h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.feeding-stages-container__main-content p,
+.feeding-stages-container__main-content ul {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* Top recipes section */
 .container__main-content__top-recipes {
   margin-top: 20px;
 }
@@ -126,9 +122,8 @@
   text-decoration: underline;
 }
 
-/* Back to Top link styling */
 .back-to-top {
-  font-size: 0.4em;
+  font-size: 0.9em;
   color: #007bff;
   text-decoration: none;
   margin-left: 10px;
@@ -136,4 +131,22 @@
 
 .back-to-top:hover {
   text-decoration: underline;
+}
+
+.feeding-footer {
+  position: relative;
+  left: 0;
+  bottom: 0;
+  height: 40px;
+  width: 100%;
+  background: #333;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.feeding-footer_text {
+  font-size: 12px;
+  margin: 0;
 }

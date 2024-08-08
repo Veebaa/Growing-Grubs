@@ -3,6 +3,9 @@
   position: relative;
   text-align: center;
   color: #333;
+  overflow-x: visible;
+  margin: 0 auto;
+  padding-top: 0;
 }
 
 .header-image{
