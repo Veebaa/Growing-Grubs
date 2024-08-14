@@ -1,12 +1,11 @@
 .container {
     display: flex;
-    flex-wrap: wrap;
+    padding: 20px;
 }
 
 .container__main-content {
-  flex: 70%;
-  background-color: white;
-  padding: 20px;
+    flex: 3;
+    margin-right: 20px;
 }
 
 h1 {
@@ -17,4 +16,10 @@ p {
     font-size: 15px;
 }
 
-
+.container__right-sidebar {
+    flex: 1;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}

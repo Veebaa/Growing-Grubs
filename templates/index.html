@@ -11,6 +11,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/right-sidebar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/toprecipe.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <script>
@@ -86,38 +87,47 @@
         <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
     </header>
 
-    <nav class="navbar">
-        <a href="{{ url_for('other_routes.index') }}">Home</a>
-         <div class="navbar_dropdown">
-            <button class="dropdown">Recipes
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
-               <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
-                <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-                <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
-            </div>
-        </div>
-        <div class="navbar_dropdown">
-            <button class="dropdown">Feeding Tips
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
-               <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
-            </div>
-        </div>
-        <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
+  <nav class="navbar">
+    <a href="{{ url_for('other_routes.index') }}">Home</a>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Recipes
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
+        <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
+        <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
+        <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+      </div>
+    </div>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Feeding Tips
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
+        <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
+      </div>
+    </div>
+    <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
+    {% if current_user.is_authenticated %}
+        <!-- If the user is logged in, show the Logout and My Profile button -->
+      <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
+        <form method="POST" action="{{ url_for('other_routes.logout') }}">
+            <button type="submit" class="navbar-logout">Logout</button>
+        </form>
+    {% else %}
+        <!-- If the user is not logged in, show the Login and Register buttons -->
         <a href="{{ url_for('other_routes.login') }}">Login</a>
         <a href="{{ url_for('other_routes.register_user') }}">Register</a>
-        <div class="search-container">
-            <form action="{{ url_for('other_routes.search') }}" method="post">
-                <input type="text" placeholder="Search recipes.." name="search" required>
-                <button type="submit"><i class="fa fa-search"></i></button>
-            </form>
-        </div>
-    </nav>
+    {% endif %}
+    <div class="search-container">
+      <form action="{{ url_for('other_routes.search') }}" method="post">
+        <input type="text" placeholder="Search recipes.." name="search" required>
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+  </nav>
 
     <div class="container">
         <main class="container__main-content">
@@ -133,15 +143,18 @@
                 nourish their children and cultivate a positive relationship with food. Join us on this
                 journey towards healthier and happier mealtimes for your little ones.</p>
             <br>
-            <div class="container__main-content__top recipes">
-                <h1>Today's Top Recipe</h1>
-                <div class="main-content__top recipes">
-                    <img id="toprecipe_image" class="toprecipe_image" src="" alt="recipe image">
-                    <h1 id="toprecipe_title"></h1>
-                    <a id="toprecipe_link" href="" target="_blank">View Recipe</a> <!-- Link to the recipe -->
+        <div class="container__main-content__top-recipes">
+            <h1>Today's Top Recipe</h1>
+            <div class="main-content__top-recipes">
+                <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image" id="toprecipe_image">
+                <div class="toprecipe_info">
+                    <h2 id="toprecipe_title">Butternut Squash and Chickpea Curry</h2>
+                    <a href="#" id="toprecipe_link">View Recipe</a>
                 </div>
             </div>
+        </div>
         </main>
+
         <aside class="container__right-sidebar" id="sidebar">
             <h1>Today's Top Stories</h1>
         </aside>

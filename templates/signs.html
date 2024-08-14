@@ -18,7 +18,9 @@
   <nav class="navbar">
     <a href="{{ url_for('other_routes.index') }}">Home</a>
     <div class="navbar_dropdown">
-      <button class="dropdown">Recipes <i class="fa fa-caret-down"></i></button>
+      <button class="dropdown">Recipes
+        <i class="fa fa-caret-down"></i>
+      </button>
       <div class="dropdown_content">
         <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
         <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
@@ -27,15 +29,26 @@
       </div>
     </div>
     <div class="navbar_dropdown">
-      <button class="dropdown">Feeding Tips <i class="fa fa-caret-down"></i></button>
+      <button class="dropdown">Feeding Tips
+        <i class="fa fa-caret-down"></i>
+      </button>
       <div class="dropdown_content">
         <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
         <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
       </div>
     </div>
     <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
-    <a href="{{ url_for('other_routes.login') }}">Login</a>
-    <a href="{{ url_for('other_routes.register_user') }}">Register</a>
+    {% if current_user.is_authenticated %}
+        <!-- If the user is logged in, show the Logout and My Profile button -->
+      <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
+        <form method="POST" action="{{ url_for('other_routes.logout') }}">
+            <button type="submit" class="navbar-logout">Logout</button>
+        </form>
+    {% else %}
+        <!-- If the user is not logged in, show the Login and Register buttons -->
+        <a href="{{ url_for('other_routes.login') }}">Login</a>
+        <a href="{{ url_for('other_routes.register_user') }}">Register</a>
+    {% endif %}
     <div class="search-container">
       <form action="{{ url_for('other_routes.search') }}" method="post">
         <input type="text" placeholder="Search recipes.." name="search" required>

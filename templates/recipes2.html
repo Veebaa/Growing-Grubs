@@ -20,38 +20,47 @@
         <img class="header-image" src="{{ url_for('static', filename='images/growinggrubs_header_3.jpeg') }}" alt="header-image">
     </header>
 
-    <nav class="navbar">
-        <a href="{{ url_for('other_routes.index') }}">Home</a>
-         <div class="navbar_dropdown">
-            <button class="dropdown">Recipes
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
-               <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
-                <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-                <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
-            </div>
-        </div>
-        <div class="navbar_dropdown">
-            <button class="dropdown">Feeding Tips
-            <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-               <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
-               <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
-            </div>
-        </div>
-        <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
+  <nav class="navbar">
+    <a href="{{ url_for('other_routes.index') }}">Home</a>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Recipes
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
+        <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
+        <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
+        <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+      </div>
+    </div>
+    <div class="navbar_dropdown">
+      <button class="dropdown">Feeding Tips
+        <i class="fa fa-caret-down"></i>
+      </button>
+      <div class="dropdown_content">
+        <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
+        <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
+      </div>
+    </div>
+    <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
+    {% if current_user.is_authenticated %}
+        <!-- If the user is logged in, show the Logout and My Profile button -->
+      <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
+        <form method="POST" action="{{ url_for('other_routes.logout') }}">
+            <button type="submit" class="navbar-logout">Logout</button>
+        </form>
+    {% else %}
+        <!-- If the user is not logged in, show the Login and Register buttons -->
         <a href="{{ url_for('other_routes.login') }}">Login</a>
         <a href="{{ url_for('other_routes.register_user') }}">Register</a>
-        <div class="search-container">
-            <form action="{{ url_for('other_routes.search') }}" method="post">
-                <input type="text" placeholder="Search recipes.." name="search" required>
-                <button type="submit"><i class="fa fa-search"></i></button>
-            </form>
-        </div>
-    </nav>
+    {% endif %}
+    <div class="search-container">
+      <form action="{{ url_for('other_routes.search') }}" method="post">
+        <input type="text" placeholder="Search recipes.." name="search" required>
+        <button type="submit"><i class="fa fa-search"></i></button>
+      </form>
+    </div>
+  </nav>
 
     <div class="recipes_container">
         <main class="recipes_container__main-content">
@@ -69,8 +78,6 @@
                         {% endfor %}
                     </div>
                 </div>
-            {% else %}
-                <p>No recipes found.</p>
             {% endif %}
 
             <h2>Popular Recipes</h2>
@@ -81,13 +88,17 @@
                 making it easier than ever to whip up your next favorite meal!</p>
 
             <div class="recipes">
-                {% for meal in meals %}
-                    <a class="recipe-card" href="{{ url_for('meal_detail', meal_id=meal.id) }}">
-                        <img src="{{ meal.image }}" alt="{{ meal.title }}">
-                        <h2>{{ meal.title }}</h2>
-                        <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
-                    </a>
-                {% endfor %}
+                {% if popular_meals %}
+                    {% for meal in popular_meals %}
+                        <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=meal.id) }}">
+                            <img src="{{ meal.image }}" alt="{{ meal.title }}">
+                            <h2>{{ meal.title }}</h2>
+                            <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No popular recipes available at the moment. Please check back later.</p>
+                {% endif %}
             </div>
 
         </main>
@@ -110,39 +121,52 @@
             fetch(endpoint)
                 .then(response => response.json())
                 .then(data => {
-                    const recipes = data.results;
-                    const recipesContainer = document.querySelector('.recipes');
+                    // Check if the data and results are defined
+                    if (data && Array.isArray(data.results)) {
+                        const recipes = data.results;
+                        const recipesContainer = document.querySelector('.recipes');
 
-                    if (!recipesContainer) return;
+                        if (!recipesContainer) return;
 
-                    recipesContainer.innerHTML = '';
+                        // Clear only existing recipes
+                        const existingRecipes = recipesContainer.querySelectorAll('.recipe-card');
+                        existingRecipes.forEach(card => card.remove());
 
-                    recipes.forEach(meal => {
-                        const recipeCard = document.createElement('a');
-                        recipeCard.classList.add('recipe-card');
-                        recipeCard.href = `/meal/${meal.id}`;  // Ensure this matches your Flask route
+                        // Process and display recipes
+                        recipes.forEach(meal => {
+                            const recipeCard = document.createElement('a');
+                            recipeCard.classList.add('recipe-card');
+                            recipeCard.href = `/meal/${meal.id}`;
 
-                        const recipeImg = document.createElement('img');
-                        recipeImg.src = meal.image || 'default_image_url.jpg';
-                        recipeImg.alt = meal.title;
+                            const recipeImg = document.createElement('img');
+                            recipeImg.src = meal.image || 'default_image_url.jpg';
+                            recipeImg.alt = meal.title;
 
-                        const title = document.createElement('h2');
-                        title.textContent = meal.title;
+                            const title = document.createElement('h2');
+                            title.textContent = meal.title;
 
-                        const description = document.createElement('p');
-                        description.textContent = meal.dishTypes ? meal.dishTypes.join(", ") : "No type available";
+                            const description = document.createElement('p');
+                            description.textContent = meal.dishTypes ? meal.dishTypes.join(", ") : "No type available";
 
-                        recipeCard.appendChild(recipeImg);
-                        recipeCard.appendChild(title);
-                        recipeCard.appendChild(description);
-                        recipesContainer.appendChild(recipeCard);
-                    });
+                            recipeCard.appendChild(recipeImg);
+                            recipeCard.appendChild(title);
+                            recipeCard.appendChild(description);
+                            recipesContainer.appendChild(recipeCard);
+                        });
+                    } else {
+                        console.error('Unexpected data structure:', data);
+                        const recipesContainer = document.querySelector('.recipes');
+                        if (recipesContainer) {
+                            recipesContainer.innerHTML += '<p>No popular recipes available. Please check back later.</p>';
+                        }
+                    }
                 })
                 .catch(error => {
                     console.error('Error fetching recipes:', error);
                     const recipesContainer = document.querySelector('.recipes');
                     if (recipesContainer) {
-                        recipesContainer.innerHTML = '<p>Failed to load recipes. Please try again later.</p>';
+                        // Keep existing content, show error message
+                        recipesContainer.innerHTML += '<p>Failed to load new recipes. Please try again later.</p>';
                     }
                 });
         });

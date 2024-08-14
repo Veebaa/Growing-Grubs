@@ -14,10 +14,14 @@ other_routes = Blueprint("other_routes", __name__, static_folder='static', templ
 # Recipe API
 api_key = 'c676336b8de04c04b131f2f91eb14b33'
 spoonacular_api = API(api_key)
+BASE_URL = 'https://api.spoonacular.com/recipes/complexSearch'
 #  Health API
 CDC_API_KEY = 'xbq22hetm32yj5rl2ogu4ewj'
 CDC_API_SECRET = '5gmwqwzx1ke94m2i1wlx3e8hzvs4nnerfgekudxhao4g1x73lo'
 
+def get_recipes(params):
+    response = requests.get(BASE_URL, params=params)
+    return response.json().get('results', [])
 
 @other_routes.route("/")
 def index():
@@ -148,22 +152,163 @@ def edit_profile():
 
 @other_routes.route('/recipes')
 def recipes():
-    return render_template('recipes.html')
+    params = {
+        'apiKey': api_key,
+        'type': 'main course',
+        'number': 10,
+        'instructionsRequired': True,
+        'sort': 'popularity',
+    }
+
+    try:
+        recipes = get_recipes(params)
+    except Exception as e:
+        print(f"Error fetching recipes: {e}")
+        recipes = None
+
+    # Fallback recipes
+    if not recipes:
+        recipes = [
+            {
+                'id': 1,
+                'title': 'Carrot Puree',
+                'image': 'static/images/default-recipe.jpg',
+                'vegetarian': True,
+                'dishTypes': ['Baby Food', 'Puree']
+            },
+            {
+                'id': 2,
+                'title': 'Apple and Banana Mash',
+                'image': 'static/images/default-recipe.jpg',
+                'vegetarian': True,
+                'dishTypes': ['Baby Food', 'Fruit Mash']
+            }
+        ]
+
+    return render_template('recipes.html', popular_meals=recipes)
 
 
 @other_routes.route('/recipes1')
 def recipes1():
-    return render_template('recipes1.html')
+    params = {
+        'apiKey': api_key,
+        'includeIngredients': 'carrot,apple,sweet potato,banana,oat',
+        'excludeIngredients': 'salt,sugar,nuts,honey',
+        'type': 'main course',
+        'number': 10,
+        'instructionsRequired': True,
+        'maxReadyTime': 30,
+        'maxCalories': 200,
+    }
+
+    try:
+        recipes = get_recipes(params)
+    except Exception as e:
+        print(f"Error fetching recipes: {e}")
+        recipes = None
+
+    # Fallback recipes
+    if not recipes:
+        recipes = [
+            {
+                'id': 1,
+                'title': 'Carrot Puree',
+                'image': url_for('other_routes.static', filename='images/default-recipe.jpg'),
+                'vegetarian': True,
+                'dishTypes': ['Baby Food', 'Puree']
+            },
+            {
+                'id': 2,
+                'title': 'Apple and Banana Mash',
+                'image': url_for('other_routes.static', filename='images/default-recipe.jpg'),
+                'vegetarian': True,
+                'dishTypes': ['Baby Food', 'Fruit Mash']
+            }
+        ]
+
+    return render_template('recipes1.html', popular_meals=recipes)
 
 
 @other_routes.route('/recipes2')
 def recipes2():
-    return render_template('recipes2.html')
+    params = {
+        'apiKey': api_key,
+        'includeIngredients': 'chicken,carrot,broccoli,potato,banana,oat',
+        'excludeIngredients': 'salt,sugar,nuts,honey',
+        'type': 'main course',
+        'number': 10,
+        'instructionsRequired': True,
+        'maxReadyTime': 30,
+        'maxCalories': 300,
+    }
+
+    try:
+        recipes = get_recipes(params)
+    except Exception as e:
+        print(f"Error fetching recipes: {e}")
+        recipes = None
+
+    # Fallback recipes
+    if not recipes:
+        recipes = [
+            {
+                'id': 1,
+                'title': 'Carrot Puree',
+                'image': 'static/images/default-recipe.jpg',
+                'vegetarian': True,
+                'dishTypes': ['Baby Food', 'Puree']
+            },
+            {
+                'id': 2,
+                'title': 'Apple and Banana Mash',
+                'image': 'static/images/default-recipe.jpg',
+                'vegetarian': True,
+                'dishTypes': ['Baby Food', 'Fruit Mash']
+            }
+        ]
+
+    return render_template('recipes2.html', popular_meals=recipes)
 
 
 @other_routes.route('/recipes3')
 def recipes3():
-    return render_template('recipes3.html')
+    params = {
+        'apiKey': api_key,
+        'includeIngredients': 'chicken,fish,rice,pasta,broccoli,carrot',
+        'excludeIngredients': 'salt,sugar,nuts',
+        'type': 'main course',
+        'number': 10,
+        'instructionsRequired': True,
+        'maxReadyTime': 45,
+        'maxCalories': 400,
+    }
+
+    try:
+        recipes = get_recipes(params)
+    except Exception as e:
+        print(f"Error fetching recipes: {e}")
+        recipes = None
+
+    # Fallback recipes
+    if not recipes:
+        recipes = [
+            {
+                'id': 1,
+                'title': 'Carrot Puree',
+                'image': 'static/images/default-recipe.jpg',
+                'vegetarian': True,
+                'dishTypes': ['Baby Food', 'Puree']
+            },
+            {
+                'id': 2,
+                'title': 'Apple and Banana Mash',
+                'image': 'static/images/default-recipe.jpg',
+                'vegetarian': True,
+                'dishTypes': ['Baby Food', 'Fruit Mash']
+            }
+        ]
+
+    return render_template('recipes3.html', popular_meals=recipes)
 
 
 @other_routes.route('/feeding_stages')
@@ -274,6 +419,29 @@ def favourite_recipe(recipe_id):
         flash('Recipe added to favourites!', 'success')
     else:
         flash('Recipe already in favourites.', 'info')
+
+    return redirect(url_for('other_routes.profile'))
+
+
+@other_routes.route('/unfavourite/<int:recipe_id>', methods=['POST'])
+@login_required
+def unfavourite_recipe(recipe_id):
+    user_id = current_user.id
+
+    # Find the favourite recipe record
+    favourite = db.session.query(Favourites).join(user_favourites).filter(
+        user_favourites.c.user_id == user_id,
+        user_favourites.c.favourite_id == Favourites.id,
+        Favourites.recipe_id == recipe_id
+    ).first()
+
+    if favourite:
+        # Remove the association between the user and the favourite recipe
+        current_user.favourites.remove(favourite)
+        db.session.commit()
+        flash('Recipe removed from favourites!', 'success')
+    else:
+        flash('Recipe not found in favourites.', 'error')
 
     return redirect(url_for('other_routes.profile'))
 
