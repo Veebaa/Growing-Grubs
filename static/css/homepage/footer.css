@@ -1,15 +1,18 @@
 .footer {
-    position: absolute;
+    position: relative;
     left:0px;
     bottom:0px;
     height:40px;
     width:100%;
-    text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
     background:#333;
     color: white;
+    text-align: center;
+    border-top: 1px solid #ddd;
+    padding: 20px;
+    margin-top: auto;
 }
 
 .footer_text {

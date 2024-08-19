@@ -1,0 +1,98 @@
+/* Styling for the container that holds the content */
+.healthy_container {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Main content area styling */
+.healthy_container__main-content {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Section styling for healthy eating and portion sizes */
+.healthy-eating-section,
+.portion-sizes-section {
+    margin-bottom: 20px;
+}
+
+/* Styling for the portion sizes list */
+#portion-sizes-container {
+    margin-top: 20px;
+}
+
+#portion-sizes-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+#portion-sizes-list li {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* Button styling */
+button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Load more button styling */
+#load-more {
+    display: block;
+    margin-top: 20px;
+}
+
+/* Styling for the age group form */
+#age-group-form {
+    margin-bottom: 20px;
+}
+
+#age-group-form label {
+    font-weight: bold;
+}
+
+#age_group {
+    padding: 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+#age-group-form button {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+#age-group-form button:hover {
+    background-color: #218838;
+}
+
+.container__right-sidebar {
+    flex: 1;
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}

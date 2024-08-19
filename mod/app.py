@@ -15,13 +15,29 @@ other_routes = Blueprint("other_routes", __name__, static_folder='static', templ
 api_key = 'c676336b8de04c04b131f2f91eb14b33'
 spoonacular_api = API(api_key)
 BASE_URL = 'https://api.spoonacular.com/recipes/complexSearch'
-#  Health API
-CDC_API_KEY = 'xbq22hetm32yj5rl2ogu4ewj'
-CDC_API_SECRET = '5gmwqwzx1ke94m2i1wlx3e8hzvs4nnerfgekudxhao4g1x73lo'
+# #  Health API
+# CDC_API_KEY = 'xbq22hetm32yj5rl2ogu4ewj'
+# CDC_API_SECRET = '5gmwqwzx1ke94m2i1wlx3e8hzvs4nnerfgekudxhao4g1x73lo'
 
 def get_recipes(params):
-    response = requests.get(BASE_URL, params=params)
-    return response.json().get('results', [])
+    try:
+        response = requests.get(BASE_URL, params=params)
+        print(f"Request URL: {response.url}") # Log the URL being requested
+        response.raise_for_status()  # Raise an exception for HTTP errors
+        data = response.json()
+        print(f"API Response: {data}")
+
+        # Check if the data contains the 'results' key and return it
+        if 'results' in data:
+            return data['results']
+        else:
+            print("Unexpected response format:", data)  # Log API response data
+            return []  # Return an empty list if the expected data is not found
+
+    except requests.exceptions.RequestException as e:
+        print(f"API request error: {e}")
+        return []  # Return an empty list in case of any error
+
 
 @other_routes.route("/")
 def index():
@@ -190,44 +206,90 @@ def recipes():
 
 @other_routes.route('/recipes1')
 def recipes1():
-    params = {
-        'apiKey': api_key,
-        'includeIngredients': 'carrot,apple,sweet potato,banana,oat',
-        'excludeIngredients': 'salt,sugar,nuts,honey',
-        'type': 'main course',
-        'number': 10,
-        'instructionsRequired': True,
-        'maxReadyTime': 30,
-        'maxCalories': 200,
-    }
+    # try:
+    #     response = spoonacular_api.get_recipes_complex_search(
+    #         query='',
+    #         includeIngredients='carrot,apple,sweet potato,banana,oat',
+    #         excludeIngredients='salt,sugar,nuts,honey,dried fruit',
+    #         number=10,
+    #         instructionsRequired=True,
+    #         maxReadyTime=30,
+    #         maxCalories=200
+    #     )
+    #
+    #     # Debug response
+    #     print(response)
+    #
+    #     if isinstance(response, dict):
+    #         recipes = response.get('results', [])  # Check if the response is already a dictionary
+    #     else:
+    #         data = response.json()  # Parse the JSON data
+    #         recipes = data.get('results', []) # Extract the 'results' from the JSON data
+    #
+    # except Exception as e:
+    #     print(f"Error fetching recipes: {e}")
+    recipes = [
+        {
+            'id': 1,
+            'title': 'Carrot Puree',
+            'image': 'static/images/default-recipe.jpg',
+            'vegetarian': True,
+            'dishTypes': ['Baby Food', 'Puree']
+        },
+        {
+            'id': 2,
+            'title': 'Apple and Banana Mash',
+            'image': 'static/images/default-recipe.jpg',
+            'vegetarian': True,
+            'dishTypes': ['Baby Food', 'Fruit Mash']
+        }
+    ]
 
+    return render_template('recipes1.html', popular_meals=recipes)
+
+@other_routes.route('/recipes1/json')
+def recipes1_json():
     try:
-        recipes = get_recipes(params)
+        response = spoonacular_api.get_recipes_complex_search(
+            query='',
+            includeIngredients='carrot,apple,sweet potato,banana,oat',
+            excludeIngredients='salt,sugar,nuts,honey,dried fruit',
+            number=1,
+            instructionsRequired=True,
+            maxReadyTime=60,
+            maxCalories=200
+        )
+
+        # Debug response
+        print("API Response:", response.text)
+
+        if isinstance(response, dict):
+            recipes = response.get('results', [])  # Check if the response is already a dictionary
+        else:
+            data = response.json()  # Parse the JSON data
+            recipes = data.get('results', []) # Extract the 'results' from the JSON data
+
+        print("Processed Recipes Data:", recipes)
+
     except Exception as e:
         print(f"Error fetching recipes: {e}")
-        recipes = None
-
-    # Fallback recipes
-    if not recipes:
         recipes = [
             {
                 'id': 1,
                 'title': 'Carrot Puree',
-                'image': url_for('other_routes.static', filename='images/default-recipe.jpg'),
+                'image': '/static/images/default-recipe.jpg',
                 'vegetarian': True,
                 'dishTypes': ['Baby Food', 'Puree']
             },
             {
                 'id': 2,
                 'title': 'Apple and Banana Mash',
-                'image': url_for('other_routes.static', filename='images/default-recipe.jpg'),
+                'image': '/static/images/default-recipe.jpg',
                 'vegetarian': True,
                 'dishTypes': ['Baby Food', 'Fruit Mash']
             }
         ]
-
-    return render_template('recipes1.html', popular_meals=recipes)
-
+    return jsonify(recipes)
 
 @other_routes.route('/recipes2')
 def recipes2():
@@ -488,14 +550,47 @@ def nutrition_widget(meal_id):
         return "Error: Unable to generate widget.", 500
 
 
-@other_routes.route('/healthy_eating')
+@other_routes.route('/healthy_eating', methods=['GET', 'POST'])
 def healthy_eating():
-    baby_tips = get_health_tips('baby')
-    toddler_tips = get_health_tips('toddler')
-    family_tips = get_health_tips('family')
+    age_group = request.form.get('age_group')
+    portion_sizes = []
 
-    return render_template('healthy_eating.html', baby_tips=baby_tips, toddler_tips=toddler_tips,
-                           family_tips=family_tips)
+    if age_group:
+        portion_sizes = get_portion_sizes(age_group)
+
+    return render_template('healthy_eating.html', portion_sizes=portion_sizes, age_group=age_group)
+
+def get_portion_sizes(age_group):
+    portions_api_key = '4f704df26c022d7001e8c639f94ed667'
+    app_id = 'c51d8bff'
+    headers = {
+        'x-app-id': app_id,
+        'x-app-key': portions_api_key,
+        'Content-Type': 'application/json'
+    }
+
+    query = f'{age_group} food'
+    endpoint = 'https://trackapi.nutritionix.com/v2/search/instant'
+    params = {'query': query}
+
+    try:
+        response = requests.get(endpoint, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        print(data)  # Debugging log
+
+        # Assuming the response has a 'branded' or 'common' key with the relevant food items
+        foods = data.get('branded', []) + data.get('common', [])
+        portion_sizes = [{
+            'food_name': food['food_name'],
+            'serving_qty': food.get('serving_qty', 'N/A'),
+            'serving_unit': food.get('serving_unit', 'N/A')
+        } for food in foods]
+
+        return portion_sizes
+    except requests.exceptions.RequestException as e:
+        print(f'Error fetching portion sizes: {e}')
+        return []
 
 
 def get_health_tips(category):
@@ -513,3 +608,41 @@ def get_health_tips(category):
 def not_found_error(error):
     return render_template('404.html'), 404
 
+
+@other_routes.route('/proxy', methods=['GET'])
+def proxy():
+    age_group = request.args.get('age_group')
+    print(f'Received age_group parameter: {age_group}')  # Debugging log
+
+    # If no age_group is provided, return a 400 error
+    if not age_group:
+        return jsonify({'error': 'Missing age_group parameter'}), 400
+
+    url = 'https://trackapi.nutritionix.com/v2/search/instant'
+    headers = {
+        'x-app-id': 'c51d8bff',
+        'x-app-key': '4f704df26c022d7001e8c639f94ed667',
+        'Content-Type': 'application/json'
+    }
+    params = {'query': age_group}
+
+    try:
+        response = requests.get(url, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+        return jsonify(response.json())
+    except requests.exceptions.HTTPError as http_err:
+        print(f'HTTP error occurred: {http_err}')
+        print(f'Response content: {response.content}')
+        return jsonify({'error': 'HTTP error occurred'}), 500
+    except requests.exceptions.ConnectionError as conn_err:
+        print(f'Connection error occurred: {conn_err}')
+        return jsonify({'error': 'Connection error occurred'}), 500
+    except requests.exceptions.Timeout as timeout_err:
+        print(f'Timeout error occurred: {timeout_err}')
+        return jsonify({'error': 'Request timed out'}), 500
+    except requests.exceptions.RequestException as req_err:
+        print(f'Request error occurred: {req_err}')
+        return jsonify({'error': 'Request error occurred'}), 500
+    except Exception as err:
+        print(f'Other error occurred: {err}')
+        return jsonify({'error': 'An error occurred'}), 500

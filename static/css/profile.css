@@ -119,3 +119,19 @@
     width: 100%;
   }
 }
+
+/* Styling for the Remove from Favourites button */
+.action-button {
+  padding: 10px 20px;
+  font-size: 1em;
+  color: #fff;
+  background: #1abc9c;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.action-button:hover {
+  background: #16a085;
+}

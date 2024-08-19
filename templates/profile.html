@@ -62,7 +62,7 @@
     </div>
   </nav>
 
-  <main>
+<main>
     <div class="profile-container">
       <div class="profile-header">
         <div class="profile-image">
@@ -84,28 +84,7 @@
 
       <!-- Edit Profile Form -->
       <form id="edit-profile-form" style="display:none;" method="POST" action="{{ url_for('other_routes.edit_profile') }}">
-        <div class="form-group">
-          <label for="first_name">First Name:</label>
-          <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
-        </div>
-        <div class="form-group">
-          <label for="last_name">Last Name:</label>
-          <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
-        </div>
-        <div class="form-group">
-          <label for="email">Email:</label>
-          <input type="email" id="email" name="email" value="{{ user.email }}" required>
-        </div>
-        <div class="form-group">
-          <label for="profile_image">Profile Image:</label>
-          <select id="profile_image" name="profile_image">
-            <option value="avo.jpg" {% if user.profile_image =='avo.jpg' %}selected{% endif %}>Avocado</option>
-            <option value="cherries.jpg" {% if user.profile_image =='cherries.jpg' %}selected{% endif %}>Cherries</option>
-            <option value="orange.jpg" {% if user.profile_image =='orange.jpg' %}selected{% endif %}>Orange</option>
-            <option value="strawberry.jpg" {% if user.profile_image =='strawberry.jpg' %}selected{% endif %}>Strawberry</option>
-            <option value="watermelon.jpg" {% if user.profile_image =='watermelon.jpg' %}selected{% endif %}>Watermelon</option>
-          </select>
-        </div>
+        <!-- Form fields -->
         <button type="submit">Save Changes</button>
       </form>
 
@@ -120,7 +99,7 @@
           </a>
           <!-- Remove the recipe from favourites -->
           <form method="POST" action="{{ url_for('other_routes.unfavourite_recipe', recipe_id=favourite.recipe_id) }}">
-            <button type="submit">Remove from Favourites</button>
+            <button type="submit" class="action-button">Remove from Favourites</button>
           </form>
         </div>
         {% endfor %}
@@ -137,6 +116,9 @@
 
   <div id="overlay" class="overlay"></div>
   <div id="popup" class="popup"></div>
+  <div id="flash-messages" style="display:none;">
+      {{ get_flashed_messages()|tojson|safe }}
+  </div>
 
   <script>
     function toggleEditForm() {
@@ -145,5 +127,4 @@
     }
   </script>
 </body>
-
 </html>

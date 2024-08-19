@@ -39,20 +39,24 @@ input {
     border: 1px solid #ccc; /* Soft border color */
     border-radius: 5px;
     background: #f1f1f1;
+    font-size: 15px; /* Ensures consistent text size */
+    text-transform: capitalize; /* Capitalizes text */
 }
 
-button {
+button, input[type="submit"] {
     width: 100%;
-    padding: 16px 20px;
+    padding: 15px;
+    margin: 5px 0 22px 0;
     background-color: #01452c;
     color: white;
-    border: none;
+    border: 1px solid #ccc;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 15px;
+    text-transform: capitalize;
 }
 
-button:hover {
+button:hover, input[type="submit"]:hover {
     background-color: #04AA6D;
 }
 
@@ -77,4 +81,19 @@ dl {
 /* Vertical space between fields */
 dl > * {
     margin-bottom: 15px;
+}
+
+.login-link {
+    text-align: center; /* Center the link */
+    margin-top: 20px; /* Space above the link */
+}
+
+.login-link a {
+    color: #01452c; /* Match link color to button */
+    text-decoration: none; /* Remove underline from link */
+    font-weight: bold;
+}
+
+.login-link a:hover {
+    text-decoration: underline; /* Underline link on hover */
 }

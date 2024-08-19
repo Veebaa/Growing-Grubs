@@ -6,13 +6,6 @@ html {
     font-family: Arial;
 }
 
-.healthy-eating .feeding-stages {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow-x: hidden;
-}
-
 * {
   box-sizing: border-box;
 }

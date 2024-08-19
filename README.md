@@ -14,17 +14,17 @@ Growing Grubs is a web application designed to help parents find healthy recipes
 ## Getting Started
 ### Clone the Repository:
 
-git clone <repository-url> <br>
-cd <repository-directory>
+`git clone https://github.com/Veebaa/Growing-Grubs` <br>
+`cd <repository-directory>`
 
 ### Set Up the Virtual Environment:
 
-python3 -m venv <br>
-source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+`python3 -m venv` <br>
+source `venv/bin/activate`  # On Windows use `venv\Scripts\activate`
 
 ### Install Dependencies:
 
-pip install -r requirements.txt
+`pip install -r requirements.txt`
 
 ### Set Up Environment Variables:
 
@@ -32,11 +32,11 @@ Create a .env file in the root directory and add your Spoonacular and CDC API ke
 
 ### Initialize the Database:
 
-flask db init <br>
-flask db migrate <br>
-flask db upgrade 
+`flask db init` <br>
+`flask db migrate` <br>
+`flask db upgrade` 
 
 ### Run the Application:
 
-flask run <br>
+`flask run` <br>
 The application should now be running at http://127.0.0.1:5000.

@@ -2,9 +2,9 @@
 <html lang="en">
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta charset="UTF-8">
-  <title>Growing Grubs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Growing Grubs</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main-content.css') }}">
@@ -14,71 +14,8 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/toprecipe.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    <script>
-        async function fetchPopularRecipe() {
-            const apiKey = 'c676336b8de04c04b131f2f91eb14b33';
-            const response = await fetch(`https://api.spoonacular.com/recipes/random?number=1&apiKey=${apiKey}`);
-
-            if (!response.ok) {
-                console.error("Failed to fetch popular recipe:", response.statusText);
-                return; // Early return if the fetch fails
-            }
-
-            const data = await response.json();
-            console.log("Popular recipe data fetched:", data);
-
-            // Update the HTML with the fetched recipe
-            const recipe = data.recipes[0];
-            if (!recipe) {
-                console.error("No recipe found in response");
-                return; // Early return if no recipe is found
-            }
-
-            document.getElementById('toprecipe_image').src = recipe.image;
-            document.getElementById('toprecipe_title').innerText = recipe.title;
-            document.getElementById('toprecipe_link').href = `/meal/${recipe.id}`;
-        }
-
-        function showPopup(message) {
-            const popup = document.getElementById('popup');
-            const overlay = document.getElementById('overlay');
-            popup.innerText = message;
-            popup.classList.add('show');
-            overlay.classList.add('show');
-
-            setTimeout(() => {
-                popup.classList.remove('show');
-                overlay.classList.remove('show');
-            }, 3000); // Auto-hide after 3 seconds
-        }
-
-        // Call the function when the page loads
-        window.onload = function() {
-            fetchPopularRecipe();
-            const messages = {{ get_flashed_messages()|tojson }};
-            if (messages.length > 0) {
-                showPopup(messages[0]); // Show the first message
-            }
-        };
-
-         async function fetchTopics() {
-      try {
-        const response = await fetch('/topics');
-        if (!response.ok) throw new Error('Failed to fetch topics');
-        const data = await response.json();
-
-        let sidebarContent = '';
-        data.forEach(topic => {
-          sidebarContent += `<li><a href="${topic.url}">${topic.title}</a></li>`;
-        });
-
-        document.getElementById('sidebar').innerHTML = `<ul>${sidebarContent}</ul>`;
-      } catch (error) {
-        console.error('Error fetching topics:', error);
-        document.getElementById('sidebar').innerHTML = '<p>Error loading topics. Please try again later.</p>';
-      }
-    };
-    </script>
+    <script src="{{ url_for('static', filename='js/popular_recipe.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/topics.js') }}"></script>
 
 </head>
 
@@ -87,7 +24,7 @@
         <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
     </header>
 
-  <nav class="navbar">
+    <nav class="navbar">
     <a href="{{ url_for('other_routes.index') }}">Home</a>
     <div class="navbar_dropdown">
       <button class="dropdown">Recipes
@@ -127,7 +64,7 @@
         <button type="submit"><i class="fa fa-search"></i></button>
       </form>
     </div>
-  </nav>
+    </nav>
 
     <div class="container">
         <main class="container__main-content">
@@ -166,6 +103,9 @@
 
 <div id="overlay" class="overlay"></div>
 <div id="popup" class="popup"></div>
+<div id="flash-messages" style="display:none;">
+    {{ get_flashed_messages()|tojson|safe }}
+</div>
 
 </body>
 

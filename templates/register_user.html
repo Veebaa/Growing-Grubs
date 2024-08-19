@@ -13,7 +13,6 @@
         <form class="container_form" action="/register" method="POST">
             {{ form.csrf_token }}
             <div>
-
                     <div class="profile-image-container">
                         {% for image in form.profile_image.choices %}
                             <input type="radio" name="profile_image" value="{{ image[0] }}" id="{{ image[0] }}">
@@ -36,6 +35,19 @@
             </div>
             <p><input type="submit" value="Register"></p>
         </form>
+
+        <!-- Link for users to navigate to the login page -->
+        <div class="login-link">
+            <p>Already a user? <a href="{{ url_for('other_routes.login') }}">Login here</a>.</p>
+        </div>
+
     </div>
+
+    <div id="overlay" class="overlay"></div>
+    <div id="popup" class="popup"></div>
+    <div id="flash-messages" style="display:none;">
+        {{ get_flashed_messages()|tojson|safe }}
+    </div>
+
 </body>
 </html>
