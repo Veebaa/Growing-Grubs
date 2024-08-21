@@ -1,15 +1,20 @@
 import requests
-from flask import Blueprint
-from flask import render_template, request, redirect, url_for, flash, jsonify
+import csv
+import os
+import logging
+from flask import Blueprint, current_app
+from flask import render_template, request, redirect, url_for, flash, jsonify, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from spoonacular import API
 from sqlalchemy.exc import SQLAlchemyError
-
 from mod import logger, db
 from models import Users, Favourites, user_favourites
 from user_manager import RegistrationForm, LoginForm
 
 other_routes = Blueprint("other_routes", __name__, static_folder='static', template_folder='../templates')
+
+if logger is None:
+    logger = logging.getLogger('growing_grubs_logger')
 
 # Recipe API
 api_key = 'c676336b8de04c04b131f2f91eb14b33'
@@ -130,6 +135,7 @@ def logout():
 @other_routes.route('/profile')
 @login_required
 def profile():
+    available_profile_images = ['avo.jpg', 'cherries.jpg', 'orange.jpg', 'strawberry.jpg', 'watermelon.jpg']
     user_info = {
         'profile_image': current_user.profile_image,
         'username': current_user.username,
@@ -139,7 +145,7 @@ def profile():
         'favourites': current_user.favourites
     }
     logger.info(f"User favourites: {user_info['favourites']}")
-    return render_template('profile.html', user=user_info)
+    return render_template('profile.html', user=user_info, available_profile_images=available_profile_images)
 
 
 @other_routes.route('/edit_profile', methods=['POST'])
@@ -166,211 +172,73 @@ def edit_profile():
     return redirect(url_for('other_routes.profile'))
 
 
+def load_recipes_from_csv(file_path, keywords):
+    recipes = []
+    with open(file_path, mode='r', newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            # Combine title, description, ingredients, and method to search for keywords
+            combined_text = f"{row['title']} {row['description']} {row['ingredients']} {row['method']}".lower()
+
+            # Check if any keyword is in the combined text or in the age_group column
+            if any(keyword.lower() in combined_text for keyword in keywords) or any(keyword.lower() in row['age_group'].lower() for keyword in keywords):
+                recipes.append({
+                    'id': row['id'],
+                    'title': row['title'],
+                    'description': row['description'],
+                    'serves': row['serves'],
+                    'prep_time': row['prep_time'],
+                    'cook_time': row['cook_time'],
+                    'age_group': row['age_group'],
+                    'ingredients': row['ingredients'],
+                    'method': row['method'],
+                    'url': row['url']
+                })
+    return recipes
+
+
 @other_routes.route('/recipes')
 def recipes():
-    params = {
-        'apiKey': api_key,
-        'type': 'main course',
-        'number': 10,
-        'instructionsRequired': True,
-        'sort': 'popularity',
-    }
+    # Load recipes from the CSV file and filter
+    recipes_file_path = 'static/allrecipes.csv'
+    keywords = [""]
+    recipes = load_recipes_from_csv(recipes_file_path, keywords)
 
-    try:
-        recipes = get_recipes(params)
-    except Exception as e:
-        print(f"Error fetching recipes: {e}")
-        recipes = None
-
-    # Fallback recipes
-    if not recipes:
-        recipes = [
-            {
-                'id': 1,
-                'title': 'Carrot Puree',
-                'image': 'static/images/default-recipe.jpg',
-                'vegetarian': True,
-                'dishTypes': ['Baby Food', 'Puree']
-            },
-            {
-                'id': 2,
-                'title': 'Apple and Banana Mash',
-                'image': 'static/images/default-recipe.jpg',
-                'vegetarian': True,
-                'dishTypes': ['Baby Food', 'Fruit Mash']
-            }
-        ]
-
-    return render_template('recipes.html', popular_meals=recipes)
+    # Render the page with filtered recipes data
+    return render_template('recipes.html', recipes=recipes)
 
 
 @other_routes.route('/recipes1')
 def recipes1():
-    # try:
-    #     response = spoonacular_api.get_recipes_complex_search(
-    #         query='',
-    #         includeIngredients='carrot,apple,sweet potato,banana,oat',
-    #         excludeIngredients='salt,sugar,nuts,honey,dried fruit',
-    #         number=10,
-    #         instructionsRequired=True,
-    #         maxReadyTime=30,
-    #         maxCalories=200
-    #     )
-    #
-    #     # Debug response
-    #     print(response)
-    #
-    #     if isinstance(response, dict):
-    #         recipes = response.get('results', [])  # Check if the response is already a dictionary
-    #     else:
-    #         data = response.json()  # Parse the JSON data
-    #         recipes = data.get('results', []) # Extract the 'results' from the JSON data
-    #
-    # except Exception as e:
-    #     print(f"Error fetching recipes: {e}")
-    recipes = [
-        {
-            'id': 1,
-            'title': 'Carrot Puree',
-            'image': 'static/images/default-recipe.jpg',
-            'vegetarian': True,
-            'dishTypes': ['Baby Food', 'Puree']
-        },
-        {
-            'id': 2,
-            'title': 'Apple and Banana Mash',
-            'image': 'static/images/default-recipe.jpg',
-            'vegetarian': True,
-            'dishTypes': ['Baby Food', 'Fruit Mash']
-        }
-    ]
+    # Load recipes from the CSV file and filter for weaning recipes
+    recipes_file_path = 'static/allrecipes.csv'
+    keywords = ["6Months", "4to6Months", "9Months", "7Months"]
+    recipes = load_recipes_from_csv(recipes_file_path, keywords)
 
-    return render_template('recipes1.html', popular_meals=recipes)
+    # Render the page with filtered recipes data
+    return render_template('recipes1.html', recipes=recipes)
 
-@other_routes.route('/recipes1/json')
-def recipes1_json():
-    try:
-        response = spoonacular_api.get_recipes_complex_search(
-            query='',
-            includeIngredients='carrot,apple,sweet potato,banana,oat',
-            excludeIngredients='salt,sugar,nuts,honey,dried fruit',
-            number=1,
-            instructionsRequired=True,
-            maxReadyTime=60,
-            maxCalories=200
-        )
-
-        # Debug response
-        print("API Response:", response.text)
-
-        if isinstance(response, dict):
-            recipes = response.get('results', [])  # Check if the response is already a dictionary
-        else:
-            data = response.json()  # Parse the JSON data
-            recipes = data.get('results', []) # Extract the 'results' from the JSON data
-
-        print("Processed Recipes Data:", recipes)
-
-    except Exception as e:
-        print(f"Error fetching recipes: {e}")
-        recipes = [
-            {
-                'id': 1,
-                'title': 'Carrot Puree',
-                'image': '/static/images/default-recipe.jpg',
-                'vegetarian': True,
-                'dishTypes': ['Baby Food', 'Puree']
-            },
-            {
-                'id': 2,
-                'title': 'Apple and Banana Mash',
-                'image': '/static/images/default-recipe.jpg',
-                'vegetarian': True,
-                'dishTypes': ['Baby Food', 'Fruit Mash']
-            }
-        ]
-    return jsonify(recipes)
 
 @other_routes.route('/recipes2')
 def recipes2():
-    params = {
-        'apiKey': api_key,
-        'includeIngredients': 'chicken,carrot,broccoli,potato,banana,oat',
-        'excludeIngredients': 'salt,sugar,nuts,honey',
-        'type': 'main course',
-        'number': 10,
-        'instructionsRequired': True,
-        'maxReadyTime': 30,
-        'maxCalories': 300,
-    }
+    # Load recipes from the CSV file and filter for weaning recipes
+    recipes_file_path = 'static/allrecipes.csv'
+    keywords = ["9Months", "12Months", "10Months"]
+    recipes = load_recipes_from_csv(recipes_file_path, keywords)
 
-    try:
-        recipes = get_recipes(params)
-    except Exception as e:
-        print(f"Error fetching recipes: {e}")
-        recipes = None
-
-    # Fallback recipes
-    if not recipes:
-        recipes = [
-            {
-                'id': 1,
-                'title': 'Carrot Puree',
-                'image': 'static/images/default-recipe.jpg',
-                'vegetarian': True,
-                'dishTypes': ['Baby Food', 'Puree']
-            },
-            {
-                'id': 2,
-                'title': 'Apple and Banana Mash',
-                'image': 'static/images/default-recipe.jpg',
-                'vegetarian': True,
-                'dishTypes': ['Baby Food', 'Fruit Mash']
-            }
-        ]
-
-    return render_template('recipes2.html', popular_meals=recipes)
+    # Render the page with filtered recipes data
+    return render_template('recipes2.html', recipes=recipes)
 
 
 @other_routes.route('/recipes3')
 def recipes3():
-    params = {
-        'apiKey': api_key,
-        'includeIngredients': 'chicken,fish,rice,pasta,broccoli,carrot',
-        'excludeIngredients': 'salt,sugar,nuts',
-        'type': 'main course',
-        'number': 10,
-        'instructionsRequired': True,
-        'maxReadyTime': 45,
-        'maxCalories': 400,
-    }
+    # Load recipes from the CSV file and filter for weaning recipes
+    recipes_file_path = 'static/allrecipes.csv'
+    keywords = ["12Months", "forTheWholeFamily"]
+    recipes = load_recipes_from_csv(recipes_file_path, keywords)
 
-    try:
-        recipes = get_recipes(params)
-    except Exception as e:
-        print(f"Error fetching recipes: {e}")
-        recipes = None
-
-    # Fallback recipes
-    if not recipes:
-        recipes = [
-            {
-                'id': 1,
-                'title': 'Carrot Puree',
-                'image': 'static/images/default-recipe.jpg',
-                'vegetarian': True,
-                'dishTypes': ['Baby Food', 'Puree']
-            },
-            {
-                'id': 2,
-                'title': 'Apple and Banana Mash',
-                'image': 'static/images/default-recipe.jpg',
-                'vegetarian': True,
-                'dishTypes': ['Baby Food', 'Fruit Mash']
-            }
-        ]
-
-    return render_template('recipes3.html', popular_meals=recipes)
+    # Render the page with filtered recipes data
+    return render_template('recipes3.html', recipes=recipes)
 
 
 @other_routes.route('/feeding_stages')
@@ -417,39 +285,75 @@ def search():
     return redirect(url_for('other_routes.recipes'))
 
 
+# @other_routes.route('/meal/<int:meal_id>')
+# def meal_detail(meal_id):
+#     logger.info(f"Fetching details for meal ID: {meal_id}")
+#
+#     try:
+#         response = requests.get(f'https://api.spoonacular.com/recipes/{meal_id}/information?apiKey=c676336b8de04c04b131f2f91eb14b33')
+#         meal_info = response.json()  # Converts the response to JSON
+#         logger.info(f"Meal info: {meal_info}")  # Logs the meal structure
+#
+#         if not meal_info or 'error' in meal_info:
+#             logger.error("Invalid meal info received or Meal ID not found.")
+#             return render_template('404.html'), 404  # Serve 404 page
+#
+#     except requests.HTTPError as http_err:
+#         logger.error(f"HTTP error occurred: {http_err}")
+#         return render_template('404.html'), 404  # Serve 404 page
+#
+#     except Exception as e:
+#         logger.error(f"Unexpected error occurred: {e}")
+#         return render_template('404.html'), 404  # Serve 404 page
+#
+#     meal_info['id'] = meal_id
+#     meal_info['image'] = meal_info.get('image', '/static/images/default-recipe.jpg')
+#     meal_info['instructions'] = meal_info.get('instructions', 'No instructions provided.')
+#     meal_info['extendedIngredients'] = meal_info.get('extendedIngredients', [])
+#     meal_info['preparationMinutes'] = meal_info.get('preparationMinutes', 'N/A')
+#     meal_info['cookingMinutes'] = meal_info.get('cookingMinutes', 'N/A')
+#     meal_info['readyInMinutes'] = meal_info.get('readyInMinutes', 'N/A')
+#
+#     # Successful retrieval
+#     logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
+#
+#     return render_template('meal_detail.html', meal=meal_info)
+
+
 @other_routes.route('/meal/<int:meal_id>')
 def meal_detail(meal_id):
     logger.info(f"Fetching details for meal ID: {meal_id}")
+    logger.info(f"Application root path: {current_app.root_path}")
+
+    # Correct path to your CSV file
+    csv_file_path = os.path.join(current_app.root_path, '..', 'static', 'allrecipes.csv')
+    logger.info(f"CSV file path: {csv_file_path}")
+
+    if not os.path.exists(csv_file_path):
+        logger.error(f"CSV file does not exist at path: {csv_file_path}")
+        return render_template('404.html'), 404
 
     try:
-        response = requests.get(f'https://api.spoonacular.com/recipes/{meal_id}/information?apiKey=c676336b8de04c04b131f2f91eb14b33')
-        meal_info = response.json()  # Converts the response to JSON
-        logger.info(f"Meal info: {meal_info}")  # Logs the meal structure
+        # Read the CSV file
+        with open(csv_file_path, mode='r') as file:
+            reader = csv.DictReader(file)
+            meal_info = next((row for row in reader if int(row['id']) == meal_id), None)
 
-        if not meal_info or 'error' in meal_info:
-            logger.error("Invalid meal info received or Meal ID not found.")
-            return render_template('404.html'), 404  # Serve 404 page
+        if not meal_info:
+            logger.error(f"Meal ID {meal_id} not found in CSV.")
+            return render_template('404.html'), 404
 
-    except requests.HTTPError as http_err:
-        logger.error(f"HTTP error occurred: {http_err}")
-        return render_template('404.html'), 404  # Serve 404 page
+        # Set default values if necessary
+        meal_info['image_url'] = meal_info.get('image_url', '/static/images/default-recipe.jpg')
+        meal_info['method'] = meal_info.get('method', 'No instructions provided.')
+
+        # Successful retrieval
+        logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
+        return render_template('meal_detail.html', meal=meal_info)
 
     except Exception as e:
-        logger.error(f"Unexpected error occurred: {e}")
-        return render_template('404.html'), 404  # Serve 404 page
-
-    meal_info['id'] = meal_id
-    meal_info['image'] = meal_info.get('image', '/static/images/default-recipe.jpg')
-    meal_info['instructions'] = meal_info.get('instructions', 'No instructions provided.')
-    meal_info['extendedIngredients'] = meal_info.get('extendedIngredients', [])
-    meal_info['preparationMinutes'] = meal_info.get('preparationMinutes', 'N/A')
-    meal_info['cookingMinutes'] = meal_info.get('cookingMinutes', 'N/A')
-    meal_info['readyInMinutes'] = meal_info.get('readyInMinutes', 'N/A')
-
-    # Successful retrieval
-    logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
-
-    return render_template('meal_detail.html', meal=meal_info)
+        logger.error(f"Unexpected error occurred: {e}", exc_info=True)
+        return render_template('404.html'), 404
 
 
 # app.py

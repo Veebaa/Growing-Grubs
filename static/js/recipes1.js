@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const loadingElement = document.getElementById('loading');
+
     fetch('/recipes1/json')
         .then(response => {
             if (!response.ok) {
@@ -8,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .then(data => {
             console.log('Data received:', data);  // Debug print statement
+
+            loadingElement.style.display = 'none'; // Hide the loading message
 
             const recipesContainer = document.querySelector('.recipes');
 
@@ -41,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .catch(error => {
             console.error('Error fetching recipes:', error);
+            loadingElement.style.display = 'none'; // Hide the loading message
             const recipesContainer = document.querySelector('.recipes');
             recipesContainer.innerHTML = '<p>Failed to load recipes. Please try again later.</p>';
         });

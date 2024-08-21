@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Profile</title>
+    <title>Recipes</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
@@ -13,7 +13,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename= 'css/recipes.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <script src="{{ url_for('static', filename='js/recipes.js') }}"></script>
+<!--    <script defer src="{{ url_for('other_routes.static', filename='js/recipes1.js') }}"></script>-->
 </head>
 
 <body class="recipes_page">
@@ -66,43 +66,21 @@
     <div class="recipes_container">
         <main class="recipes_container__main-content">
 
-            {% if meals %}
-                <div class="search-results">
-                    <h2>Search Results for "{{ search_query }}"</h2>
-                    <div class="search_recipes">
-                        {% for meal in meals %}
-                            <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=meal.id) }}">
-                                <img src="{{ meal.image }}" alt="{{ meal.title }}">
-                                <h2>{{ meal.title }}</h2>
-                                <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
-
-            <h2>Popular Recipes</h2>
-            <p>Welcome to our Recipes Page, where you'll find a delightful selection of popular recipes
-                carefully curated for your culinary inspiration. Explore and indulge in a variety of dishes, each
-                designed to tantalize your taste buds.
-                If you're looking for something specific, simply use the search bar above to find recipes by ingredient,
-                making it easier than ever to whip up your next favorite meal!</p>
+            <h2>Recipes for 9 to 12-month-old babies</h2>
+            <p>Welcome to our Recipes Page for 6 to 9-month-old babies! Find a selection of age-appropriate recipes.</p>
 
             <div class="recipes">
-                {% if popular_meals %}
-                    {% for meal in popular_meals %}
-                        <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=meal.id) }}">
-                            <img src="{{ meal.image }}" alt="{{ meal.title }}">
-                            <h2>{{ meal.title }}</h2>
-                            <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
-                        </a>
-                    {% endfor %}
-                {% else %}
-                    <p>No popular recipes available at the moment. Please check back later.</p>
-                {% endif %}
+                {% for recipe in recipes %}
+                <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=recipe.id) }}">
+                    <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}">
+                    <h2>{{ recipe.title }}</h2>
+                    <p>{{ recipe.difficulty or 'No difficulty level available' }}</p>
+                </a>
+                {% endfor %}
             </div>
 
         </main>
+
         <aside class="container__right-sidebar">
             <h1>Today's Top Story</h1>
             <p>Weaning your baby - When is your baby ready?</p>

@@ -14,7 +14,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename= 'css/recipes.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    <script src="{{ url_for('static', filename='js/recipes.js') }}"></script>
+<!--    <script src="{{ url_for('static', filename='js/recipes.js') }}"></script>-->
 </head>
 
 <body class="recipes_page">
@@ -81,7 +81,7 @@
                 </div>
             {% endif %}
 
-            <h2>Popular Recipes</h2>
+            <h2>Recipes</h2>
             <p>Welcome to our Recipes Page, where you'll find a delightful selection of popular recipes
                 carefully curated for your culinary inspiration. Explore and indulge in a variety of dishes, each
                 designed to tantalize your taste buds.
@@ -89,17 +89,13 @@
                 making it easier than ever to whip up your next favorite meal!</p>
 
             <div class="recipes">
-                {% if popular_meals %}
-                    {% for meal in popular_meals %}
-                        <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=meal.id) }}">
-                            <img src="{{ meal.image }}" alt="{{ meal.title }}">
-                            <h2>{{ meal.title }}</h2>
-                            <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
-                        </a>
-                    {% endfor %}
-                {% else %}
-                    <p>No popular recipes available at the moment. Please check back later.</p>
-                {% endif %}
+                {% for recipe in recipes %}
+                <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=recipe.id) }}">
+                    <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}">
+                    <h2>{{ recipe.title }}</h2>
+                    <p>{{ recipe.difficulty or 'No difficulty level available' }}</p>
+                </a>
+                {% endfor %}
             </div>
         </main>
 
