@@ -1,15 +1,14 @@
 import json
 import requests
 import logging
+import random
 from flask import Blueprint, current_app, render_template, request, redirect, url_for, flash, jsonify, abort
 from flask_login import login_user, current_user, logout_user, login_required
-from spoonacular import API
 from sqlalchemy.exc import SQLAlchemyError
 from mod import db
 from mod.models import Users, Favourites, user_favourites, Recipe
 from mod.user_manager import RegistrationForm, LoginForm
 from datetime import datetime, timedelta
-from sqlalchemy.orm import sessionmaker
 
 other_routes = Blueprint("other_routes", __name__, static_folder='static', template_folder='../templates')
 
@@ -18,43 +17,41 @@ if logging.getLogger('growing_grubs_logger') is None:
     logger = logging.getLogger('growing_grubs_logger')
 
 
-
-# Recipe API
-api_key = 'c676336b8de04c04b131f2f91eb14b33'
-spoonacular_api = API(api_key)
-BASE_URL = 'https://api.spoonacular.com/recipes/complexSearch'
-# #  Health API
-# CDC_API_KEY = 'xbq22hetm32yj5rl2ogu4ewj'
-# CDC_API_SECRET = '5gmwqwzx1ke94m2i1wlx3e8hzvs4nnerfgekudxhao4g1x73lo'
-
 @other_routes.route("/")
 def index():
-    articles = get_topics()
+    # Fetch the articles
+    articles = get_topics_logic()  # Reuse get_topics logic
     return render_template("index.html", articles=articles)
 
-
-@other_routes.route("/topics")
-def get_topics():
-    endpoint = ' https://data.cdc.gov/resource/wxz7-ekz9.json'
+def get_topics_logic():
+    api_key = '4cf8144bb46d4122b603ebcadbd688cc'
+    endpoint = 'https://api.nhs.uk/conditions'
+    headers = {
+        'subscription-key': api_key,
+        'Content-Type': 'application/json'
+    }
+    logger = current_app.logger
     try:
-        response = requests.get(endpoint)
+        response = requests.get(endpoint, headers=headers, params={'topic':'children development, childhood illness'})
         response.raise_for_status()
         data = response.json()
 
         articles = []
-        for item in data:
-            title = item.get('title', 'No Title')
+        for item in data.get('significantLink', []):
+            name = item.get('name', 'No Title')
             description = item.get('description', 'No Description')
             url = item.get('url', '#')
-            articles.append({'title': title, 'description': description, 'url': url})
+            articles.append({'name': name,'description': description, 'url': url})
 
-        if not articles:
-            logger.info("No articles found from the API.")
-        return jsonify(articles)
+        if len(articles) >= 2:
+            logger.info(articles) #  Log random articles
+            return random.sample(articles, 2)
+        else:
+            return articles
 
     except requests.RequestException as e:
-        logger.error(f"Error fetching data from CDC API: {e}")
-        return jsonify([]), 500
+        current_app.logger.error(f"Error fetching data from NHS API: {e}")
+        return []
 
 
 @other_routes.route('/register', methods=['GET', 'POST'])
@@ -178,17 +175,29 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         next_page = pagination.next_num if pagination.has_next else None
         prev_page = pagination.prev_num if pagination.has_prev else None
 
-        return render_template(template_name,
-                               recipes=recipes,
-                               next_page=next_page,
-                               prev_page=prev_page,
-                               current_page=page,
-                               total_pages=total_pages,
-                               search_query=search_query)
+        # Convert recipes to a serializable format
+        recipes_list = [recipe.to_dict() for recipe in recipes]
+
+        # Return a dictionary of pagination data
+        return {
+            'recipes': recipes_list,
+            'next_page': next_page,
+            'prev_page': prev_page,
+            'current_page': page,
+            'total_pages': total_pages,
+            'search_query': search_query
+        }
     except Exception as e:
         logger = current_app.logger
         logger.error(f"Unexpected error occurred: {e}", exc_info=True)
-        return render_template('404.html', message="An error occurred while retrieving recipes.")
+        return {
+            'recipes': [],
+            'next_page': None,
+            'prev_page': None,
+            'current_page': 1,
+            'total_pages': 1,
+            'search_query': search_query
+        }
 
 
 @other_routes.route('/recipe/<int:recipe_id>')
@@ -206,25 +215,77 @@ def view_recipe(recipe_id):
 
 @other_routes.route('/recipes')
 def recipes():
-    return paginate_recipes(template_name='recipes.html')
+    # Fetch articles
+    articles = get_topics_logic()
+
+    # Fetch paginated recipes
+    paginated_recipes = paginate_recipes(
+        recipes_query=Recipe.query,  # Assuming this is your base query for recipes
+        template_name='recipes.html'
+    )
+
+    # Render the template with both articles and recipes
+    return render_template(
+        'recipes.html',
+        recipes=paginated_recipes['recipes'],  # Extract the recipes from the paginated result
+        next_page=paginated_recipes['next_page'],
+        prev_page=paginated_recipes['prev_page'],
+        current_page=paginated_recipes['current_page'],
+        total_pages=paginated_recipes['total_pages'],
+        search_query=paginated_recipes['search_query'],
+        articles=articles  # Pass the articles to the template
+    )
 
 
 @other_routes.route('/recipes1')
 def recipes1():
+    articles = get_topics_logic()
     keywords = ["6Months", "4to6Months", "9Months", "7Months"]
-    return paginate_recipes(keywords=keywords, template_name='recipes1.html')
+    paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes1.html')
+    return render_template(
+        'recipes1.html',
+        recipes=paginated_recipes['recipes'],
+        next_page=paginated_recipes['next_page'],
+        prev_page=paginated_recipes['prev_page'],
+        current_page=paginated_recipes['current_page'],
+        total_pages=paginated_recipes['total_pages'],
+        search_query=paginated_recipes['search_query'],
+        articles=articles
+    )
 
 
 @other_routes.route('/recipes2')
 def recipes2():
+    articles = get_topics_logic()
     keywords = ["9Months", "12Months", "10Months"]
-    return paginate_recipes(keywords=keywords, template_name='recipes2.html')
+    paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes2.html')
+    return render_template(
+        'recipes2.html',
+        recipes=paginated_recipes['recipes'],
+        next_page=paginated_recipes['next_page'],
+        prev_page=paginated_recipes['prev_page'],
+        current_page=paginated_recipes['current_page'],
+        total_pages=paginated_recipes['total_pages'],
+        search_query=paginated_recipes['search_query'],
+        articles=articles
+    )
 
 
 @other_routes.route('/recipes3')
 def recipes3():
+    articles = get_topics_logic()
     keywords = ["12Months", "forTheWholeFamily"]
-    return paginate_recipes(keywords=keywords, template_name='recipes3.html')
+    paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes3.html')
+    return render_template(
+        'recipes3.html',
+        recipes=paginated_recipes['recipes'],
+        next_page=paginated_recipes['next_page'],
+        prev_page=paginated_recipes['prev_page'],
+        current_page=paginated_recipes['current_page'],
+        total_pages=paginated_recipes['total_pages'],
+        search_query=paginated_recipes['search_query'],
+        articles=articles
+    )
 
 
 @other_routes.route('/feeding_stages')
@@ -255,7 +316,10 @@ def search():
         )
 
         # Pass the pre-filtered query to the paginate_recipes function
-        return paginate_recipes(recipes_query=recipes_query, template_name='search_results.html', search_query=search_term)
+        pagination_data = paginate_recipes(recipes_query=recipes_query, template_name='search_results.html', search_query=search_term)
+
+        # Render the template with pagination data
+        return render_template('search_results.html', **pagination_data)
 
     except Exception as e:
         logger.error(f"Error processing the search: {e}", exc_info=True)
@@ -263,47 +327,49 @@ def search():
         return redirect(url_for('other_routes.recipes'))
 
 
+
 @other_routes.route('/meal/<int:meal_id>')
 def meal_detail(meal_id):
+    articles = get_topics_logic()
     logger = current_app.logger
     logger.info(f"Fetching details for meal ID: {meal_id}")
 
-    Session = sessionmaker(bind=db.engine)
-
     try:
-        with Session() as session:
-            with session.no_autoflush:
-                # Fetch the recipe from the database
-                meal_info = session.query(Recipe).get(meal_id)
+        # Fetch the recipe from the database using the default db.session
+        meal_info = Recipe.query.get(meal_id)
 
-                if not meal_info:
-                    logger.error(f"Meal ID {meal_id} not found in the database.")
-                    return render_template('404.html'), 404
+        if not meal_info:
+            logger.error(f"Meal ID {meal_id} not found in the database.")
+            return render_template('404.html'), 404
 
-                # Log the view (increment views and update last_viewed)
-                meal_info.log_view()
+        # Log the view (increment views and update last_viewed)
+        meal_info.log_view()
 
-                # Prepare meal information
-                meal_info.image_url = meal_info.image_url or '/static/images/default-recipe.jpg'
-                meal_info.method = meal_info.method or 'No instructions provided.'
+        # Commit the transaction to save the changes
+        db.session.commit()
 
-                # Process the ingredients and instructions if they are JSON strings
-                try:
-                    meal_info.ingredients = json.loads(meal_info.ingredients)
-                except (json.JSONDecodeError, TypeError):
-                    meal_info.ingredients = []
+        # Prepare meal information
+        meal_info.image_url = meal_info.image_url or '/static/images/default-recipe.jpg'
+        meal_info.method = meal_info.method or 'No instructions provided.'
 
-                try:
-                    meal_info.method = json.loads(meal_info.method)
-                except (json.JSONDecodeError, TypeError):
-                    meal_info.method = []
+        # Process the ingredients and instructions if they are JSON strings
+        try:
+            meal_info.ingredients = json.loads(meal_info.ingredients)
+        except (json.JSONDecodeError, TypeError):
+            meal_info.ingredients = []
 
-                # Successful retrieval
-                logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
-                return render_template('meal_detail.html', meal=meal_info)
+        try:
+            meal_info.method = json.loads(meal_info.method)
+        except (json.JSONDecodeError, TypeError):
+            meal_info.method = []
+
+        # Successful retrieval
+        logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
+        return render_template('meal_detail.html', meal=meal_info, articles=articles)
 
     except Exception as e:
         logger.error(f"Unexpected error occurred: {e}", exc_info=True)
+        db.session.rollback()  # Rollback in case of error
         return render_template('404.html'), 404
 
 
@@ -363,13 +429,14 @@ def unfavourite_recipe(recipe_id):
 
 @other_routes.route('/healthy_eating', methods=['GET', 'POST'])
 def healthy_eating():
+    articles = get_topics_logic()
     age_group = request.form.get('age_group')
     portion_sizes = []
 
     if age_group:
         portion_sizes = get_portion_sizes(age_group)
 
-    return render_template('healthy_eating.html', portion_sizes=portion_sizes, age_group=age_group)
+    return render_template('healthy_eating.html', portion_sizes=portion_sizes, age_group=age_group, articles=articles)
 
 def get_portion_sizes(age_group):
     portions_api_key = '4f704df26c022d7001e8c639f94ed667'
@@ -401,16 +468,6 @@ def get_portion_sizes(age_group):
         return portion_sizes
     except requests.exceptions.RequestException as e:
         print(f'Error fetching portion sizes: {e}')
-        return []
-
-def get_health_tips(category):
-    api_key: str = 'c676336b8de04c04b131f2f91eb14b33'
-    endpoint = f'https://api.spoonacular.com/food/search?apiKey={api_key}&query={category}&number=10'
-    response = requests.get(endpoint)
-    if response.status_code == 200:
-        data = response.json()
-        return data['searchResults']
-    else:
         return []
 
 

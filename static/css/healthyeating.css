@@ -140,14 +140,32 @@ button:hover {
     background-color: #218838;
 }
 
+/* Right sidebar styling */
 .container__right-sidebar {
     position: relative;
     right: 20px;
     top: 20px;
-    width: 250px;
+    width: 350px;
     background-color: #A0DAB3;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.container__right-sidebar h1 {
+    font-size: 1.5em;
+    margin-bottom: 15px;
+}
+.container__right-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+.container__right-sidebar li {
+    margin-bottom: 10px;
+}
+.container__right-sidebar a {
+    text-decoration: none;
+    color: #333;
 }
 
 /* Back to Top link styling */

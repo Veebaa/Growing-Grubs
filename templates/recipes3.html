@@ -100,9 +100,19 @@
 
         </main>
 
-        <aside class="container__right-sidebar">
-            <h1>Today's Top Story</h1>
-            <p>Weaning your baby - When is your baby ready?</p>
+        <aside class="container__right-sidebar" id="sidebar">
+            <h1>Today's Top Stories</h1>
+            {% if articles %}
+                {% for article in articles %}
+                    <div>
+                        <h2 id="topstory_title">{{ article.name }}</h2>
+                        <p id="topstory_description">{{ article.description }}</p>
+                        <a href="{{ article.url }}" id="topstory_url">Read more</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No stories available.</p>
+            {% endif %}
         </aside>
     </div>
 

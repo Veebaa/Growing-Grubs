@@ -60,6 +60,24 @@ class Recipe(db.Model):
 
     def log_view(self):
         """Increment the view count and update the last viewed date."""
-        self.views += 1
+        self.views = self.views + 1 if self.views is not None else 1
         self.last_viewed = datetime.utcnow()
-        db.session.commit()
+        db.session.add(self)
+
+    def to_dict(self):
+        """Convert the Recipe instance to a dictionary."""
+        return {
+            'id': self.id,
+            'title': self.title,
+            'description': self.description,
+            'serves': self.serves,
+            'prep_time': self.prep_time,
+            'cook_time': self.cook_time,
+            'age_group': self.age_group,
+            'ingredients': self.ingredients,
+            'method': self.method,
+            'url': self.url,
+            'image_url': self.image_url,
+            'views': self.views,
+            'last_viewed': self.last_viewed.isoformat() if self.last_viewed else None
+        }

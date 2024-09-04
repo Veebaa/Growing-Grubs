@@ -131,7 +131,17 @@
 
         <aside class="container__right-sidebar" id="sidebar">
             <h1>Today's Top Stories</h1>
-            <!-- Populate sidebar content with JavaScript or server-side rendering -->
+            {% if articles %}
+                {% for article in articles %}
+                    <div>
+                        <h2 id="topstory_title">{{ article.name }}</h2>
+                        <p id="topstory_description">{{ article.description }}</p>
+                        <a href="{{ article.url }}" id="topstory_url">Read more</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No stories available.</p>
+            {% endif %}
         </aside>
     </div>
 
