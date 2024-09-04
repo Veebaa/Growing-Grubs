@@ -1,6 +1,7 @@
 # ESSA Project - Growing Grubs Web Application
 
-Growing Grubs is a web application designed to help parents find healthy recipes for their children at various stages of development. The application provides a range of features, including recipe search, user profiles, and feeding tips.
+Growing Grubs is a web application designed to help parents find healthy recipes for their children at various stages 
+of development. The application provides a range of features, including recipe search, user profiles, and feeding tips.
 
 ## Features
 - Search for recipes based on age groups.
@@ -28,7 +29,7 @@ source `venv/bin/activate`  # On Windows use `venv\Scripts\activate`
 
 ### Set Up Environment Variables:
 
-Create a .env file in the root directory and add your Spoonacular and CDC API keys.
+Create a .env file in the root directory and add your NHS API key.
 
 ### Initialize the Database:
 
