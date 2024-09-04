@@ -1,20 +1,23 @@
+import json
 import requests
-import csv
-import os
 import logging
-from flask import Blueprint, current_app
-from flask import render_template, request, redirect, url_for, flash, jsonify, abort
+from flask import Blueprint, current_app, render_template, request, redirect, url_for, flash, jsonify, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from spoonacular import API
 from sqlalchemy.exc import SQLAlchemyError
-from mod import logger, db
-from models import Users, Favourites, user_favourites
-from user_manager import RegistrationForm, LoginForm
+from mod import db
+from mod.models import Users, Favourites, user_favourites, Recipe
+from mod.user_manager import RegistrationForm, LoginForm
+from datetime import datetime, timedelta
+from sqlalchemy.orm import sessionmaker
 
 other_routes = Blueprint("other_routes", __name__, static_folder='static', template_folder='../templates')
 
-if logger is None:
+if logging.getLogger('growing_grubs_logger') is None:
+    logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger('growing_grubs_logger')
+
+
 
 # Recipe API
 api_key = 'c676336b8de04c04b131f2f91eb14b33'
@@ -23,26 +26,6 @@ BASE_URL = 'https://api.spoonacular.com/recipes/complexSearch'
 # #  Health API
 # CDC_API_KEY = 'xbq22hetm32yj5rl2ogu4ewj'
 # CDC_API_SECRET = '5gmwqwzx1ke94m2i1wlx3e8hzvs4nnerfgekudxhao4g1x73lo'
-
-def get_recipes(params):
-    try:
-        response = requests.get(BASE_URL, params=params)
-        print(f"Request URL: {response.url}") # Log the URL being requested
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        data = response.json()
-        print(f"API Response: {data}")
-
-        # Check if the data contains the 'results' key and return it
-        if 'results' in data:
-            return data['results']
-        else:
-            print("Unexpected response format:", data)  # Log API response data
-            return []  # Return an empty list if the expected data is not found
-
-    except requests.exceptions.RequestException as e:
-        print(f"API request error: {e}")
-        return []  # Return an empty list in case of any error
-
 
 @other_routes.route("/")
 def index():
@@ -77,6 +60,7 @@ def get_topics():
 @other_routes.route('/register', methods=['GET', 'POST'])
 def register_user():
     form = RegistrationForm()
+    logger = current_app.logger
     if form.validate_on_submit():
         logger.info(f"Registering new User {form.username.data}")
         try:
@@ -99,6 +83,7 @@ def register_user():
 
 @other_routes.route('/login', methods=['GET', 'POST'])
 def login():
+    logger = current_app.logger
     if current_user.is_authenticated:
         logger.info(f'User {current_user.username} is authenticated. Redirecting to profile page.')
         return redirect(url_for('other_routes.profile'))
@@ -135,6 +120,7 @@ def logout():
 @other_routes.route('/profile')
 @login_required
 def profile():
+    logger = current_app.logger
     available_profile_images = ['avo.jpg', 'cherries.jpg', 'orange.jpg', 'strawberry.jpg', 'watermelon.jpg']
     user_info = {
         'profile_image': current_user.profile_image,
@@ -171,74 +157,74 @@ def edit_profile():
 
     return redirect(url_for('other_routes.profile'))
 
+def paginate_recipes(recipes_query=None, keywords=None, template_name=None, search_query=None):
+    # If no query object is provided, start a new query
+    if recipes_query is None:
+        recipes_query = Recipe.query
 
-def load_recipes_from_csv(file_path, keywords):
-    recipes = []
-    with open(file_path, mode='r', newline='', encoding='utf-8') as csvfile:
-        reader = csv.DictReader(csvfile)
-        for row in reader:
-            # Combine title, description, ingredients, and method to search for keywords
-            combined_text = f"{row['title']} {row['description']} {row['ingredients']} {row['method']}".lower()
+    # Apply keyword filtering if keywords are provided
+    if keywords:
+        recipes_query = recipes_query.filter(Recipe.age_group.in_(keywords))
 
-            # Check if any keyword is in the combined text or in the age_group column
-            if any(keyword.lower() in combined_text for keyword in keywords) or any(keyword.lower() in row['age_group'].lower() for keyword in keywords):
-                recipes.append({
-                    'id': row['id'],
-                    'title': row['title'],
-                    'description': row['description'],
-                    'serves': row['serves'],
-                    'prep_time': row['prep_time'],
-                    'cook_time': row['cook_time'],
-                    'age_group': row['age_group'],
-                    'ingredients': row['ingredients'],
-                    'method': row['method'],
-                    'url': row['url']
-                })
-    return recipes
+    # Pagination parameters
+    per_page = 15
+    page = request.args.get('page', 1, type=int)
+
+    try:
+        # Get paginated results
+        pagination = recipes_query.order_by(Recipe.title.asc()).paginate(page=page, per_page=per_page, error_out=False)
+        recipes = pagination.items
+        total_pages = pagination.pages
+        next_page = pagination.next_num if pagination.has_next else None
+        prev_page = pagination.prev_num if pagination.has_prev else None
+
+        return render_template(template_name,
+                               recipes=recipes,
+                               next_page=next_page,
+                               prev_page=prev_page,
+                               current_page=page,
+                               total_pages=total_pages,
+                               search_query=search_query)
+    except Exception as e:
+        logger = current_app.logger
+        logger.error(f"Unexpected error occurred: {e}", exc_info=True)
+        return render_template('404.html', message="An error occurred while retrieving recipes.")
+
+
+@other_routes.route('/recipe/<int:recipe_id>')
+def view_recipe(recipe_id):
+    # Fetch the recipe by ID
+    recipe = Recipe.query.get(recipe_id)
+    if not recipe:
+        abort(404)  # Recipe not found
+
+    # Log the view
+    recipe.log_view()
+
+    return render_template('meal_detail.html', recipe=recipe)
 
 
 @other_routes.route('/recipes')
 def recipes():
-    # Load recipes from the CSV file and filter
-    recipes_file_path = 'static/allrecipes.csv'
-    keywords = [""]
-    recipes = load_recipes_from_csv(recipes_file_path, keywords)
-
-    # Render the page with filtered recipes data
-    return render_template('recipes.html', recipes=recipes)
+    return paginate_recipes(template_name='recipes.html')
 
 
 @other_routes.route('/recipes1')
 def recipes1():
-    # Load recipes from the CSV file and filter for weaning recipes
-    recipes_file_path = 'static/allrecipes.csv'
     keywords = ["6Months", "4to6Months", "9Months", "7Months"]
-    recipes = load_recipes_from_csv(recipes_file_path, keywords)
-
-    # Render the page with filtered recipes data
-    return render_template('recipes1.html', recipes=recipes)
+    return paginate_recipes(keywords=keywords, template_name='recipes1.html')
 
 
 @other_routes.route('/recipes2')
 def recipes2():
-    # Load recipes from the CSV file and filter for weaning recipes
-    recipes_file_path = 'static/allrecipes.csv'
     keywords = ["9Months", "12Months", "10Months"]
-    recipes = load_recipes_from_csv(recipes_file_path, keywords)
-
-    # Render the page with filtered recipes data
-    return render_template('recipes2.html', recipes=recipes)
+    return paginate_recipes(keywords=keywords, template_name='recipes2.html')
 
 
 @other_routes.route('/recipes3')
 def recipes3():
-    # Load recipes from the CSV file and filter for weaning recipes
-    recipes_file_path = 'static/allrecipes.csv'
     keywords = ["12Months", "forTheWholeFamily"]
-    recipes = load_recipes_from_csv(recipes_file_path, keywords)
-
-    # Render the page with filtered recipes data
-    return render_template('recipes3.html', recipes=recipes)
+    return paginate_recipes(keywords=keywords, template_name='recipes3.html')
 
 
 @other_routes.route('/feeding_stages')
@@ -254,109 +240,72 @@ def signs():
 @other_routes.route('/search', methods=['POST'])
 def search():
     search_term = request.form.get('search')
-    logger.info(f"Searching for meals with query: {search_term}")
+    logger = current_app.logger
+    logger.info(f"Searching for recipes with query: {search_term}")
 
     if not search_term:
         flash("Please enter a search term.")
         return redirect(url_for('other_routes.recipes'))
 
     try:
-        # Querying the Spoonacular API for complex search
-        endpoint = f'https://api.spoonacular.com/recipes/complexSearch?apiKey={api_key}&query={search_term}'
-        response = requests.get(endpoint)
-        results = response.json()
-        logger.info(f"Search results: {results}")
+        # Perform the search in the database
+        recipes_query = Recipe.query.filter(
+            Recipe.title.ilike(f"%{search_term}%") |
+            Recipe.age_group.ilike(f"%{search_term}%")
+        )
 
-        if not results or 'results' not in results:
-            flash("Invalid response from the API.")
-            return redirect(url_for('other_routes.recipes'))
-
-        meals = results.get('results', [])
-
-        if meals:  # Check if meals were returned
-            return render_template('recipes.html', meals=meals, search_query=search_term)
-        else:
-            flash("No meals found matching your search term.")
+        # Pass the pre-filtered query to the paginate_recipes function
+        return paginate_recipes(recipes_query=recipes_query, template_name='search_results.html', search_query=search_term)
 
     except Exception as e:
-        logger.error(f"Error fetching data from Spoonacular: {e}")
-        flash("Error fetching data from Spoonacular: " + str(e))
-
-    return redirect(url_for('other_routes.recipes'))
-
-
-# @other_routes.route('/meal/<int:meal_id>')
-# def meal_detail(meal_id):
-#     logger.info(f"Fetching details for meal ID: {meal_id}")
-#
-#     try:
-#         response = requests.get(f'https://api.spoonacular.com/recipes/{meal_id}/information?apiKey=c676336b8de04c04b131f2f91eb14b33')
-#         meal_info = response.json()  # Converts the response to JSON
-#         logger.info(f"Meal info: {meal_info}")  # Logs the meal structure
-#
-#         if not meal_info or 'error' in meal_info:
-#             logger.error("Invalid meal info received or Meal ID not found.")
-#             return render_template('404.html'), 404  # Serve 404 page
-#
-#     except requests.HTTPError as http_err:
-#         logger.error(f"HTTP error occurred: {http_err}")
-#         return render_template('404.html'), 404  # Serve 404 page
-#
-#     except Exception as e:
-#         logger.error(f"Unexpected error occurred: {e}")
-#         return render_template('404.html'), 404  # Serve 404 page
-#
-#     meal_info['id'] = meal_id
-#     meal_info['image'] = meal_info.get('image', '/static/images/default-recipe.jpg')
-#     meal_info['instructions'] = meal_info.get('instructions', 'No instructions provided.')
-#     meal_info['extendedIngredients'] = meal_info.get('extendedIngredients', [])
-#     meal_info['preparationMinutes'] = meal_info.get('preparationMinutes', 'N/A')
-#     meal_info['cookingMinutes'] = meal_info.get('cookingMinutes', 'N/A')
-#     meal_info['readyInMinutes'] = meal_info.get('readyInMinutes', 'N/A')
-#
-#     # Successful retrieval
-#     logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
-#
-#     return render_template('meal_detail.html', meal=meal_info)
+        logger.error(f"Error processing the search: {e}", exc_info=True)
+        flash("An error occurred while searching for recipes.")
+        return redirect(url_for('other_routes.recipes'))
 
 
 @other_routes.route('/meal/<int:meal_id>')
 def meal_detail(meal_id):
+    logger = current_app.logger
     logger.info(f"Fetching details for meal ID: {meal_id}")
-    logger.info(f"Application root path: {current_app.root_path}")
 
-    # Correct path to your CSV file
-    csv_file_path = os.path.join(current_app.root_path, '..', 'static', 'allrecipes.csv')
-    logger.info(f"CSV file path: {csv_file_path}")
-
-    if not os.path.exists(csv_file_path):
-        logger.error(f"CSV file does not exist at path: {csv_file_path}")
-        return render_template('404.html'), 404
+    Session = sessionmaker(bind=db.engine)
 
     try:
-        # Read the CSV file
-        with open(csv_file_path, mode='r') as file:
-            reader = csv.DictReader(file)
-            meal_info = next((row for row in reader if int(row['id']) == meal_id), None)
+        with Session() as session:
+            with session.no_autoflush:
+                # Fetch the recipe from the database
+                meal_info = session.query(Recipe).get(meal_id)
 
-        if not meal_info:
-            logger.error(f"Meal ID {meal_id} not found in CSV.")
-            return render_template('404.html'), 404
+                if not meal_info:
+                    logger.error(f"Meal ID {meal_id} not found in the database.")
+                    return render_template('404.html'), 404
 
-        # Set default values if necessary
-        meal_info['image_url'] = meal_info.get('image_url', '/static/images/default-recipe.jpg')
-        meal_info['method'] = meal_info.get('method', 'No instructions provided.')
+                # Log the view (increment views and update last_viewed)
+                meal_info.log_view()
 
-        # Successful retrieval
-        logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
-        return render_template('meal_detail.html', meal=meal_info)
+                # Prepare meal information
+                meal_info.image_url = meal_info.image_url or '/static/images/default-recipe.jpg'
+                meal_info.method = meal_info.method or 'No instructions provided.'
+
+                # Process the ingredients and instructions if they are JSON strings
+                try:
+                    meal_info.ingredients = json.loads(meal_info.ingredients)
+                except (json.JSONDecodeError, TypeError):
+                    meal_info.ingredients = []
+
+                try:
+                    meal_info.method = json.loads(meal_info.method)
+                except (json.JSONDecodeError, TypeError):
+                    meal_info.method = []
+
+                # Successful retrieval
+                logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
+                return render_template('meal_detail.html', meal=meal_info)
 
     except Exception as e:
         logger.error(f"Unexpected error occurred: {e}", exc_info=True)
         return render_template('404.html'), 404
 
-
-# app.py
 
 @other_routes.route('/favourite/<int:recipe_id>', methods=['POST'])
 @login_required
@@ -412,48 +361,6 @@ def unfavourite_recipe(recipe_id):
     return redirect(url_for('other_routes.profile'))
 
 
-@other_routes.route('/nutrition_widget/<int:meal_id>')
-def nutrition_widget(meal_id):
-    logger.info(f"Generating nutrition widget for meal ID: {meal_id}")
-
-    try:
-        # Fetching meal information
-        response = spoonacular_api.get_recipe_information(meal_id)
-        meal_info = response.json()
-
-        if not meal_info or 'error' in meal_info:
-            logger.error("Invalid meal info received or Meal ID not found.")
-            return "Error: Meal information not found.", 404
-
-        # Preparing ingredient list for the widget
-        ingredients = "\n".join([ingredient['original'] for ingredient in meal_info['extendedIngredients']])
-        servings = meal_info.get('servings', 1)
-        api_key = 'c676336b8de04c04b131f2f91eb14b33'
-
-        # Preparing POST data for the widget
-        post_data = {
-            'defaultCss': True,
-            'ingredientList': ingredients,
-            'servings': servings
-        }
-
-        # Calling Spoonacular API to get the widget HTML
-        widget_response = requests.post(
-            f'https://api.spoonacular.com/recipes/visualizeNutrition?apiKey={api_key}',
-            data=post_data
-        )
-        widget_html = widget_response.text
-
-        return widget_html
-
-    except requests.HTTPError as http_err:
-        logger.error(f"HTTP error occurred: {http_err}")
-        return "Error: Unable to generate widget.", 500
-    except Exception as e:
-        logger.error(f"Unexpected error occurred: {e}")
-        return "Error: Unable to generate widget.", 500
-
-
 @other_routes.route('/healthy_eating', methods=['GET', 'POST'])
 def healthy_eating():
     age_group = request.form.get('age_group')
@@ -495,7 +402,6 @@ def get_portion_sizes(age_group):
     except requests.exceptions.RequestException as e:
         print(f'Error fetching portion sizes: {e}')
         return []
-
 
 def get_health_tips(category):
     api_key: str = 'c676336b8de04c04b131f2f91eb14b33'
@@ -550,3 +456,19 @@ def proxy():
     except Exception as err:
         print(f'Other error occurred: {err}')
         return jsonify({'error': 'An error occurred'}), 500
+
+
+@other_routes.route('/top-recipe')
+def top_recipe():
+    # Calculate the date for the previous day
+    yesterday = datetime.now() - timedelta(days=1)
+    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
+    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
+
+    # Get the most viewed recipe from the previous day
+    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
+                                     Recipe.last_viewed <= end_of_yesterday)\
+                             .order_by(Recipe.views.desc())\
+                             .first()
+
+    return render_template('top_recipe.html', top_recipe=top_recipe)

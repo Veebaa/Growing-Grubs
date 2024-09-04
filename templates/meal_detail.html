@@ -29,7 +29,7 @@
             <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
             <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
             <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-            <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+            <a href="{{ url_for('other_routes.recipes3') }}">1 - 4 Years</a>
         </div>
     </div>
     <div class="navbar_dropdown">
@@ -43,7 +43,8 @@
     </div>
     <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
     {% if current_user.is_authenticated %}
-        <!-- If the user is logged in, show the Logout button -->
+        <!-- If the user is logged in, show the  My Profile and Logout button -->
+        <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
         <form method="POST" action="{{ url_for('other_routes.logout') }}">
             <button type="submit" class="navbar-logout">Logout</button>
         </form>
@@ -63,8 +64,35 @@
     <div class="container">
         <main class="container__main-content">
             <div class="recipe-hero">
+                <!-- Recipe Image -->
                 <img src="{{ meal.image_url }}" alt="{{ meal.title }}">
-                <h1>{{ meal.title }}</h1>
+
+                <!-- Recipe Meta Data and Description -->
+                <div class="recipe-hero-content">
+                    <h1>{{ meal.title }}</h1>
+                    <p>{{ meal.description }}</p>
+
+                    <div class="recipe-meta">
+                        <div>
+                            <strong>Serves:</strong> {{ meal.serves }}
+                        </div>
+                        <div>
+                            <strong>Prep Time:</strong> {{ meal.prep_time }} minutes
+                        </div>
+                        <div>
+                            <strong>Cook Time:</strong> {{ meal.cook_time }} minutes
+                        </div>
+                        <div>
+                            <strong>Suitable for:</strong> {{ meal.age_group }}
+                        </div>
+                        <div>
+                            <strong>Viewed:</strong> {{ meal.views }} times
+                        </div>
+                        <div>
+                            <strong>Last Viewed:</strong> {{ meal.last_viewed.strftime('%Y-%m-%d %H:%M:%S') if meal.last_viewed else 'Never' }}
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Favourite Button -->
@@ -77,43 +105,30 @@
                 </button>
             </form>
 
+            <!-- Recipe Details Section -->
             <section class="recipe-details">
-                <div class="recipe-meta">
-                    <div>
-                        <strong>Serves:</strong> {{ meal.serves }}
-                    </div>
-                    <div>
-                        <strong>Prep Time:</strong> {{ meal.prep_time }} minutes
-                    </div>
-                    <div>
-                        <strong>Cook Time:</strong> {{ meal.cook_time }} minutes
-                    </div>
-                </div>
-
                 <div class="details-container">
                     <div class="ingredients">
                         <h3>Ingredients</h3>
                         <ul>
-                            {% for ingredient in meal.ingredients.split(',') %}
-                                <li>&#8226; {{ ingredient.strip() }}</li>
+                            {% for ingredient in meal.ingredients %}
+                                <li>{{ ingredient.strip() }}</li>
                             {% endfor %}
                         </ul>
                     </div>
 
                     <div class="instructions">
                         <h3>Instructions</h3>
-                        <p>{{ meal.method }}</p>
+                        <ol>
+                            {% for step in meal.method%}
+                                <li class="instruction-step">{{ step }}</li>
+                            {% endfor %}
+                        </ol>
                     </div>
                 </div>
-
-                <h3>Description</h3>
-                <p>{{ meal.description }}</p>
-
-                <h3>Age Group</h3>
-                <p>{{ meal.age_group }}</p>
             </section>
-
         </main>
+
         <aside class="container__right-sidebar" id="sidebar">
             <h1>Today's Top Stories</h1>
             <!-- Populate sidebar content with JavaScript or server-side rendering -->

@@ -3,12 +3,12 @@ from flask_wtf import FlaskForm
 from wtforms.fields.choices import SelectField
 from wtforms.fields.simple import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import InputRequired, Length, Regexp, Email, EqualTo, ValidationError
+from mod.models import Users
 
-from mod import app
-from models import Users
+login_manager = LoginManager()
 
-login_manager = LoginManager(app)
-login_manager.init_app(app)
+def init_login_manager(app):
+    login_manager.init_app(app)
 
 
 @login_manager.user_loader

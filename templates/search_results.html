@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Recipes</title>
+    <title>Search Results</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
@@ -11,8 +11,9 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/right-sidebar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename= 'css/recipes.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/recipes.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
 
 </head>
 
@@ -65,17 +66,18 @@
 
     <div class="recipes_container">
         <main class="recipes_container__main-content">
+            <h2>Search Results for "{{ search_query }}"</h2>
 
-            <h2>Recipes for 6 to 9-month-old babies</h2>
-            <p>Welcome to our Recipes Page for 6 to 9-month-old babies! Find a selection of age-appropriate recipes.</p>
-
+            {% if recipes %}
             <div class="recipes">
                 {% for recipe in recipes %}
-                <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=recipe.id) }}">
-                    <img src="{{ recipe.image_url if recipe.image_url else url_for('static', filename='images/comingsoon.jpg') }}" alt="{{ recipe.title }}">
-                    <h2>{{ recipe.title }}</h2>
+                <div class="recipe-card">
+                    <a href="{{ url_for('other_routes.meal_detail', meal_id=recipe.id) }}">
+                        <img src="{{ recipe.image_url if recipe.image_url else url_for('static', filename='images/comingsoon.jpg') }}" alt="{{ recipe.title }}">
+                        <h3>{{ recipe.title }}</h3>
+                    </a>
                     <p>{{ recipe.age_group or 'No suggested age available' }}</p>
-                </a>
+                </div>
                 {% endfor %}
             </div>
 
@@ -98,7 +100,9 @@
                     {% endif %}
                 </div>
             </div>
-
+            {% else %}
+            <p>No recipes found matching your search term.</p>
+            {% endif %}
         </main>
 
         <aside class="container__right-sidebar">
@@ -120,3 +124,4 @@
 
 </body>
 </html>
+

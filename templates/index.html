@@ -11,10 +11,8 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/right-sidebar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/toprecipe.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    <script src="{{ url_for('static', filename='js/popular_recipe.js') }}"></script>
     <script src="{{ url_for('static', filename='js/topics.js') }}"></script>
 
 </head>
@@ -34,7 +32,7 @@
         <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
         <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
         <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-        <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+        <a href="{{ url_for('other_routes.recipes3') }}">1 - 4 Years</a>
       </div>
     </div>
     <div class="navbar_dropdown">
@@ -69,26 +67,28 @@
     <div class="container">
         <main class="container__main-content">
             <h1>About Us</h1>
-            <p>As a mother who has experienced the challenges of providing nourishing meals for children
-                during the weaning stage, I understand the overwhelming and conflicting information that
-                parents often face. That's why I am excited to introduce our web application, designed to
-                support parents of children aged 6 months to 4 years old. Our mission is to provide a
-                comprehensive guide on weaning, healthy eating habits, and a variety of nutritious recipes
-                perfect for young kids. We understand that parents are busy, which is why our app features
-                quick and easy recipes, tips for introducing a range of foods, and promotes healthy eating
-                habits from an early age. Our user-friendly platform aims to empower parents to confidently
-                nourish their children and cultivate a positive relationship with food. Join us on this
-                journey towards healthier and happier mealtimes for your little ones.</p>
+            <p>Hey there, fellow food wranglers! If you’ve ever felt like mealtime is a never-ending circus, you’re in
+                the right place. As a mom who’s tackled the wild ride of weaning, I totally get the whirlwind of advice
+                and conflicting info out there. That’s why I’m super excited to introduce our web app, your ultimate
+                sidekick in serving up nutritious, kid-friendly meals for little ones aged 6 months to 4 years.
+                Our app is brimming with quick recipes, healthy eating tips, and feeding guidelines designed to make
+                your life a little easier—whether you’re cooking solo or with your tiny sous-chefs. Don’t forget to
+                <a href="{{ url_for('other_routes.register_user') }}">create an account</a> and save your favorite
+                recipes; after all, even the best chefs need a hand in outsmarting a toddler’s ever-changing tastes!
+                Let’s turn mealtime mayhem into a fun, healthy adventure. Join us and let the culinary escapades begin!</p>
             <br>
         <div class="container__main-content__top-recipes">
             <h1>Today's Top Recipe</h1>
-            <div class="main-content__top-recipes">
-                <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image" id="toprecipe_image">
-                <div class="toprecipe_info">
-                    <h2 id="toprecipe_title">Butternut Squash and Chickpea Curry</h2>
-                    <a href="#" id="toprecipe_link">View Recipe</a>
+                <div class="main-content__top-recipes">
+                    <img class="toprecipe_image"
+                         src="{{ top_recipe.image_url if top_recipe else url_for('static', filename='images/comingsoon.jpg') }}"
+                         alt="recipe image"
+                         id="toprecipe_image">
+                    <div class="toprecipe_info">
+                        <h2 id="toprecipe_title">{{ top_recipe.title if top_recipe else 'No Recipe Available' }}</h2>
+                        <a href="{{ url_for('meal_detail', recipe_id=top_recipe.id) if top_recipe else '404' }}" id="toprecipe_link">View Recipe</a>
+                    </div>
                 </div>
-            </div>
         </div>
         </main>
 

@@ -1,5 +1,4 @@
 .recipes_page {
-    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f9f9f9;
@@ -17,7 +16,7 @@
 
 .container__right-sidebar {
     flex: 1;
-    background-color: #fff;
+    background-color: #FFF8F0;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
@@ -29,14 +28,8 @@
     gap: 16px;
 }
 
-.search_recipes {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
-}
-
 .recipe-card {
-    background-color: #fff;
+    background-color: #FFF8F0;
     border: 1px solid #e8e8e8;
     border-radius: 8px;
     overflow: hidden;
@@ -64,4 +57,34 @@
 .recipe-card p {
     margin: 0.5rem;
     color: #777;
+}
+
+.center {
+  text-align: center;
+}
+
+.pagination {
+    display: inline-block;
+    margin-top: 20px;
+}
+
+.pagination a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+    border-radius: 50%;
+    margin: 0 4px;
+    font-size: 16px;
+}
+
+.pagination a.active {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 50%;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #ddd;
 }

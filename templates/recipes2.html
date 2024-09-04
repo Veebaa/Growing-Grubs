@@ -13,7 +13,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename= 'css/recipes.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<!--    <script defer src="{{ url_for('other_routes.static', filename='js/recipes1.js') }}"></script>-->
+
 </head>
 
 <body class="recipes_page">
@@ -31,7 +31,7 @@
         <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
         <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
         <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-        <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+        <a href="{{ url_for('other_routes.recipes3') }}">1 - 4 Years</a>
       </div>
     </div>
     <div class="navbar_dropdown">
@@ -72,11 +72,31 @@
             <div class="recipes">
                 {% for recipe in recipes %}
                 <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=recipe.id) }}">
-                    <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}">
+                    <img src="{{ recipe.image_url if recipe.image_url else url_for('static', filename='images/comingsoon.jpg') }}" alt="{{ recipe.title }}">
                     <h2>{{ recipe.title }}</h2>
-                    <p>{{ recipe.difficulty or 'No difficulty level available' }}</p>
+                    <p>{{ recipe.age_group or 'No suggested age available' }}</p>
                 </a>
                 {% endfor %}
+            </div>
+
+            <!-- Pagination controls -->
+            <div class="center">
+                <div class="pagination">
+                    {% if prev_page %}
+                        <a href="{{ url_for(request.endpoint, page=prev_page) }}">&laquo; Previous</a>
+                    {% endif %}
+
+                    {% for page_num in range(1, total_pages + 1) %}
+                        <a href="{{ url_for(request.endpoint, page=page_num) }}"
+                           class="{% if page_num == current_page %}active{% endif %}">
+                            {{ page_num }}
+                        </a>
+                    {% endfor %}
+
+                    {% if next_page %}
+                        <a href="{{ url_for(request.endpoint, page=next_page) }}">Next &raquo;</a>
+                    {% endif %}
+                </div>
             </div>
 
         </main>

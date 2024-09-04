@@ -1,22 +1,73 @@
-/* Styling for the container that holds the content */
+.healthy-eating{
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow-x: hidden;
+    padding-bottom: 60px;
+    align-items: flex-start;
+}
+
 .healthy_container {
     display: flex;
     flex-direction: row;
-    gap: 20px;
-    padding: 20px;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex: 1;
 }
 
-/* Main content area styling */
 .healthy_container__main-content {
     flex: 1;
-    background-color: #f9f9f9;
     padding: 20px;
+    margin-top: 20px;
+    background-color: #FFF8F0;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-right: 50px;
 }
 
-/* Section styling for healthy eating and portion sizes */
-.healthy-eating-section,
+.container__left-sidebar {
+    width: 250px; /* Fixed width for the sidebar */
+    padding: 20px;
+    margin-right: 20px; /* Space between sidebar and main content */
+    margin-top: 20px;
+    background-color: #FFF8F0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: sticky;
+    top: 20px; /* Height of the navbar */
+    height: calc(100vh - 80px); /* Full height minus navbar height and some extra space */
+}
+
+.healthy_container__main-content h1, .healthy_container__main-content h2, .healthy_container__main-content h3 , healthy_container__main-content h4 {
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.healthy_container__main-content p, .healthy_container__main-content ul, .healthy_container__main-content ol {
+    color: #666;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.toc {
+    list-style-type: none;
+    padding: 0;
+}
+
+.toc li {
+    margin-bottom: 10px;
+}
+
+.toc a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.toc a:hover {
+    text-decoration: underline;
+}
+
 .portion-sizes-section {
     margin-bottom: 20px;
 }
@@ -90,9 +141,23 @@ button:hover {
 }
 
 .container__right-sidebar {
-    flex: 1;
-    background-color: #fff;
-    padding: 20px;
+    position: relative;
+    right: 20px;
+    top: 20px;
+    width: 250px;
+    background-color: #A0DAB3;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Back to Top link styling */
+.back-to-top {
+    font-size: 0.4em;
+    color: #007bff;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.back-to-top:hover {
+    text-decoration: underline;
 }

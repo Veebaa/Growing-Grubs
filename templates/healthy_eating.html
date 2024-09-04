@@ -3,10 +3,9 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
-    <title>Growing Grubs - Healthy Eating</title>
+    <title>Healthy Eating</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/right-sidebar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/healthyeating.css') }}">
@@ -28,7 +27,7 @@
         <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
         <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
         <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-        <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+        <a href="{{ url_for('other_routes.recipes3') }}">1 - 4 Years</a>
       </div>
     </div>
     <div class="navbar_dropdown">
@@ -60,28 +59,161 @@
     </div>
   </nav>
 
-    <div class="healthy_container">
-        <main class="healthy_container__main-content">
-            <div class="healthy-eating-section">
-                <h1>Healthy Eating Tips</h1>
-            </div>
-            <div class="portion-sizes-section">
-                <h2>Portion Sizes by Age Group</h2>
-                <form id="age-group-form" method="GET" action="{{ url_for('other_routes.proxy') }}">
-                    <label for="age_group">Select Age Group:</label>
-                    <select id="age_group" name="age_group">
-                        <option value="baby" {% if age_group == 'baby' %}selected{% endif %}>Baby</option>
-                        <option value="toddler" {% if age_group == 'toddler' %}selected{% endif %}>Toddler</option>
-                        <option value="family" {% if age_group == 'family' %}selected{% endif %}>Family</option>
-                    </select>
-                    <button type="submit">Submit</button>
-                </form>
+    <div id="top"></div> <!-- Invisible anchor for "Back to Top" links -->
 
-                <div id="portion-sizes-container">
-                    <ul id="portion-sizes-list"></ul>
-                    <button id="load-more" style="display: none;">Load More</button>
+    <div class="healthy_container">
+
+        <aside class="container__left-sidebar">
+            <h1>Table of Contents</h1>
+            <ul class="toc">
+                <li><a href="#mealtime-tips">Mealtime tips for Children Age 1 to 4</a></li>
+                <li><a href="#mealtimes">Making Mealtimes Easier</a></li>
+                <li><a href="#portion-sizes">What You Need to Know About Portion Sizes</a></li>
+                <li><a href="#food-pyramid">The Children's Food Pyramid</a></li>
+            </ul>
+        </aside>
+
+        <main class="healthy_container__main-content">
+
+                <h1>Healthy Eating Tips</h1>
+                    <p>Good eating habits that your child learns at home will stay with them for life. This page has helpful tips for healthy mealtimes.</p>
+
+                <section id="mealtime-tips">
+                    <h2>Mealtime Tips for Children Age 1 to 4 <a href="#top" class="back-to-top">Back to Top</a> </h2>
+                    <h3>Preparing for Meals</h3>
+                    <p>Take time to plan your meals in advance. This will help you to:</p>
+                    <ul>
+                        <li>Introduce a mix of food groups.</li>
+                        <li>Eat more nutritious food.</li>
+                        <li>Save money.</li>
+                        <li>Rely less on processed foods.</li>
+                    </ul>
+                    <p>Have a daily routine.
+                        Try to have regular mealtimes where you sit down at a table with your child to eat together.
+                        When your child sees you eating lots of different foods, they are more likely to do the same.</p>
+                    <p>Breakfast is important.
+                        Make sure your child eats breakfast every day. It gives them the energy they need.
+                        Lead by example and make sure you eat a breakfast. Sit down with your child for breakfast as often as possible.</p>
+                    <p>Give them an iron-fortified porridge or breakfast cereal most days of the week.
+                        Add a fruit high in vitamin C like kiwi or orange pieces to help them absorb the iron.</p>
+                </section>
+
+                <section id="mealtimes">
+                    <h2>Making Mealtimes Easier <a href="#top" class="back-to-top">Back to Top</a></h2>
+                    <p>One family, one meal. Eat the same meal together at mealtime. Do not make different meals for children. Try to make each meal healthy and balanced with a mix of food groups from the food pyramid shelves.</p>
+                    <p>Get them to join in. Try to make mealtimes a relaxed, happy, and fun occasion. Involve all the family in:</p>
+                    <ul>
+                        <li>Planning.</li>
+                        <li>Shopping.</li>
+                        <li>Washing.</li>
+                        <li>Peeling.</li>
+                        <li>Chopping.</li>
+                        <li>Cooking.</li>
+                        <li>Serving.</li>
+                        <li>Tidying up.</li>
+                    </ul>
+
+                    <p>Healthier cooking methods. Use healthier cooking methods for the whole family. Try grilling, baking, and steaming instead of frying or roasting with fat or oil.</p>
+                    <p>Let children stop eating when they say that they are full. Wait until the next snack or meal time before offering more food. Let them have more food if they say they are still hungry.</p>
+
+                    <h3>Enjoying Food</h3>
+                    <h4>Healthier Options</h4>
+                    <ul>
+                        <li>Give your child fruit when they want a snack. Healthy snacks are an important part of the diet of young children. You can offer them healthy snacks 2 to 3 times a day.</li>
+                        <li>Choose wholemeal bread as well as white bread.</li>
+                        <li>Include vegetables in main meals, and fruit at lunch.</li>
+                        <li>Choose milk and water for them to drink.</li>
+                        <li>Limit dried fruit.</li>
+                        <li>Offer smooth nut butter without sugar or salt.</li>
+                        <li>Try not to use food high in fat, sugar, or salt as a reward or comfort for your child.</li>
+                        <li>Do not ban any foods, such as ice cream and sweets. A ban can make your child want these things even more. Instead, pick a day of the week when everyone can have a treat together.</li>
+                    </ul>
+
+                    <h4>Introducing New Foods</h4>
+                    <p>Introduce new foods slowly. Make positive comments about food. Avoid placing too much focus on certain foods, for example vegetables. Include a food you know they will eat in the meal.</p>
+                    <p>Your child might not like new foods at first, but keep trying. It may take a few times to be successful. Read about fussy eating and what you can do.</p>
+
+                    <h4>Extra Foods at Mealtime</h4>
+                    <p>Sometimes your child will ask for foods that are not part of the meal. Try to avoid giving them extra foods, even when they ask for something healthy like crackers or fruit.</p>
+
+                    <h4>Screen-Free Mealtimes</h4>
+                    <p>Make mealtimes screen-free time for all the family. This means no phone, television, or tablet. Children can get easily distracted from eating.</p>
+
+                    <h4>Good Behaviour</h4>
+                    <p>Try not to use food to reward your child for good behaviour or as a comfort if your child is upset. Think of other rewards. You could use stickers, or a trip to the playground, beach, or park.</p>
+                </section>
+
+                <section id="portion-sizes">
+                    <h2>What You Need to Know About Portion Sizes <a href="#top" class="back-to-top">Back to Top</a></h2>
+                    <p>Children age 1 to 4 grow and develop fast. They need nourishing food to give them energy and nutrients.</p>
+                    <p>Give them child-size portions and servings of healthy food each day. Use the children's food pyramid as a guide.</p>
+
+                    <h3>Your Child’s Appetite</h3>
+                    <p>Use your child's appetite as a guide to help you decide how much food to offer them. Their appetite can increase as they grow.</p>
+                    <p>Smaller younger children will eat less. Taller older children will eat more. Children who are more physically active will eat more. Children aged 2 and older need to be active for at least 3 hours every day.</p>
+                    <p>As they grow, you can increase the amount of food you give at mealtimes. Your child also needs a vitamin D supplement from Halloween to St Patrick's Day.</p>
+
+                    <h3>Regular Meals and Snacks</h3>
+                    <p>Offer your child 3 meals and 2 to 3 healthy snacks each day. Having regular times for meals and snacks sets up healthy eating habits for life.</p>
+
+                    <h3>How to Give the Right Portion</h3>
+                    <h4>Do</h4>
+                    <ul>
+                        <li>Give your child a portion that matches their size - they can ask for more if they are still hungry.</li>
+                        <li>Use the children's food pyramid as a portion guide.</li>
+                        <li>Give them child-size cutlery to make it easier for them to feed themselves.</li>
+                        <li>Give them child-size plates and bowls.</li>
+                    </ul>
+
+                    <h4>Don't</h4>
+                    <ul>
+                        <li>Do not give your child the same amount of food as you.</li>
+                        <li>Do not give them large portions - even if it's healthy food.</li>
+                        <li>Do not pressure your child to eat all on their plate if they say they are full.</li>
+                    </ul>
+
+                    <h3>Plate and Bowl Size</h3>
+                    <p>Use child-size plates and bowls to help you decide on portion size. This can help you see if you’re giving your child enough to eat or too much.</p>
+                    <p>The recommended plate size is 20cm. This is around the size of a side plate. An adult’s plate is 26cm.</p>
+                    <p>The recommended bowl size is 11cm. An adult’s bowl is 16cm.</p>
+                    <p>You can buy child-size plates and bowls in most homeware stores.</p>
+                </section>
+
+                <div class="portion-sizes-section">
+                    <h2>Portion Sizes by Age Group</h2>
+                    <form id="age-group-form" method="GET" action="{{ url_for('other_routes.proxy') }}">
+                        <label for="age_group">Select Age Group:</label>
+                        <select id="age_group" name="age_group">
+                            <option value="baby" {% if age_group == 'baby' %}selected{% endif %}>Baby</option>
+                            <option value="toddler" {% if age_group == 'toddler' %}selected{% endif %}>Toddler</option>
+                            <option value="family" {% if age_group == 'family' %}selected{% endif %}>Family</option>
+                        </select>
+                        <button type="submit">Submit</button>
+                    </form>
+
+                    <div id="portion-sizes-container">
+                        <ul id="portion-sizes-list"></ul>
+                        <button id="load-more" style="display: none;">Load More</button>
+                    </div>
                 </div>
-            </div>
+
+                <section id="food-pyramid">
+                <h2>The Children's Food Pyramid<a href="#top" class="back-to-top">Back to Top</a></h2>
+                <p>The children's food pyramid is for children age 1 to 4. It shows a variety of foods and child-size servings. It's different from the pyramid for older children, teenagers, and adults because children under 5 have different nutrition needs.</p>
+                <p>The bottom of the children’s food pyramid is cereals and breads, potatoes, pasta, and rice. This is because children need more of these carbohydrate foods for energy and growth.</p>
+                <p>The pyramid shows how many daily servings your child should have from each shelf. There are examples of child-size servings on each shelf. Offer your child the number of servings suitable for their age.</p>
+                <p>The 5 main shelves are:</p>
+                <ul>
+                    <li>Cereals and breads, potatoes, pasta, and rice - eat every day.</li>
+                    <li>Vegetables, salad, and fruit - eat every day.</li>
+                    <li>Milk, yogurt, and cheese - eat every day.</li>
+                    <li>Meat, poultry, fish, eggs, beans, and nuts - eat every day.</li>
+                    <li>Fats, spreads, and oils - only in very small amounts.</li>
+                </ul>
+                <p>The red triangle on top contains foods and drinks high in fat, sugar, and salt. Limit these foods to once a week at most and in tiny amounts.</p>
+                <img src="{{ url_for('other_routes.static', filename='images/childrenfoodpyramid.jpg') }}" alt="food-pyramid">
+               </section>
+
         </main>
 
         <aside class="container__right-sidebar">
@@ -103,18 +235,32 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('other_routes.static', filename='js/portions.js') }}"></script>
     <script>
-    function showPopup(message) {
-        const popup = document.getElementById('popup');
-        const overlay = document.getElementById('overlay');
-        popup.innerText = message;
-        popup.classList.add('show');
-        overlay.classList.add('show');
+        function showPopup(message) {
+            const popup = document.getElementById('popup');
+            const overlay = document.getElementById('overlay');
+            popup.innerText = message;
+            popup.classList.add('show');
+            overlay.classList.add('show');
 
-        setTimeout(() => {
-        popup.classList.remove('show');
-        overlay.classList.remove('show');
-        }, 3000); // Auto-hide after 3 seconds
-    }
+            setTimeout(() => {
+            popup.classList.remove('show');
+            overlay.classList.remove('show');
+            }, 3000); // Auto-hide after 3 seconds
+        }
+
+        // Smooth scrolling for all anchor links
+        $(document).ready(function(){
+            $('a[href^="#"]').on('click', function(event) {
+                var target = $(this.getAttribute('href'));
+                if (target.length) {
+                    event.preventDefault();
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top
+                    }, 1000);
+                }
+            });
+        });
+
     </script>
 
 </body>

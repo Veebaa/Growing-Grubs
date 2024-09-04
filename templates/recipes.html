@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <title>Profile</title>
+    <title>Recipes</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
@@ -14,7 +14,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename= 'css/recipes.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-<!--    <script src="{{ url_for('static', filename='js/recipes.js') }}"></script>-->
+
 </head>
 
 <body class="recipes_page">
@@ -32,7 +32,7 @@
         <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
         <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
         <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-        <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+        <a href="{{ url_for('other_routes.recipes3') }}">1 - 4 Years</a>
       </div>
     </div>
     <div class="navbar_dropdown">
@@ -66,20 +66,6 @@
 
     <div class="recipes_container">
         <main class="recipes_container__main-content">
-            {% if meals %}
-                <div class="search-results">
-                    <h2>Search Results for "{{ search_query }}"</h2>
-                    <div class="search_recipes">
-                        {% for meal in meals %}
-                            <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=meal.id) }}">
-                                <img src="{{ meal.image }}" alt="{{ meal.title }}">
-                                <h2>{{ meal.title }}</h2>
-                                <p>{{ "Vegetarian" if meal.vegetarian else ', '.join(meal.get('dishTypes', ["Unknown type"])) }}</p>
-                            </a>
-                        {% endfor %}
-                    </div>
-                </div>
-            {% endif %}
 
             <h2>Recipes</h2>
             <p>Welcome to our Recipes Page, where you'll find a delightful selection of popular recipes
@@ -91,12 +77,33 @@
             <div class="recipes">
                 {% for recipe in recipes %}
                 <a class="recipe-card" href="{{ url_for('other_routes.meal_detail', meal_id=recipe.id) }}">
-                    <img src="{{ recipe.image_url }}" alt="{{ recipe.title }}">
+                    <img src="{{ recipe.image_url if recipe.image_url else url_for('static', filename='images/comingsoon.jpg') }}" alt="{{ recipe.title }}">
                     <h2>{{ recipe.title }}</h2>
-                    <p>{{ recipe.difficulty or 'No difficulty level available' }}</p>
+                    <p>{{ recipe.age_group or 'No suggested age available' }}</p>
                 </a>
                 {% endfor %}
             </div>
+
+            <!-- Pagination controls -->
+            <div class="center">
+                <div class="pagination">
+                    {% if prev_page %}
+                        <a href="{{ url_for(request.endpoint, page=prev_page) }}">&laquo; Previous</a>
+                    {% endif %}
+
+                    {% for page_num in range(1, total_pages + 1) %}
+                        <a href="{{ url_for(request.endpoint, page=page_num) }}"
+                           class="{% if page_num == current_page %}active{% endif %}">
+                            {{ page_num }}
+                        </a>
+                    {% endfor %}
+
+                    {% if next_page %}
+                        <a href="{{ url_for(request.endpoint, page=next_page) }}">Next &raquo;</a>
+                    {% endif %}
+                </div>
+            </div>
+
         </main>
 
         <aside class="container__right-sidebar">

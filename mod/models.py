@@ -1,8 +1,7 @@
-from sqlalchemy import Integer, String, create_engine, Column
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from mod import db
+from datetime import datetime
 
 # Association table for the many-to-many relationship
 user_favourites = db.Table('user_favourites',
@@ -40,3 +39,27 @@ class Favourites(db.Model):
     recipe_id = db.Column(db.Integer, nullable=False)
     recipe_title = db.Column(db.String(200), nullable=False)
     recipe_image = db.Column(db.String(200), nullable=False)
+
+
+class Recipe(db.Model):
+    __tablename__ = 'recipes'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    serves = db.Column(db.String(50), nullable=True)
+    prep_time = db.Column(db.String(50), nullable=True)
+    cook_time = db.Column(db.String(50), nullable=True)
+    age_group = db.Column(db.String(50), nullable=True)
+    ingredients = db.Column(db.Text, nullable=True)
+    method = db.Column(db.Text, nullable=True)
+    url = db.Column(db.String(200), nullable=True)
+    image_url = db.Column(db.String(200), nullable=True)
+    views = db.Column(db.Integer, default=0)
+    last_viewed = db.Column(db.DateTime, nullable=True)
+
+    def log_view(self):
+        """Increment the view count and update the last viewed date."""
+        self.views += 1
+        self.last_viewed = datetime.utcnow()
+        db.session.commit()

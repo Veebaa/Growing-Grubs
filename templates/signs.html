@@ -27,7 +27,7 @@
               <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
               <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
               <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-              <a href="{{ url_for('other_routes.recipes2') }}">1 - 4 Years</a>
+              <a href="{{ url_for('other_routes.recipes3') }}">1 - 4 Years</a>
             </div>
         </div>
         <div class="navbar_dropdown">
@@ -63,13 +63,14 @@
 
     <div class="signs-container">
         <aside class="container__left-sidebar">
-          <h1>Table of Contents</h1>
-          <ul class="toc">
-            <li><a href="#intro">Introduction</a></li>
-            <li><a href="#signs">Signs of Readiness</a></li>
-            <li><a href="#false-signs">False Signs</a></li>
-            <li><a href="#premature">Weaning a Premature Baby</a></li>
-          </ul>
+              <h1>Table of Contents</h1>
+              <ul class="toc">
+                  <li><a href="#intro">Introduction</a></li>
+                  <li><a href="#signs">Signs of Readiness</a></li>
+                  <li><a href="#false-signs">False Signs</a></li>
+                  <li><a href="#premature">Weaning a Premature Baby</a></li>
+                  <li><a href="#weaningtips">Weaning Tips</a></li>
+              </ul>
         </aside>
 
         <main class="signs-container__main-content">
@@ -105,15 +106,71 @@
                 <p>Your baby may have developed all the skills they need to eat solid foods from a corrected age of about 5 to 6 months.</p>
                 <p>Corrected age is your baby's age minus the number of weeks or months they were born early. For example, if your 7-month-old baby was born 2 months early, their corrected age is 5 months.</p>
             </section>
+            <section id="weaningtips">
+                <h2>Weaning Tips <a href="#top" class="back-to-top">Back to Top</a></h2>
+                <p>Before you begin weaning, here are some tips that may help you introduce your baby to solids.</p>
+
+                <h3>Timing</h3>
+                <p>Choose the right time, ideally a time when:</p>
+                <ul>
+                    <li>You are not rushed or under pressure.</li>
+                    <li>Your baby is not too hungry or tired.</li>
+                    <li>You are not distracted by other people.</li>
+                    <li>Turn off distractions like the TV, radio, and your phone.</li>
+                </ul>
+
+                <h3>Hygiene</h3>
+                <p>Always wash your hands before you prepare food or feed your baby. Make sure your baby’s bowl and spoon are clean before you use them. Be prepared for a mess. Dribbling bibs and floor mats are useful.</p>
+
+                <h3>Let Your Baby Hold the Food</h3>
+                <p>Let your baby enjoy touching and holding food. If you’re using a spoon, wait for your baby to open their mouth before you offer the food. Your baby may like to hold a spoon too. Enjoy this special time as your baby begins to discover a whole new world of food.</p>
+
+                <h3>Routine</h3>
+                <p>Start introducing solid foods once a day. </p>
+                    <ol>
+                    <li>Begin with 1 teaspoon of food per meal and gradually increase the amount.</li>
+                    <li>Introduce new foods one at a time and allow your baby to get used to the taste and texture. </li>
+                    <li>Offer the solid food first and then follow with breast or formula milk. </li>
+                    </ol>
+                <p>Do not worry about quantities of food in the first 2 weeks. </p>
+                <p>When your baby is taking about 6 teaspoons of food at one meal, introduce a second meal.</p>
+
+                <h3>Safety</h3>
+                <p>Do not ‘force feed’ or rush them while they are learning this new skill. Never leave your baby alone while eating, in case of choking.</p>
+
+                <h3>Food Preparation</h3>
+                <p>You can make up a batch of baby food and freeze it in individual portions. Tips for food preparation:</p>
+                <ul>
+                    <li>Do not re-use food that has not been eaten, as this might make your baby ill.</li>
+                    <li>Cooked food should not be reheated more than once.</li>
+                    <li>Do not add salt, sugar, or stock cubes to your baby’s food or cooking water.</li>
+                </ul>
+
+                <h3>Equipment for Weaning</h3>
+                <p>You will need the following equipment:</p>
+                <ul>
+                    <li>A chair that your baby can sit in that supports their head and feet.</li>
+                    <li>Blender, liquidiser, or a sieve.</li>
+                    <li>Small bowl.</li>
+                    <li>Feeding spoon with a long handle.</li>
+                    <li>Cup or beaker with a free-flowing spout.</li>
+                    <li>Steriliser for bowls and spoons.</li>
+                </ul>
+                <p>If you choose the baby-led weaning method, be sure to offer your baby a varied and balanced diet. This will give them enough energy to meet their needs for rapid growth.</p>
+            </section>
+
         </main>
 
         <div class="container__main-content__top-recipes">
-            <h1 class="top-recipe">Today's Top Recipe</h1>
+            <h1>Today's Top Recipe</h1>
                 <div class="main-content__top-recipes">
-                    <img class="toprecipe_image" src="/static/images/recipes/butternut_chickpea_curry.jpeg" alt="recipe image" id="toprecipe_image">
+                    <img class="toprecipe_image"
+                         src="{{ top_recipe.image_url if top_recipe else url_for('static', filename='images/comingsoon.jpg') }}"
+                         alt="recipe image"
+                         id="toprecipe_image">
                     <div class="toprecipe_info">
-                      <h2 id="toprecipe_title">Butternut Squash and Chickpea Curry</h2>
-                      <a href="#" id="toprecipe_link">View Recipe</a>
+                        <h2 id="toprecipe_title">{{ top_recipe.title if top_recipe else 'No Recipe Available' }}</h2>
+                        <a href="{{ url_for('meal_detail', recipe_id=top_recipe.id) if top_recipe else '404' }}" id="toprecipe_link">View Recipe</a>
                     </div>
                 </div>
         </div>
@@ -149,6 +206,19 @@
               showPopup(messages[0]); // Show the first message
             }
         };
+
+        // Smooth scrolling for all anchor links
+        $(document).ready(function(){
+            $('a[href^="#"]').on('click', function(event) {
+                var target = $(this.getAttribute('href'));
+                if (target.length) {
+                    event.preventDefault();
+                    $('html, body').stop().animate({
+                        scrollTop: target.offset().top
+                    }, 1000);
+                }
+            });
+        });
     </script>
 
 </body>
