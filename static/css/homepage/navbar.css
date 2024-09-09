@@ -1,6 +1,6 @@
 .navbar, .navbar-logout  {
   display: flex;
-  background-color: #333;
+  background-color: #A0DAB3;
   overflow: visible;
   position: sticky;
   top: 0;
@@ -10,7 +10,7 @@
 
 .navbar a {
   font-size: 20px;
-  color: white;
+  color: black;
   padding: 14px 16px;
   text-decoration: none;
   text-align: center;
@@ -26,7 +26,7 @@
   font-size: 20px;
   border: none;
   outline: none;
-  color: white;
+  color: black;
   background-color: inherit;
   font-family: inherit;
   padding: 14px 16px;
@@ -34,7 +34,7 @@
 }
 
 .navbar a:hover, .navbar_dropdown:hover .dropdown {
-  background-color: #ddd;
+  background-color: #69c587;
   color: #333;
 }
 

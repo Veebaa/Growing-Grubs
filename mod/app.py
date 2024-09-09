@@ -21,7 +21,22 @@ if logging.getLogger('growing_grubs_logger') is None:
 def index():
     # Fetch the articles
     articles = get_topics_logic()  # Reuse get_topics logic
-    return render_template("index.html", articles=articles)
+    # Top recipe funtion
+    # Calculate the date for the previous day
+    yesterday = datetime.now() - timedelta(days=1)
+    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
+    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
+    # Get the most viewed recipe from the previous day
+    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
+                                     Recipe.last_viewed <= end_of_yesterday)\
+                             .order_by(Recipe.views.desc())\
+                             .first()
+
+    if not top_recipe:
+        # Fallback to the most viewed recipe of all time if no recipe was viewed yesterday
+        top_recipe = Recipe.query.order_by(Recipe.views.desc()).first()
+
+    return render_template("index.html", articles=articles, top_recipe=top_recipe)
 
 def get_topics_logic():
     api_key = '4cf8144bb46d4122b603ebcadbd688cc'
@@ -290,12 +305,42 @@ def recipes3():
 
 @other_routes.route('/feeding_stages')
 def feeding_stages():
-    return render_template('feeding_stages.html')
+    # Top recipe function
+    # Calculate the date for the previous day
+    yesterday = datetime.now() - timedelta(days=1)
+    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
+    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
+    # Get the most viewed recipe from the previous day
+    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
+                                     Recipe.last_viewed <= end_of_yesterday)\
+                             .order_by(Recipe.views.desc())\
+                             .first()
+
+    if not top_recipe:
+        # Fallback to the most viewed recipe of all time if no recipe was viewed yesterday
+        top_recipe = Recipe.query.order_by(Recipe.views.desc()).first()
+
+    return render_template('feeding_stages.html', top_recipe=top_recipe)
 
 
 @other_routes.route('/signs')
 def signs():
-    return render_template('signs.html')
+    # Top recipe function
+    # Calculate the date for the previous day
+    yesterday = datetime.now() - timedelta(days=1)
+    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
+    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
+    # Get the most viewed recipe from the previous day
+    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
+                                     Recipe.last_viewed <= end_of_yesterday)\
+                             .order_by(Recipe.views.desc())\
+                             .first()
+
+    if not top_recipe:
+        # Fallback to the most viewed recipe of all time if no recipe was viewed yesterday
+        top_recipe = Recipe.query.order_by(Recipe.views.desc()).first()
+
+    return render_template('signs.html', top_recipe=top_recipe)
 
 
 @other_routes.route('/search', methods=['POST'])
@@ -513,19 +558,3 @@ def proxy():
     except Exception as err:
         print(f'Other error occurred: {err}')
         return jsonify({'error': 'An error occurred'}), 500
-
-
-@other_routes.route('/top-recipe')
-def top_recipe():
-    # Calculate the date for the previous day
-    yesterday = datetime.now() - timedelta(days=1)
-    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
-    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
-
-    # Get the most viewed recipe from the previous day
-    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
-                                     Recipe.last_viewed <= end_of_yesterday)\
-                             .order_by(Recipe.views.desc())\
-                             .first()
-
-    return render_template('top_recipe.html', top_recipe=top_recipe)

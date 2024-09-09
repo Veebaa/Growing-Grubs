@@ -13,13 +13,11 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-<!--    <script src="{{ url_for('static', filename='js/topics.js') }}"></script>-->
-
 </head>
 
 <body class="homepage">
     <header class="header">
-        <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
+        <img class="header-image" src="static/images/growinggrubs_header_3.png" alt="header-image">
     </header>
 
     <nav class="navbar">
@@ -77,18 +75,9 @@
                 recipes; after all, even the best chefs need a hand in outsmarting a toddler’s ever-changing tastes!
                 Let’s turn mealtime mayhem into a fun, healthy adventure. Join us and let the culinary escapades begin!</p>
             <br>
+        <!-- Top Recipe Section -->
         <div class="container__main-content__top-recipes">
-            <h1>Today's Top Recipe</h1>
-                <div class="main-content__top-recipes">
-                    <img class="toprecipe_image"
-                         src="{{ top_recipe.image_url if top_recipe else url_for('static', filename='images/comingsoon.jpg') }}"
-                         alt="recipe image"
-                         id="toprecipe_image">
-                    <div class="toprecipe_info">
-                        <h2 id="toprecipe_title">{{ top_recipe.title if top_recipe else 'No Recipe Available' }}</h2>
-                        <a href="{{ url_for('meal_detail', recipe_id=top_recipe.id) if top_recipe else '404' }}" id="toprecipe_link">View Recipe</a>
-                    </div>
-                </div>
+            {% include '_top_recipe.html' %}
         </div>
         </main>
 

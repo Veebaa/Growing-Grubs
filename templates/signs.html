@@ -10,11 +10,28 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/signs.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+    // Smooth scrolling for all anchor links
+    $(document).ready(function(){
+        $('a[href^="#"]').on('click', function(event) {
+            var target = $(this.getAttribute('href'));
+            if (target.length) {
+                event.preventDefault();
+                $('html, body').stop().animate({
+                    scrollTop: target.offset().top
+                }, 1000);
+            }
+        });
+    });
+    </script>
+
 </head>
 
 <body class="signs-page">
     <header class="header">
-        <img class="header-image" src="static/images/growinggrubs_header_3.jpeg" alt="header-image">
+        <img class="header-image" src="static/images/growinggrubs_header_3.png" alt="header-image">
     </header>
 
     <nav class="navbar">
@@ -161,19 +178,10 @@
 
         </main>
 
-        <div class="container__main-content__top-recipes">
-            <h1>Today's Top Recipe</h1>
-                <div class="main-content__top-recipes">
-                    <img class="toprecipe_image"
-                         src="{{ top_recipe.image_url if top_recipe else url_for('static', filename='images/comingsoon.jpg') }}"
-                         alt="recipe image"
-                         id="toprecipe_image">
-                    <div class="toprecipe_info">
-                        <h2 id="toprecipe_title">{{ top_recipe.title if top_recipe else 'No Recipe Available' }}</h2>
-                        <a href="{{ url_for('meal_detail', recipe_id=top_recipe.id) if top_recipe else '404' }}" id="toprecipe_link">View Recipe</a>
-                    </div>
-                </div>
-        </div>
+        <!-- Top Recipe Section -->
+        <aside class="container__main-content__top-recipes">
+            {% include '_top_recipe.html' %}
+        </aside>
 
     </div>
 
@@ -181,45 +189,7 @@
         <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
     </footer>
 
-    <div id="overlay" class="overlay"></div>
-    <div id="popup" class="popup"></div>
 
-    <script src="{{ url_for('other_routes.static', filename='js/popular_recipe.js') }}"></script>
-    <script>
-        function showPopup(message) {
-            const popup = document.getElementById('popup');
-            const overlay = document.getElementById('overlay');
-            popup.innerText = message;
-            popup.classList.add('show');
-            overlay.classList.add('show');
-            setTimeout(() => {
-              popup.classList.remove('show');
-              overlay.classList.remove('show');
-            }, 3000); // Auto-hide after 3 seconds
-        }
-
-        // Call the function when the page loads
-        window.onload = function() {
-            fetchPopularRecipe();
-            const messages = {{ get_flashed_messages()|tojson }};
-            if (messages.length > 0) {
-              showPopup(messages[0]); // Show the first message
-            }
-        };
-
-        // Smooth scrolling for all anchor links
-        $(document).ready(function(){
-            $('a[href^="#"]').on('click', function(event) {
-                var target = $(this.getAttribute('href'));
-                if (target.length) {
-                    event.preventDefault();
-                    $('html, body').stop().animate({
-                        scrollTop: target.offset().top
-                    }, 1000);
-                }
-            });
-        });
-    </script>
 
 </body>
 </html>

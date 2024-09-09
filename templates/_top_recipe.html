@@ -1,0 +1,13 @@
+        <div class="container__main-content__top-recipes">
+            <h1>Today's Top Recipe</h1>
+                <div class="main-content__top-recipes">
+                    <img class="toprecipe_image"
+                         src="{{ top_recipe.image_url if top_recipe else url_for('static', filename='images/comingsoon.jpg') }}"
+                         alt="recipe image"
+                         id="toprecipe_image">
+                    <div class="toprecipe_info">
+                        <h2 id="toprecipe_title">{{ top_recipe.title if top_recipe else 'No Recipe Available' }}</h2>
+                        <a href="{{ url_for('other_routes.meal_detail', meal_id=top_recipe.id) if top_recipe else '404' }}" id="toprecipe_link">View Recipe</a>
+                    </div>
+                </div>
+        </div>

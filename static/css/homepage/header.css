@@ -11,7 +11,7 @@
 .header-image{
   background-size: cover;
   background-position: center;
-  height: auto;
+  height: 210px;
   width: 100%;
   display: block;
 }
