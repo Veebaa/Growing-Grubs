@@ -16,6 +16,10 @@ if logging.getLogger('growing_grubs_logger') is None:
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger('growing_grubs_logger')
 
+@other_routes.route('/debug')
+def debug():
+    return jsonify({'status': 'debugging'})
+
 
 @other_routes.route("/")
 def index():
@@ -380,7 +384,7 @@ def meal_detail(meal_id):
 
     try:
         with db.session.no_autoflush:
-            meal_info = Recipe.query.get(meal_id)
+            meal_info = db.session.get(Recipe, meal_id)
 
             if not meal_info:
                 logger.error(f"Meal ID {meal_id} not found in the database.")
