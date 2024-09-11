@@ -10,11 +10,6 @@ html {
   box-sizing: border-box;
 }
 
-@media screen and (max-width: 700px) {
-  .row, .navbar {
-    flex-direction: column;
-  }
-}
 
 /* Overlay Style */
 .overlay {
@@ -45,4 +40,70 @@ html {
 /* Show popup */
 .show {
     display: block;
+}
+
+/* Responsive Style */
+@media screen and (max-width: 700px) {
+  /* Flexbox layout adjustments */
+  .row, .navbar {
+    flex-direction: column;
+  }
+
+  /* Adjusting font sizes for smaller screens */
+  body {
+    font-size: 16px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-size: 1.5rem;
+  }
+
+  /* Navbar adjustments for mobile */
+  .navbar {
+    padding: 10px;
+  }
+
+  /* Ensure columns are stacked vertically */
+  .column {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  /* Images should be responsive */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Adjust button and input sizes */
+  button, input[type="text"], input[type="email"], input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+  }
+
+  /* Adjust container or wrapper padding */
+  .container {
+    padding: 10px;
+  }
+
+  /* Adjust any other specific layout areas */
+  .header, .footer {
+    text-align: center;
+  }
+
+  /* Form section adjustments */
+  .form-section {
+    margin: 10px 0;
+  }
+}
+
+/* Responsive layout: Push the sidebar below the main content on small screens */
+@media screen and (max-width: 700px) {
+  .container {
+    flex-direction: column;
+  }
+  .main-content, .sidebar {
+    width: 100%;
+  }
 }
