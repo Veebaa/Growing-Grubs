@@ -372,7 +372,6 @@ def search():
         return redirect(url_for('other_routes.recipes'))
 
 
-
 @other_routes.route('/meal/<int:meal_id>')
 def meal_detail(meal_id):
     articles = get_topics_logic()
@@ -380,42 +379,43 @@ def meal_detail(meal_id):
     logger.info(f"Fetching details for meal ID: {meal_id}")
 
     try:
-        # Fetch the recipe from the database using the default db.session
-        meal_info = Recipe.query.get(meal_id)
+        with db.session.no_autoflush:
+            meal_info = Recipe.query.get(meal_id)
 
-        if not meal_info:
-            logger.error(f"Meal ID {meal_id} not found in the database.")
-            return render_template('404.html'), 404
+            if not meal_info:
+                logger.error(f"Meal ID {meal_id} not found in the database.")
+                return render_template('404.html'), 404
 
-        # Log the view (increment views and update last_viewed)
-        meal_info.log_view()
+            meal_info.log_view()
 
-        # Commit the transaction to save the changes
-        db.session.commit()
+            no_flush = request.args.get('no_flush') == 'true'
 
-        # Prepare meal information
-        meal_info.image_url = meal_info.image_url or '/static/images/default-recipe.jpg'
-        meal_info.method = meal_info.method or 'No instructions provided.'
+            if not no_flush:
+                db.session.commit()
+            else:
+                db.session.flush()
 
-        # Process the ingredients and instructions if they are JSON strings
-        try:
-            meal_info.ingredients = json.loads(meal_info.ingredients)
-        except (json.JSONDecodeError, TypeError):
-            meal_info.ingredients = []
+            meal_info.image_url = meal_info.image_url or '/static/images/default-recipe.jpg'
+            meal_info.method = meal_info.method or 'No instructions provided.'
 
-        try:
-            meal_info.method = json.loads(meal_info.method)
-        except (json.JSONDecodeError, TypeError):
-            meal_info.method = []
+            try:
+                meal_info.ingredients = json.loads(meal_info.ingredients)
+            except (json.JSONDecodeError, TypeError):
+                meal_info.ingredients = []
 
-        # Successful retrieval
-        logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
-        return render_template('meal_detail.html', meal=meal_info, articles=articles)
+            try:
+                meal_info.method = json.loads(meal_info.method)
+            except (json.JSONDecodeError, TypeError):
+                meal_info.method = []
+
+            logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
+            return render_template('meal_detail.html', meal=meal_info, articles=articles)
 
     except Exception as e:
         logger.error(f"Unexpected error occurred: {e}", exc_info=True)
-        db.session.rollback()  # Rollback in case of error
+        db.session.rollback()
         return render_template('404.html'), 404
+
 
 
 @other_routes.route('/favourite/<int:recipe_id>', methods=['POST'])
