@@ -19,9 +19,9 @@ if logging.getLogger('growing_grubs_logger') is None:
 
 @other_routes.route("/")
 def index():
-    # Fetch the articles
-    articles = get_topics_logic()  # Reuse get_topics logic
-    # Top recipe funtion
+    # Fetch the top stories articles
+    articles = get_topics_logic()
+    # Top recipe function
     # Calculate the date for the previous day
     yesterday = datetime.now() - timedelta(days=1)
     start_of_yesterday = datetime.combine(yesterday, datetime.min.time())

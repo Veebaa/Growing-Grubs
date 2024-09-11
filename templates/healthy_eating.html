@@ -179,11 +179,13 @@
                     <p>You can buy child-size plates and bowls in most homeware stores.</p>
                 </section>
 
+            <!-- Portion sizes section -->
                 <div class="portion-sizes-section">
                     <h2>Portion Sizes by Age Group</h2>
                     <form id="age-group-form" method="GET" action="{{ url_for('other_routes.proxy') }}">
                         <label for="age_group">Select Age Group:</label>
                         <select id="age_group" name="age_group">
+                            <!-- Pycharm not picking up Jinja2 syntax properly -->
                             <option value="baby" {% if age_group == 'baby' %}selected{% endif %}>Baby</option>
                             <option value="toddler" {% if age_group == 'toddler' %}selected{% endif %}>Toddler</option>
                             <option value="family" {% if age_group == 'family' %}selected{% endif %}>Family</option>

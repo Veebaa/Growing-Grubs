@@ -16,10 +16,12 @@
 </head>
 
 <body class="homepage">
+    <!-- Header -->
     <header class="header">
         <img class="header-image" src="static/images/growinggrubs_header_3.png" alt="header-image">
     </header>
 
+    <!-- Navbar -->
     <nav class="navbar">
     <a href="{{ url_for('other_routes.index') }}">Home</a>
     <div class="navbar_dropdown">
@@ -62,6 +64,7 @@
     </div>
     </nav>
 
+    <!-- Main Content -->
     <div class="container">
         <main class="container__main-content">
             <h1>About Us</h1>
@@ -81,6 +84,7 @@
         </div>
         </main>
 
+         <!-- Sidebar with Top Stories -->
         <aside class="container__right-sidebar" id="sidebar">
             <h1>Today's Top Stories</h1>
             {% if articles %}
@@ -102,11 +106,12 @@
        <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
     </footer>
 
-<div id="overlay" class="overlay"></div>
-<div id="popup" class="popup"></div>
-<div id="flash-messages" style="display:none;">
-    {{ get_flashed_messages()|tojson|safe }}
-</div>
+    <!-- Flash messages, overlay, and popup -->
+    <div id="overlay" class="overlay"></div>
+    <div id="popup" class="popup"></div>
+    <div id="flash-messages" style="display:none;">
+        {{ get_flashed_messages()|tojson|safe }}
+    </div>
 
 </body>
 
