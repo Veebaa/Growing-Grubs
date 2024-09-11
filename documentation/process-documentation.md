@@ -1,9 +1,18 @@
 # Process Documentation
 
+## Table of Contents
+1. [Overview](#1-overview)
+2. [Development Process](#2-development-process)
+3. [Testing Process](#3-testing-process)
+4. [Maintenance Procedures](#4-maintenance-procedures)
+5. [Documentation and Diagrams](#5-documentation-and-diagrams)
+6. [Testing Routes and Functionalities](#6-testing-routes-and-functionalities)
+
+
 ## 1. Overview
-   This document provides a detailed overview of the processes and procedures used in the development, testing, and
-   maintenance of the web application. The application leverages Flask for the backend and uses HTML, CSS, and
-   JavaScript for the frontend. Markdown with Mermaid diagrams are used for documentation and modeling.
+This document provides a detailed overview of the processes and procedures used in the development, testing, and
+maintenance of the web application. The application leverages Flask for the backend and uses HTML, CSS, and
+JavaScript for the frontend. Markdown with Mermaid diagrams are used for documentation and modeling.
 
 ## 2. Development Process
 ### 2.1. Setup and Configuration
@@ -12,11 +21,11 @@
 - Version Control: Git for source code management.
 
 #### 2. Codebase Structure:
-- Frontend: HTML, CSS, JavaScript files located in the static and templates directories.
-- Backend: Python files utilizing Flask framework, stored in the app directory.
+- Frontend: HTML, CSS, JavaScript files located in the `static` and `templates` directories.
+- Backend: Python files utilizing Flask framework, stored in the `app` directory.
 
 #### 3. Dependencies:
-- Python: Flask, Requests.
+- Python: Flask, Requests, Flask-Login, SQLAlchemy 2.0.
 - Frontend: Font Awesome for icons.
 
 ### 2.2. Development Procedures
@@ -37,8 +46,12 @@
 ## 3. Testing Process
 ### 3.1. Unit Testing
 #### 1. Backend Tests:
-- Write unit tests for Flask routes and business logic.
-- Use pytest or unittest frameworks for testing.
+- Write unit tests for Flask routes (see section 6) and business logic.
+- Use pytest framework for testing.
+- Test Files:
+  - `tests/__init__.py`
+  - `tests/test_routes.py`
+  - `tests/conftest.py`
 
 #### 2. Frontend Tests:
 - Perform manual testing of HTML, CSS, and JavaScript functionality.
@@ -55,17 +68,17 @@
 
 ### 3.3. Continuous Integration
 #### 1. Automated Testing:
-- Integrate automated tests into the CI/CD pipeline.
+- For further development, integration of automated tests into the CI/CD pipeline.
 - Ensure tests are run on each code commit and pull request.
 
 #### 2. Deployment:
-- Deploy the application to a staging environment for final testing.
+- For further development, deploying the application to a staging environment for final testing.
 - Use automated deployment scripts for production release.
 
 ## 4. Maintenance Procedures
 ### 4.1. Bug Fixes
 #### 1. Issue Tracking:
-- Track bugs and issues using an issue tracker (e.g., Jira, GitHub Issues).
+- Track bugs and issues using GitHub Issues tracker.
 - Prioritize and address critical bugs promptly.
 
 #### 2. Code Fixes:
@@ -102,3 +115,52 @@
 ### 5.3. Markdown Integration
 - Embed Mermaid diagrams in Markdown for visualisation.
 - Ensure that Markdown files are kept in sync with the codebase.
+
+## 6. Testing Routes and Functionalities
+### 6.1. Login Route
+- Route: `/login`
+- Method: `POST`
+- Description: Handles user authentication and redirects based on login success or failure.
+- Testing:
+  - Ensure the login form is correctly handled.
+  - Test for proper redirection on successful and failed login attempts.
+
+### 6.2. Logout Route
+- Route: `/logout`
+- Method: `POST`
+- Description: Logs the user out and redirects to the homepage.
+- Testing:
+  - Simulate logout and verify redirection.
+  - Ensure only POST requests are accepted.
+
+### 6.3. Profile Route
+- Route: `/profile`
+- Method: `GET`
+- Description: Displays the user’s profile information.
+- Testing:
+  - Ensure the route displays correct user data after login.
+  - Test profile updates and validate changes.
+
+### 6.4. Edit Profile Route
+- Route: `/edit_profile`
+- Method: `POST`
+- Description: Updates the user’s profile information. 
+- Testing:
+  - Validate form data processing.
+  - Verify that user data is updated in the database.
+
+### 6.5. Meal Detail Route
+- Route: `/meal/<int:meal_id>`
+- Method: `GET`
+- Description: Displays detailed information about a specific meal.
+- Testing:
+  - Ensure correct meal details are rendered.
+  - Verify handling of missing or invalid meal IDs.
+
+### 6.6. View Recipe Route
+- Route: `/recipe/<int:recipe_id>`
+- Method: `GET`
+- Description: Redirects to the meal detail page for a specific recipe.
+- Testing:
+  - Confirm redirection to the correct meal detail page.
+  - Test handling of invalid or missing recipe IDs.
