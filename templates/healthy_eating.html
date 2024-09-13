@@ -17,47 +17,10 @@
         <img class="header-image" src="static/images/growinggrubs_header_3.png" alt="header-image">
     </header>
 
+    <!-- Navbar -->
     <nav class="navbar">
-    <a href="{{ url_for('other_routes.index') }}">Home</a>
-    <div class="navbar_dropdown">
-      <button class="dropdown">Recipes
-        <i class="fa fa-caret-down"></i>
-      </button>
-      <div class="dropdown_content">
-        <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
-        <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
-        <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-        <a href="{{ url_for('other_routes.recipes3') }}">1 - 4 Years</a>
-      </div>
-    </div>
-    <div class="navbar_dropdown">
-      <button class="dropdown">Feeding Tips
-        <i class="fa fa-caret-down"></i>
-      </button>
-      <div class="dropdown_content">
-        <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
-        <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
-      </div>
-    </div>
-    <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
-    {% if current_user.is_authenticated %}
-        <!-- If the user is logged in, show the Logout and My Profile button -->
-      <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
-        <form method="POST" action="{{ url_for('other_routes.logout') }}">
-            <button type="submit" class="navbar-logout">Logout</button>
-        </form>
-    {% else %}
-        <!-- If the user is not logged in, show the Login and Register buttons -->
-        <a href="{{ url_for('other_routes.login') }}">Login</a>
-        <a href="{{ url_for('other_routes.register_user') }}">Register</a>
-    {% endif %}
-    <div class="search-container">
-      <form action="{{ url_for('other_routes.search') }}" method="post">
-        <input type="text" placeholder="Search recipes.." name="search" required>
-        <button type="submit"><i class="fa fa-search"></i></button>
-      </form>
-    </div>
-  </nav>
+        {% include 'navbar.html' %}
+    </nav>
 
     <div id="top"></div> <!-- Invisible anchor for "Back to Top" links -->
 
@@ -213,9 +176,16 @@
                     <li>Fats, spreads, and oils - only in very small amounts.</li>
                 </ul>
                 <p>The red triangle on top contains foods and drinks high in fat, sugar, and salt. Limit these foods to once a week at most and in tiny amounts.</p>
-                <img src="{{ url_for('other_routes.static', filename='images/childrenfoodpyramid.jpg') }}" alt="food-pyramid">
+                <img src="{{ url_for('other_routes.static', filename='images/childrenfoodpyramid.jpg') }}" alt="food-pyramid" id="food-pyramid-image" class="clickable-image">
+                    <p>To give your child the best possible start in life download:
+                        <a href="https://www.gov.ie/pdf/?file=https://assets.gov.ie/93351/bc5bec36-1748-4b0e-b356-300a25f018d5.pdf#page=null">A Visual Guide to the Children's Food Pyramid</a>
+                    </p>
+                    <!-- Modal for enlarged image -->
+                <div id="imageModal" class="image-modal">
+                    <span class="close">&times;</span>
+                    <img class="modal-content" id="modal-image">
+                </div>
                </section>
-
         </main>
 
         <aside class="container__right-sidebar" id="sidebar">
@@ -246,6 +216,7 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('other_routes.static', filename='js/portions.js') }}"></script>
+    <script src="{{ url_for('other_routes.static', filename='js/image_pop-up.js') }}"></script>
     <script>
         function showPopup(message) {
             const popup = document.getElementById('popup');
@@ -272,7 +243,6 @@
                 }
             });
         });
-
     </script>
 
 </body>

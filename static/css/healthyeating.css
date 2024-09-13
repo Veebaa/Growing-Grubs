@@ -179,3 +179,57 @@ button:hover {
 .back-to-top:hover {
     text-decoration: underline;
 }
+
+/* Image styling */
+.clickable-image {
+    cursor: pointer;
+    max-width: 100%;
+    width: 700px; /* Initial size */
+    transition: transform 0.3s ease;
+}
+
+/* Modal container */
+.image-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    padding-top: 60px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+/* Modal content (the enlarged image) */
+.modal-content {
+    margin: auto;
+    display: block;
+    width: auto;
+    height: auto;
+    animation: zoomIn 0.3s ease;
+}
+
+/* Close button */
+.close {
+    position: absolute;
+    top: 20px;
+    right: 35px;
+    color: #fff;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Animation to enlarge the image */
+@keyframes zoomIn {
+    from { transform: scale(0.7); }
+    to { transform: scale(1.5); }
+}

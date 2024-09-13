@@ -20,49 +20,12 @@
         <img class="header-image" src="static/images/growinggrubs_header_3.png" alt="header-image">
     </header>
 
+    <!-- Navbar -->
     <nav class="navbar">
-        <a href="{{ url_for('other_routes.index') }}">Home</a>
-        <div class="navbar_dropdown">
-            <button class="dropdown">Recipes
-                <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-                <a href="{{ url_for('other_routes.recipes') }}">All Recipes</a>
-                <a href="{{ url_for('other_routes.recipes1') }}">6 - 9 Months</a>
-                <a href="{{ url_for('other_routes.recipes2') }}">9 - 12 Months</a>
-                <a href="{{ url_for('other_routes.recipes3') }}">1 - 4 Years</a>
-            </div>
-        </div>
-        <div class="navbar_dropdown">
-            <button class="dropdown">Feeding Tips
-                <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown_content">
-                <a href="{{ url_for('other_routes.signs') }}">Signs that your baby is ready</a>
-                <a href="{{ url_for('other_routes.feeding_stages') }}">Feeding Stages</a>
-            </div>
-        </div>
-            <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
-            {% if current_user.is_authenticated %}
-            <!-- If the user is logged in, show the Logout and My Profile button -->
-                <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
-                <form method="POST" action="{{ url_for('other_routes.logout') }}">
-                    <button type="submit" class="navbar-logout">Logout</button>
-                </form>
-            {% else %}
-            <!-- If the user is not logged in, show the Login and Register buttons -->
-                <a href="{{ url_for('other_routes.login') }}">Login</a>
-                <a href="{{ url_for('other_routes.register_user') }}">Register</a>
-            {% endif %}
-            <div class="search-container">
-            <form action="{{ url_for('other_routes.search') }}" method="post">
-                <input type="text" placeholder="Search recipes.." name="search" required>
-                <button type="submit"><i class="fa fa-search"></i></button>
-            </form>
-        </div>
+        {% include 'navbar.html' %}
     </nav>
 
-<main>
+    <main>
     <div class="profile-container">
         <div class="profile-header">
             <div class="profile-image">
@@ -78,7 +41,8 @@
         <div class="profile-actions">
             <button onclick="toggleEditForm()">Edit Profile</button>
             <form method="POST" action="{{ url_for('other_routes.logout') }}">
-              <button type="submit">Logout</button>
+                <button type="submit">Logout</button>
+                <button type="button" onclick="confirmDelete()">Delete Account</button>
             </form>
         </div>
 
@@ -130,28 +94,48 @@
             {% endif %}
         </div>
     </div>
-  </main>
+    </main>
 
-  <footer class="footer">
-    <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
-  </footer>
+    <footer class="footer">
+        <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
+    </footer>
 
-  <div id="overlay" class="overlay"></div>
-  <div id="popup" class="popup"></div>
-  <div id="flash-messages" style="display:none;">
+    <div id="overlay" class="overlay"></div>
+    <div id="popup" class="popup"></div>
+    <div id="flash-messages" style="display:none;">
       {{ get_flashed_messages()|tojson|safe }}
-  </div>
+    </div>
 
-  <script>
-      function toggleEditForm() {
+    <div id="delete-confirmation" class="popup" style="display:none;">
+    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+        <form method="POST" action="{{ url_for('other_routes.delete_account') }}">
+            <button type="submit">Yes, Delete My Account</button>
+            <button type="button" onclick="closeConfirmation()">Cancel</button>
+        </form>
+    </div>
+
+    <script>
+        function toggleEditForm() {
           var form = document.getElementById('edit-profile-form');
           form.style.display = form.style.display === 'none' ? 'block' : 'none';
-      }
+        }
 
-      function toggleEditForm() {
+        function toggleEditForm() {
           var form = document.getElementById('edit-profile-form');
           form.style.display = form.style.display === 'none' ? 'block' : 'none';
-      }
-  </script>
+        }
+
+        ///Confirmation popup for Delete Account
+        function confirmDelete() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('delete-confirmation').style.display = 'block';
+        }
+
+        function closeConfirmation() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('delete-confirmation').style.display = 'none';
+        }
+    </script>
+
 </body>
 </html>

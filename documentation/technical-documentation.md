@@ -33,7 +33,6 @@ critical components used in the web application.
         - [JavaScript Code](#javascript-code)
 
 - [Top Stories Feature](#top-stories-feature)
-    - [Fetching Child related illnesses](#fetching-child-related-illnesses)
     - [Example of Success Response (rendered data)](#example-of-success-response-rendered-data)
     - [Example Code](#example-code-1)
     - [UI Form Example](#ui-form-example-1)

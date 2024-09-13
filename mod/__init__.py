@@ -24,7 +24,7 @@ def create_app(test_config=None):
     # Initialize the SQLAlchemy object with the app
     db.init_app(application)
 
-    # Register blueprints
+    # Register blueprints when conducting testing only
     from mod.app import other_routes
     application.register_blueprint(other_routes)
 

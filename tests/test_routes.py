@@ -154,3 +154,5 @@ def test_logout_route(client):
     response = client.post(url_for('other_routes.logout'))  # Changed to POST request
     assert response.status_code == 302  # Assuming a redirect after logout
 
+
+

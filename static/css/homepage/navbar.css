@@ -90,19 +90,18 @@
 
 .navbar-logout {
   font-size: 20px;
-  color: white;
+  color: black;
   padding: 14px 16px;
   text-decoration: none;
   text-align: center;
   display: block;
-  background: none;
   border: none;
   cursor: pointer;
   font-family: inherit;
 }
 
 .navbar-logout:hover {
-  background-color: #ddd;
+  background-color: #69c587;
   color: #333;
 }
 
