@@ -132,3 +132,10 @@ dist
 .idea
 
 __pycache__
+
+
+# tox
+.tox/*
+.coverage
+coverage.xml
+xunit-results.xml
