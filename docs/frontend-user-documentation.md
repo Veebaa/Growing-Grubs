@@ -48,6 +48,7 @@ To access all features of Growing Grubs, users need to register and log in.
 2. Enter your username and password.
 3. Click the "Login" button to access your account.
 
+
 ## Using the Search Functionality
 
 1. Locate the Search Bar:

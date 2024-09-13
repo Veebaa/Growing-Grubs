@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/site_map.css') }}">
+    <title>Site Map - Growing Grubs</title>
+
+</head>
+<body>
+    <div class="sitemap">
+        <h1>Site Map - Growing Grubs</h1>
+        <ul>
+            <li><strong>Home Page</strong> - <a href="/">/</a></li>
+            <li><strong>Login Page</strong> - <a href="/login">/login</a></li>
+            <li><strong>Register Page</strong> - <a href="/register">/register</a></li>
+            <li><strong>Profile Page</strong> - <a href="/profile">/profile</a>
+                <ul>
+                    <li><strong>Edit Profile Page</strong> - <a href="/profile/edit">/profile/edit</a></li>
+                    <li><strong>Logout</strong> - <a href="/logout">/logout</a></li>
+                </ul>
+            </li>
+            <li><strong>Search Page</strong> - <a href="/search">/search</a></li>
+            <li><strong>Recipe Details Page</strong> - <a href="/recipes/1">/recipes</a></li>
+            <li><strong>Debug Page</strong> - <a href="/debug">/debug</a></li>
+        </ul>
+    </div>
+</body>
+</html>

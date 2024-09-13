@@ -13,6 +13,8 @@ critical components used in the web application.
 
 ## [Directory Structure](#directory-structure)
 
+## [Flask Routes](#flask-routes)
+
 ## [Models](#models)
 
 - [User Model](#user-model)
@@ -132,6 +134,238 @@ managing user profiles, and retrieving recipe details.
   └── _top_recipe.html
 ```
 
+## Flask Routes
+### 1. Index Route
+
+**URL:** `/`
+
+**Method:** `GET`
+
+**Description:** The main landing page of the application. Displays a list of recipes and top stories.
+
+**Parameters:** None
+
+**Responses:**
+
+- **200 OK:** Successfully returns the index page with recipes and articles.
+- **Content:** HTML content of the index page.
+
+
+### 2. Login Route
+
+**URL:** `/login`
+
+**Method:** `GET` and `POST`
+
+**Description:** Displays the login page and handles user authentication.
+
+**Parameters:**
+
+- **GET Request:** No parameters.
+- **POST Request:**
+  - `username` (string): The username of the user.
+  - `password` (string): The password of the user.
+
+**Responses:**
+
+- **GET Request:**
+  - **200 OK:** Successfully returns the login page.
+  - **Content:** HTML content of the login page.
+- **POST Request:**
+  - **200 OK:** Successfully logs in the user and redirects to the profile or home page.
+  - **302 Found:** Redirects to the profile or home page.
+  - **401 Unauthorized:** If login credentials are invalid.
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Visit Login Page]
+    B --> C[Fill in Login Form]
+    C --> D[Submit Form]
+    D --> E{Are credentials correct?}
+    E -- Yes --> F[Authenticate User]
+    F --> G[Redirect to Profile or Home Page]
+    E -- No --> H[Display Error Message]
+    H --> B
+    G --> A
+```
+
+### 3. Register Route
+
+**URL:** `/register`
+
+**Method:** `GET` and `POST`
+
+**Description:** Displays the registration page and handles user registration.
+
+**Parameters:**
+
+- **GET Request:** No parameters.
+- **POST Request:**
+  - `username` (string): The username for the new account.
+  - `password` (string): The password for the new account.
+  - `email` (string): The email address of the user.
+
+**Responses:**
+
+- **GET Request:**
+  - **200 OK:** Successfully returns the registration page.
+  - **Content:** HTML content of the registration page.
+- **POST Request:**
+  - **200 OK:** Successfully creates a new user and redirects to the login page.
+  - **302 Found:** Redirects to the login page.
+  - **400 Bad Request:** If registration data is invalid.
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Visit Register Page]
+    B --> C[Fill in Registration Form]
+    C --> D[Submit Form]
+    D --> E{Is the form valid?}
+    E -- Yes --> F[Create User Account]
+    F --> G[Redirect to Login Page]
+    E -- No --> H[Display Error Message]
+    H --> B
+    G --> A
+```
+
+### 4. Profile Route
+
+**URL:** `/profile`
+
+**Method:** `GET` and `POST`
+
+**Description:** Displays and updates the user profile.
+
+**Parameters:**
+
+- **GET Request:** No parameters.
+- **POST Request:**
+  - `first_name` (string): Updated first name of the user.
+  - `last_name` (string): Updated last name of the user.
+  - `email` (string): Updated email address of the user.
+  - `profile_image` (string): Updated profile image URL.
+
+**Responses:**
+
+- **GET Request:**
+  - **200 OK:** Successfully returns the profile page.
+  - **Content:** HTML content of the profile page with user details.
+- **POST Request:**
+  - **200 OK:** Successfully updates user profile.
+  - **302 Found:** Redirects to the profile page with updated information.
+  - **400 Bad Request:** If update data is invalid.
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Visit Profile Page]
+    B --> C[View Profile Info]
+    C --> D[Edit Profile]
+    D --> E[Submit Changes]
+    E --> F{Are changes valid?}
+    F -- Yes --> G[Update Profile]
+    G --> H[Display Confirmation]
+    F -- No --> I[Display Error Message]
+    I --> D
+    H --> A
+```
+
+### 5. Recipes Route
+
+**URL:** `/recipes`
+
+**Method:** `GET`
+
+**Description:** Displays a list of recipes.
+
+**Parameters:** None
+
+**Responses:**
+
+- **200 OK:** Successfully returns the recipes page with a list of recipes.
+- **Content:** HTML content of the recipes page.
+
+```mermaid
+flowchart TD
+    A[Start] --> B[Visit Home Page]
+    B --> C[View Recipes List]
+    C --> D[Select Recipe]
+    D --> E[View Recipe Details]
+    E --> F{Is user logged in?}
+    F -- Yes --> G[Allow Actions e.g., Save, Favorite]
+    F -- No --> H[Prompt to Login]
+    H --> B
+    G --> A
+    E --> A
+```
+
+### 6. Meal Detail Route
+
+**URL:** `/meal_detail/<meal_id>`
+
+**Method:** `GET`
+
+**Description:** Displays details of a specific meal.
+
+**Parameters:**
+
+- `meal_id` (integer): The ID of the meal to display.
+
+**Responses:**
+
+- **200 OK:** Successfully returns the meal detail page.
+- **Content:** HTML content with detailed information about the specified meal.
+
+
+### 7. Search Route
+
+**URL:** `/search`
+
+**Method:** `POST`
+
+**Description:** Handles search queries for recipes.
+
+**Parameters:**
+
+- `search` (string): The search term used to query recipes.
+
+**Responses:**
+
+- **200 OK:** Successfully returns search results based on the query.
+- **Content:** HTML content with search results.
+
+
+### 8. Logout Route
+
+**URL:** `/logout`
+
+**Method:** `POST`
+
+**Description:** Logs out the current user.
+
+**Parameters:** None
+
+**Responses:**
+
+- **200 OK:** Successfully logs out the user and redirects to the home page.
+- **302 Found:** Redirects to the home page after logout.
+
+
+### 9. Debug Route
+
+**URL:** `/debug`
+
+**Method:** `GET`
+
+**Description:** Displays debugging information.
+
+**Parameters:** None
+
+**Responses:**
+
+- **200 OK:** Successfully returns debugging information.
+- **Content:** HTML content with debugging details.
+
+
 ## Models
 
 ### User Model
@@ -227,8 +461,7 @@ classDiagram
     style Favourites fill:#900C3F,stroke:#333,stroke-width:2px
     style user_favourites fill:#581845,stroke:#333,stroke-width:2px
 ```
-PK: Primary Key <br>
-FK: Foreign Key
+
 
 
 ### Recipes Model
