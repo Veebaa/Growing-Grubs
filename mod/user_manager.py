@@ -8,39 +8,42 @@ from mod.models import Users
 # Create a LoginManager instance to manage user sessions
 login_manager = LoginManager()
 
+
 def init_login_manager(app):
     """Initialize the LoginManager with the Flask app."""
     login_manager.init_app(app)
+
 
 @login_manager.user_loader
 def load_user(user_id):
     """Callback function to load a user given the user_id."""
     return Users.query.get(int(user_id))  # Retrieve user from the database using user_id
 
+
 class RegistrationForm(FlaskForm):
     """Form for user registration."""
 
     username = StringField('username',
                            validators=[InputRequired(message="Username required"),  # Ensure username is provided
-                                       Length(min=4, max=25, message="Username must be between 4 and 25 characters"),  # Validate username length
-                                       Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,  # Validate username format (letters, numbers, dots, underscores)
+                                       Length(min=4, max=25, message="Username must be between 4 and 25 characters"),
+                                       Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                               'Usernames must have only letters, numbers, dots, or underscores', )])
     first_name = StringField('firstname',
-                             validators=[InputRequired(message="First name required"),  # Ensure first name is provided
-                                         Length(min=1, max=25,  # Validate first name length
+                             validators=[InputRequired(message="First name required"),
+                                         Length(min=1, max=25,
                                                 message="First name must be between 1 and 25 characters")])
     last_name = StringField('lastname',
-                            validators=[InputRequired(message="Last name required"),  # Ensure last name is provided
+                            validators=[InputRequired(message="Last name required"),
                                         Length(min=1, max=25, message="Last name must be between 1 and 25 characters")])
     email = StringField('email',
-                        validators=[InputRequired(message="Email required"),  # Ensure email is provided
-                                    Email()])  # Validate email format
+                        validators=[InputRequired(message="Email required"),
+                                    Email()])
     password = PasswordField('password',
-                             validators=[InputRequired(message="Password required"),  # Ensure password is provided
-                                         EqualTo('confirm_password', message='Passwords do not match.')])  # Ensure passwords match
+                             validators=[InputRequired(message="Password required"),
+                                         EqualTo('confirm_password', message='Passwords do not match.')])
     confirm_password = PasswordField('confirm_password',
-                                     validators=[InputRequired(message="Password required"), ])  # Ensure password confirmation is provided
-    profile_image = SelectField('Profile Image', choices=[  # Profile image selection
+                                     validators=[InputRequired(message="Password required"), ])
+    profile_image = SelectField('Profile Image', choices=[
         ('avo.jpg', 'Avocado'),
         ('cherries.jpg', 'Cherries'),
         ('orange.jpg', 'Orange'),
@@ -59,6 +62,7 @@ class RegistrationForm(FlaskForm):
         if Users.query.filter_by(username=field.data).first():  # Query for existing username
             raise ValidationError('Sorry! Username already in use.')  # Raise error if username is found
 
+
 def invalid_credentials(form, field):
     """Custom validator for checking invalid username and password."""
     password = field.data  # Get the entered password
@@ -73,10 +77,15 @@ def invalid_credentials(form, field):
     elif not user_data.check_password(password):
         raise ValidationError("Username or password is incorrect")  # Raise error if password is incorrect
 
+
 class LoginForm(FlaskForm):
     """Form for user login."""
-
-    username = StringField('username', validators=[InputRequired(message="Username required")])  # Ensure username is provided
-    password = PasswordField('password', validators=[InputRequired(message="Password required"), invalid_credentials])  # Ensure password is provided and validate credentials
-    remember = BooleanField('Remember Me')  # Checkbox for remembering user login
-    submit = SubmitField('Login')  # Submit button for the form
+    # Ensure username is provided
+    username = StringField('username', validators=[InputRequired(message="Username required")])
+    # Ensure password is provided and validate credentials
+    password = PasswordField('password', validators=[InputRequired(message="Password required"),
+                                                     invalid_credentials])
+    # Checkbox for remembering user login
+    remember = BooleanField('Remember Me')
+    # Submit button for the form
+    submit = SubmitField('Login')

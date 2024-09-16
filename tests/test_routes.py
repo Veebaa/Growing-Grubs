@@ -2,6 +2,7 @@ import json
 from flask import url_for
 from mod.models import db, Users, Recipe
 
+
 # Test the debug route
 def test_debug_route(client):
     response = client.get('/debug')
@@ -14,6 +15,7 @@ def test_index_route(client):
     response = client.get('/')
     assert response.status_code == 200
     assert b'Growing Grubs' in response.data
+
 
 # Test the recipes route
 def test_recipes_route(client, mocker):
@@ -29,7 +31,7 @@ def test_recipes_route(client, mocker):
 
     response = client.get(url_for('other_routes.recipes'))
     assert response.status_code == 200
-    assert b'Test Recipe' in response.data # Check if the recipe title is displayed
+    assert b'Test Recipe' in response.data  # Check if the recipe title is displayed
 
 
 def login_user(client, username, password):
@@ -66,17 +68,20 @@ def test_login_route(client):
     assert response.status_code == 200
     assert b'Login' in response.data
 
+
 # Test the register route
 def test_register_route(client):
     response = client.get(url_for('other_routes.register_user'))
     assert response.status_code == 200
     assert b'Register' in response.data
 
+
 # Test the search route
 def test_search_route(client):
     response = client.post(url_for('other_routes.search'), data={'search': 'pasta'})
     assert response.status_code == 200
     assert b'pasta' in response.data
+
 
 # Test meal detail route
 def test_meal_detail_route(client):
@@ -106,6 +111,7 @@ def test_meal_detail_route(client):
     assert b'Test Recipe' in response.data
     assert b'Step 1: Test' in response.data
     assert b'Ingredient 1' in response.data
+
 
 # Test route for editing a user profile
 def test_edit_profile_route(client):
@@ -153,6 +159,3 @@ def test_logout_route(client):
     # Test logout response
     response = client.post(url_for('other_routes.logout'))  # Changed to POST request
     assert response.status_code == 302  # Assuming a redirect after logout
-
-
-

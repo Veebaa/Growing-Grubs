@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
+
 def create_app(test_config=None):
     application = Flask(__name__, static_folder='../static')
     basedir = os.path.abspath(os.path.dirname(__file__))

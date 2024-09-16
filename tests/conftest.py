@@ -1,9 +1,9 @@
 from datetime import datetime
-
 import pytest
 from mod import create_app
 from mod.models import db, Recipe
 from mod.app import other_routes
+
 
 @pytest.fixture
 def client():
@@ -49,4 +49,3 @@ def test_no_top_recipe(client, mocker):
     response = client.get('/')
     assert response.status_code == 200
     assert b'No stories available.' in response.data  # Check if "No stories" is displayed
-

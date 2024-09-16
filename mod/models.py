@@ -81,4 +81,3 @@ class Recipe(db.Model):
             'views': self.views,
             'last_viewed': self.last_viewed.isoformat() if self.last_viewed else None
         }
-

@@ -1,8 +1,8 @@
 import logging
-from mod import create_app, db
-from flask_migrate import Migrate
+from mod import create_app
 from mod.app import other_routes
 from mod.user_manager import init_login_manager
+
 
 def create_logger():
     # Create a logger object
@@ -40,9 +40,6 @@ def main():
         # Initialize the login manager here
         init_login_manager(application)
 
-        # Set up Flask-Migrate
-        migrate = Migrate(application, db)
-
         # Log application start
         application.logger.info('Starting the Flask application...')
         # Run the Flask server
@@ -52,6 +49,7 @@ def main():
         # Initialize logger
         logger = create_logger()  # Use create_logger() to get the logger
         logger.error(f'Failed to get config and create application: {e}', exc_info=True)
+
 
 if __name__ == '__main__':
     main()

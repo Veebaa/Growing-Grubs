@@ -16,6 +16,14 @@ if logging.getLogger('growing_grubs_logger') is None:
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger('growing_grubs_logger')
 
+
+@other_routes.errorhandler(404)
+def not_found_error(e):
+    current_app.logger.error(f"404 error: {e}")
+    # Render a 404 error page if a route is not found
+    return render_template('404.html'), 404
+
+
 @other_routes.route('/debug')
 def debug():
     return jsonify({'status': 'debugging'})
@@ -42,6 +50,7 @@ def index():
 
     return render_template("index.html", articles=articles, top_recipe=top_recipe)
 
+
 def get_topics_logic():
     api_key = '4cf8144bb46d4122b603ebcadbd688cc'
     endpoint = 'https://api.nhs.uk/conditions'
@@ -51,7 +60,7 @@ def get_topics_logic():
     }
     logger = current_app.logger
     try:
-        response = requests.get(endpoint, headers=headers, params={'topic':'children development, childhood illness'})
+        response = requests.get(endpoint, headers=headers, params={'topic': 'children development, childhood illness'})
         response.raise_for_status()
         data = response.json()
 
@@ -60,10 +69,10 @@ def get_topics_logic():
             name = item.get('name', 'No Title')
             description = item.get('description', 'No Description')
             url = item.get('url', '#')
-            articles.append({'name': name,'description': description, 'url': url})
+            articles.append({'name': name, 'description': description, 'url': url})
 
         if len(articles) >= 2:
-            logger.info(articles) #  Log random articles
+            logger.info(articles)  # Log random articles
             return random.sample(articles, 2)
         else:
             return articles
@@ -72,9 +81,11 @@ def get_topics_logic():
         current_app.logger.error(f"Error fetching data from NHS API: {e}")
         return []
 
+
 @other_routes.route('/site_map')
 def sitemap():
     return render_template("site_map.html")
+
 
 @other_routes.route('/register', methods=['GET', 'POST'])
 def register_user():
@@ -255,9 +266,11 @@ def delete_account():
         flash('Your account has been successfully deleted.', 'success')
         # Redirect the user to the index page after account deletion
         return redirect(url_for('other_routes.index'))
+
     except Exception as e:
         # Roll back the session and flash an error message if the deletion fails
         db.session.rollback()
+        logger.error(f"Unexpected error occurred: {e}", exc_info=True)
         flash('An error occurred while deleting your account. Please try again later.', 'danger')
         # Redirect the user back to their profile page
         return redirect(url_for('other_routes.profile'))
@@ -656,12 +669,6 @@ def get_portion_sizes(age_group):
     except requests.exceptions.RequestException as e:
         print(f'Error fetching portion sizes: {e}')  # Log the error
         return []  # Return an empty list in case of an error
-
-
-@other_routes.errorhandler(404)
-def not_found_error(error):
-    # Render a 404 error page if a route is not found
-    return render_template('404.html'), 404
 
 
 @other_routes.route('/proxy', methods=['GET'])
