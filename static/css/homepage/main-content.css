@@ -1,3 +1,8 @@
+.homepage {
+    margin: 0;
+    padding: 0;
+}
+
 /* General Container Styling */
 .container {
     display: flex;
@@ -18,24 +23,22 @@
 
 /* Headings */
 h1 {
-    font-size: 24px; /* Larger size for headings to make them stand out */
+    font-size: 24px;
     color: #333;
-    margin-bottom: 15px; /* More space below headings */
-    font-family: 'Arial', sans-serif; /* Clean and readable font */
+    margin-bottom: 15px;
 }
 
 /* Paragraphs */
 p {
-    font-size: 16px; /* Slightly larger font for readability */
-    color: #555; /* Softer colour for a friendly feel */
-    line-height: 1.6; /* Increased line height for better readability */
-    margin-bottom: 20px; /* More space below paragraphs */
-    font-family: 'Arial', sans-serif; /* Consistent font for body text */
+    font-size: 20px;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
 }
 
 /* Top Recipes Section */
 .container__main-content__top-recipes {
-    background-color: #FDF9F1; /* Very light background for a soft look */
+    background-color: #9bc5a8; /* Very light background for a soft look */
     padding: 20px;
     border-radius: 8px;
     margin-top: 20px;
@@ -46,7 +49,7 @@ p {
     display: flex;
     align-items: center;
     padding: 15px;
-    background-color: #A0DAB3;
+    background-color: #87a96b;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow for subtle depth */
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transitions */
@@ -64,7 +67,7 @@ p {
     height: 150px;
     object-fit: cover;
     border-radius: 8px;
-    margin-right: 20px; /* Increased margin for better spacing */
+    margin-right: 20px;
 }
 
 /* Recipe Info */
@@ -75,16 +78,14 @@ p {
 
 .toprecipe_info h2 {
     margin: 0;
-    font-size: 20px; /* Larger font size for recipe title */
+    font-size: 30px;
     color: #333;
-    font-family: 'Arial', sans-serif;
 }
 
 .toprecipe_info a {
-    color: #FF5722; /* Friendly and engaging color for links */
+    color: #333;
     text-decoration: none;
     margin-top: 10px;
-    font-weight: bold; /* Make the link text stand out */
 }
 
 .toprecipe_info a:hover {

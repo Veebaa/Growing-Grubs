@@ -1,6 +1,6 @@
-{% macro render_field(field, placeholder='') %}
+{% macro render_field(field, placeholder='', autocomplete='') %}
   <div>
-    {{ field(placeholder=placeholder)|safe }}
+    {{ field(placeholder=placeholder, autocomplete=autocomplete)|safe }}
     {% if field.errors %}
       <ul class="errors">
         {% for error in field.errors %}
@@ -10,5 +10,6 @@
     {% endif %}
   </div>
 {% endmacro %}
+
 
 

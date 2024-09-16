@@ -2,7 +2,7 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 20px;
-  background: #fff;
+  background: #ebf4ee;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
@@ -10,7 +10,7 @@
 .profile-header {
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 4px solid #e0e0e0;
   padding-bottom: 20px;
   margin-bottom: 20px;
 }
@@ -46,8 +46,8 @@
 .profile-actions button, .edit-profile button {
   padding: 10px 20px;
   font-size: 1em;
-  color: #fff;
-  background: #1abc9c;
+  color: black;
+  background: #87a96b;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -55,7 +55,7 @@
 }
 
 .profile-actions button:hover, .edit-profile button:hover  {
-  background: #16a085;
+  background: #69c587;
 }
 
 .form-group {
@@ -124,8 +124,8 @@
 .action-button {
   padding: 10px 20px;
   font-size: 1em;
-  color: #fff;
-  background: #1abc9c;
+  color: black;
+  background: #87a96b;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -133,7 +133,7 @@
 }
 
 .action-button:hover {
-  background: #16a085;
+  background: #69c587;
 }
 
 /* Thumbnail styling */
@@ -161,34 +161,35 @@
 }
 
 .profile-image-option input[type="radio"]:checked + .profile-thumbnail {
-    border-color: #1abc9c; /* Change color to match your theme */
+    border-color: #87a96b;
 }
 
 .overlay {
-    display: none;
+    display: none; /* Hidden by default */
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1;
+    z-index: 999; /* Ensure it's below the delete confirmation popup */
 }
 
-.popup {
-    display: none;
+.delete-confirmation {
+    display: none; /* Hidden by default */
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: white;
+    background: white;
+    border: 1px solid #ccc;
     padding: 20px;
-    z-index: 2;
+    z-index: 1001; /* Ensure it's above the overlay */
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-.popup button {
+.delete-confirmation button {
     margin: 10px;
     color: #fff;
     background: #1abc9c;
@@ -196,4 +197,15 @@
     border: none;
     border-radius: 5px;
     cursor: pointer;
+}
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    background: white;
+    border: 1px solid #ccc;
+    z-index: 1002; /* Ensure it's above the delete confirmation popup if necessary */
 }

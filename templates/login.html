@@ -10,34 +10,31 @@
     <div class="container">
          <h2>Log In</h2>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+    <!-- Flash Messages -->
+        <div class="flash-messages">
+            {% include 'flash-messages.html' %}
+        </div>
+        <div id="flash-overlay" class="flash-overlay show"></div>
+        <div id="popup" class="popup"></div>
 
         <form class="container_form" method="POST" action="{{ url_for('other_routes.login') }}">
             {{ form.hidden_tag() }} <!-- CSRF token -->
             <div>
                 <label for="username">Username</label>
-                {{ form.username(class="form-input") }}
+                {{ form.username(id="username", class="form-input", autocomplete="username") }}
                 {% for error in form.username.errors %}
                     <span class="error">{{ error }}</span>
                 {% endfor %}
             </div>
             <div>
                 <label for="password">Password</label>
-                {{ form.password(class="form-input") }}
+                {{ form.password(id="password", class="form-input", autocomplete="current-password") }}
                 {% for error in form.password.errors %}
                     <span class="error">{{ error }}</span>
                 {% endfor %}
             </div>
             <div class="remember-me">
-                {{ form.remember() }} <label for="remember-me">{{ form.remember.label }}</label>
+                {{ form.remember(id="remember") }} <label for="remember">{{ form.remember.label }}</label>
             </div>
             <div>
                 {{ form.submit(class="form-button") }}
@@ -46,5 +43,8 @@
         <p class="register-link">Not Registered? <a href="{{ url_for('other_routes.register_user') }}">Create an account</a>.</p> <!-- Registration link -->
         <p class="register-link"> Or return <a href="{{ url_for('other_routes.index') }}">Home</a>.</p>
     </div>
+
+    </div>
+
 </body>
 </html>

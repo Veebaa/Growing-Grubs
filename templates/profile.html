@@ -74,6 +74,10 @@
             <button type="submit">Save Changes</button>
         </form>
 
+        <div class="flash-messages">
+            {% include 'flash-messages.html' %}
+        </div>
+
         <h2>My Favourite Recipes</h2>
         <div class="favourite-recipes">
             {% if user.favourites %}
@@ -90,7 +94,7 @@
             </div>
             {% endfor %}
             {% else %}
-            <p>No favourites found.</p>
+            <p>No favourites found. Go check out some recipes to add to your favourites.</p>
             {% endif %}
         </div>
     </div>
@@ -100,19 +104,20 @@
         <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
     </footer>
 
-    <div id="overlay" class="overlay"></div>
+    <div id="flash-overlay" class="flash-overlay show"></div>
     <div id="popup" class="popup"></div>
-    <div id="flash-messages" style="display:none;">
-      {{ get_flashed_messages()|tojson|safe }}
-    </div>
 
-    <div id="delete-confirmation" class="popup" style="display:none;">
-    <p>Are you sure you want to delete your account? This action cannot be undone.</p>
+    <!-- Delete Confirmation Popup -->
+    <div id="overlay" class="overlay"></div>
+
+    <div id="delete-confirmation" class="delete-confirmation" style="display:none;">
+        <p>Are you sure you want to delete your account? This action cannot be undone.</p>
         <form method="POST" action="{{ url_for('other_routes.delete_account') }}">
             <button type="submit">Yes, Delete My Account</button>
             <button type="button" onclick="closeConfirmation()">Cancel</button>
         </form>
     </div>
+
 
     <script>
         function toggleEditForm() {
@@ -125,7 +130,7 @@
           form.style.display = form.style.display === 'none' ? 'block' : 'none';
         }
 
-        ///Confirmation popup for Delete Account
+        // Confirmation popup for Delete Account
         function confirmDelete() {
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('delete-confirmation').style.display = 'block';
@@ -135,6 +140,8 @@
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('delete-confirmation').style.display = 'none';
         }
+</script>
+
     </script>
 
 </body>

@@ -26,20 +26,32 @@
         {% include 'navbar.html' %}
     </nav>
 
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+        {% include 'flash-messages.html' %}
+    </div>
+    <div id="flash-overlay" class="flash-overlay show"></div>
+    <div id="popup" class="popup"></div>
+
     <!-- Main Content -->
     <div class="container">
         <main class="container__main-content">
             <h1>About Us</h1>
-            <p>Hey there, fellow food wranglers! If you’ve ever felt like mealtime is a never-ending circus, you’re in
-                the right place. As a mom who’s tackled the wild ride of weaning, I totally get the whirlwind of advice
-                and conflicting info out there. That’s why I’m super excited to introduce our web app, your ultimate
-                sidekick in serving up nutritious, kid-friendly meals for little ones aged 6 months to 4 years.
-                Our app is brimming with quick recipes, healthy eating tips, and feeding guidelines designed to make
-                your life a little easier—whether you’re cooking solo or with your tiny sous-chefs. Don’t forget to
-                <a href="{{ url_for('other_routes.register_user') }}">create an account</a> and save your favourite
-                recipes; after all, even the best chefs need a hand in outsmarting a toddler’s ever-changing tastes!
-                Let’s turn mealtime mayhem into a fun, healthy adventure. Join us and let the culinary escapades begin!</p>
-            <br>
+            <p>Welcome to our corner of the internet, where mealtime can finally become a little less overwhelming.
+                If you’ve ever found yourself navigating the maze of mealtime and weaning, you’re not alone.
+                As a parent who’s been through the ups and downs of feeding little ones, I understand how confusing and
+                tiring it can be.
+            </p>
+            <p>That’s why we’ve created this web app to be a calm and reliable companion in your kitchen. Our app
+                offers straightforward recipes, practical healthy eating tips, and feeding guidelines to help simplify
+                your routine. Whether you’re preparing meals on your own or involving your little ones in the process,
+                we’re here to make things a bit easier.
+            </p>
+            <p>Consider <a href="{{ url_for('other_routes.register_user') }}">creating an account</a> to keep track
+                of your favourite recipes. After all, even the most seasoned parents can use a little help
+                with navigating their child’s evolving tastes. Let’s make mealtime a bit more manageable together.
+                Join us and explore a more relaxed approach to feeding your family.
+            </p>
         <!-- Top Recipe Section -->
         <div class="container__main-content__top-recipes">
             {% include '_top_recipe.html' %}
@@ -48,32 +60,14 @@
 
          <!-- Sidebar with Top Stories -->
         <aside class="container__right-sidebar" id="sidebar">
-            <h1>Today's Top Stories</h1>
-            {% if articles %}
-                {% for article in articles %}
-                    <div>
-                        <h2 id="topstory_title">{{ article.name }}</h2>
-                        <p id="topstory_description">{{ article.description }}</p>
-                        <a href="{{ article.url }}" id="topstory_url">Read more</a>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p>No stories available.</p>
-            {% endif %}
+            {% include 'right-sidebar.html' %}
         </aside>
 
     </div>
 
     <footer class="footer">
-       <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024 -  <a href="templates/site_map.html"> Site Map</a></p>
+       <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024 -  <a href="{{ url_for('other_routes.sitemap') }}"> Site Map</a></p>
     </footer>
-
-    <!-- Flash messages, overlay, and popup -->
-    <div id="overlay" class="overlay"></div>
-    <div id="popup" class="popup"></div>
-    <div id="flash-messages" style="display:none;">
-        {{ get_flashed_messages()|tojson|safe }}
-    </div>
 
 </body>
 

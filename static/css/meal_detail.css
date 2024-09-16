@@ -1,10 +1,26 @@
 /* Overall Page Styling */
 body.meal_detail {
-    font-family: 'Arial', sans-serif;
-    background-color: #FAF3E3;
     color: #333;
     margin: 0;
     padding: 0;
+}
+
+/* General Container Styling */
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 20px;
+    background-color: #ebf4ee;
+}
+
+/* Main Content Area */
+.container__main-content {
+    flex: 3;
+    margin-right: 20px;
+    background-color: #ebf4ee;
+    border-radius: 10px; /* Rounded corners for a softer look */
+    padding: 20px; /* Extra padding for a more spacious feel */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
 /* Recipe Section Styling */
@@ -13,6 +29,7 @@ body.meal_detail {
     flex-wrap: wrap;
     gap: 20px;
     margin-bottom: 20px;
+    background-color: #ebf4ee;
 }
 
 .recipe-hero img {
@@ -33,7 +50,8 @@ body.meal_detail {
 .recipe-hero h1 {
     margin: 0;
     font-size: 2.5em;
-    color: #A75D5D;
+    color: #2F4F4F;
+    font-weight: bold;
     margin-bottom: 15px;
 }
 
@@ -53,7 +71,7 @@ body.meal_detail {
 
 .recipe-meta div {
     flex: 1 1 30%;
-    background-color: #FFE0CC;
+    background-color: #87a96b;
     padding: 10px;
     border-radius: 5px;
     text-align: center;
@@ -67,7 +85,7 @@ body.meal_detail {
 
 /* Description and Ingredients */
 .recipe-details {
-    background-color: #FFF8F0;
+    background-color: #87a96b;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -87,7 +105,7 @@ body.meal_detail {
 }
 
 .ingredients, .instructions {
-    background-color: #FFF8F0;
+    background-color: #69c587;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -96,7 +114,8 @@ body.meal_detail {
 }
 
 .ingredients h3, .instructions h3 {
-    color: #A75D5D;
+    color: #2F4F4F;
+    font-weight: bold;
     margin-bottom: 10px;
     font-size: 1.4em;
 }
@@ -108,12 +127,15 @@ body.meal_detail {
     margin: 0 !important;
 }
 
-.ingredients li, .instructions li {
+/* Styling for Ingredients */
+.ingredients li {
     position: relative;
-    padding-left: 20px ;
-    margin-bottom: 10px !important;
+    padding-left: 40px;
+    margin-bottom: 12px !important;
     line-height: 1.5;
     text-indent: 0 !important;
+    color: #333;
+    font-size: 1.1em;
 }
 
 /* Reset the ::marker pseudo-element */
@@ -123,11 +145,11 @@ body.meal_detail {
 }
 
 .ingredients li::before {
-    content: '•';
+    content: '🍃';
     position: absolute;
     left: 0;
-    color: #A75D5D;
-    font-size: 1.5em;
+    color: #69c587;
+    font-size: 1.4em;
 }
 
 .instructions ol {
@@ -137,32 +159,34 @@ body.meal_detail {
 .instructions li {
     counter-increment: step;
     position: relative;
-    padding-left: 30px;
+    padding-left: 50px;
     margin-bottom: 15px;
     line-height: 1.5;
-    font-size: 1em;
+    font-size: 1.1em;
+    color: #333;
 }
 
 .instructions li::before {
     content: counter(step);
-    background-color: #A75D5D;
+    background-color: #87a96b; /* Darker green for the background */
     color: #FFF;
     border-radius: 50%;
-    width: 1.5em;
-    height: 1.5em;
+    width: 1.6em;
+    height: 1.6em;
     display: inline-block;
     text-align: center;
-    line-height: 1.5em;
+    line-height: 1.6em;
     position: absolute;
     left: 0;
     top: 0;
+    font-weight: bold;
 }
 
 /* Favourite Button */
 .favourite-button {
-    background-color: #FFD3B6;
+    background-color: #87a96b;
     border: none;
-    color: #A75D5D;
+    color: black;
     font-size: 16px;
     cursor: pointer;
     padding: 10px 20px;

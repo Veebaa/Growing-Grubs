@@ -72,6 +72,9 @@ def get_topics_logic():
         current_app.logger.error(f"Error fetching data from NHS API: {e}")
         return []
 
+@other_routes.route('/site_map')
+def sitemap():
+    return render_template("site_map.html")
 
 @other_routes.route('/register', methods=['GET', 'POST'])
 def register_user():
@@ -99,7 +102,10 @@ def register_user():
             # Commit the transaction to save the user to the database
             db.session.commit()
 
+            flash('You have been successfully registered.', 'success')
+
             logger.info(f"User {form.username.data} registered successfully!")
+            logger.info(f"Hashed Password: {user.password}")
             # Redirect the user to the login page after successful registration
             return redirect(url_for('other_routes.login'))
 
@@ -128,12 +134,29 @@ def login():
 
     # Check if the form was submitted and is valid
     if form.validate_on_submit():
+        logger.info("Login form validated successfully")
+
         # Retrieve the user by username
         user = Users.query.filter_by(username=form.username.data).first()
+        logger.info(f"Attempting login for username: {form.username.data}")
+
+        # Log whether the user was found and whether the password matches
+        logger.info(f"User found: {user is not None}")
+        if user:
+            logger.info(f"Password correct: {user.check_password(form.password.data)}")
+        else:
+            logger.info("User not found")
+
         # Check if the user exists and if the password is correct
         if user is None or not user.check_password(form.password.data):
+            # Log the error if login fails
+            logger.info(f"Login failed for user {form.username.data}")
+            logger.info(f"Provided password: {form.password.data}")
+            if user:
+                logger.info(f"Hashed password: {user.password}")
+
             # Flash an error message if the login fails
-            flash('Invalid username or password')
+            flash('Invalid login credentials.', 'error')
             return redirect(url_for('other_routes.login'))
 
         # Log the user in and remember their session based on the form input
@@ -158,7 +181,7 @@ def logout():
     # Log the user out
     logout_user()
     # Flash a message indicating successful logout
-    flash("You have been logged out.")
+    flash('You have been logged out.', 'success')
     # Redirect the user to the index page
     return redirect(url_for('other_routes.index'))
 
@@ -207,11 +230,11 @@ def edit_profile():
 
         # Commit the transaction to save the updated information to the database
         db.session.commit()
-        flash('Profile updated successfully!')
+        flash('Profile updated successfully!', 'success')
     except Exception as e:
         # Roll back the session and flash an error message if the update fails
         db.session.rollback()
-        flash('Error updating profile: ' + str(e))
+        flash('Error updating profile: ' + str(e), 'error')
 
     # Redirect the user back to their profile page after the update
     return redirect(url_for('other_routes.profile'))
@@ -286,20 +309,6 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
             'total_pages': 1,
             'search_query': search_query
         }
-
-
-@other_routes.route('/recipe/<int:recipe_id>')
-def view_recipe(recipe_id):
-    # Fetch the recipe by its ID from the database
-    recipe = Recipe.query.get(recipe_id)
-    if not recipe:
-        abort(404)  # Return a 404 error if the recipe is not found
-
-    # Log the view for the recipe
-    recipe.log_view()
-
-    # Render the recipe detail template with the fetched recipe
-    return render_template('meal_detail.html', recipe=recipe)
 
 
 @other_routes.route('/recipes')
@@ -392,82 +401,18 @@ def recipes3():
     )
 
 
-@other_routes.route('/feeding_stages')
-def feeding_stages():
-    # Calculate the date for the previous day
-    yesterday = datetime.now() - timedelta(days=1)
-    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
-    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
+@other_routes.route('/recipe/<int:recipe_id>')
+def view_recipe(recipe_id):
+    # Fetch the recipe by its ID from the database
+    recipe = Recipe.query.get(recipe_id)
+    if not recipe:
+        abort(404)  # Return a 404 error if the recipe is not found
 
-    # Get the most viewed recipe from the previous day
-    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
-                                     Recipe.last_viewed <= end_of_yesterday) \
-        .order_by(Recipe.views.desc()) \
-        .first()
+    # Log the view for the recipe
+    recipe.log_view()
 
-    if not top_recipe:
-        # Fallback to the most viewed recipe of all time if no recipe was viewed yesterday
-        top_recipe = Recipe.query.order_by(Recipe.views.desc()).first()
-
-    # Render the feeding stages template with the top recipe
-    return render_template('feeding_stages.html', top_recipe=top_recipe)
-
-
-@other_routes.route('/signs')
-def signs():
-    # Calculate the date for the previous day
-    yesterday = datetime.now() - timedelta(days=1)
-    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
-    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
-
-    # Get the most viewed recipe from the previous day
-    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
-                                     Recipe.last_viewed <= end_of_yesterday) \
-        .order_by(Recipe.views.desc()) \
-        .first()
-
-    if not top_recipe:
-        # Fallback to the most viewed recipe of all time if no recipe was viewed yesterday
-        top_recipe = Recipe.query.order_by(Recipe.views.desc()).first()
-
-    # Render the signs template with the top recipe
-    return render_template('signs.html', top_recipe=top_recipe)
-
-
-@other_routes.route('/search', methods=['POST'])
-def search():
-    # Get the search term from the request form
-    search_term = request.form.get('search')
-    # Fetch articles for the page
-    articles = get_topics_logic()
-
-    logger = current_app.logger
-    logger.info(f"Searching for recipes with query: {search_term}")
-
-    if not search_term:
-        # Flash an error message and redirect if no search term is provided
-        flash("Please enter a search term.")
-        return redirect(url_for('other_routes.recipes'))
-
-    try:
-        # Perform the search in the database for recipes matching the search term in title or age group
-        recipes_query = Recipe.query.filter(
-            Recipe.title.ilike(f"%{search_term}%") |
-            Recipe.age_group.ilike(f"%{search_term}%")
-        )
-
-        # Pass the pre-filtered query to the paginate_recipes function for pagination
-        pagination_data = paginate_recipes(recipes_query=recipes_query, template_name='search_results.html',
-                                           search_query=search_term)
-
-        # Render the search results template with the pagination data and articles
-        return render_template('search_results.html', **pagination_data, articles=articles)
-
-    except Exception as e:
-        # Log any errors during the search process and flash an error message
-        logger.error(f"Error processing the search: {e}", exc_info=True)
-        flash("An error occurred while searching for recipes.")
-        return redirect(url_for('other_routes.recipes'))
+    # Render the recipe detail template with the fetched recipe
+    return render_template('meal_detail.html', recipe=recipe)
 
 
 @other_routes.route('/meal/<int:meal_id>')
@@ -586,6 +531,84 @@ def unfavourite_recipe(recipe_id):
         flash('Recipe not found in favourites.', 'error')  # Notify the user if the recipe is not in favourites
 
     return redirect(url_for('other_routes.profile'))  # Redirect to the user's profile page
+
+
+@other_routes.route('/feeding_stages')
+def feeding_stages():
+    # Calculate the date for the previous day
+    yesterday = datetime.now() - timedelta(days=1)
+    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
+    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
+
+    # Get the most viewed recipe from the previous day
+    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
+                                     Recipe.last_viewed <= end_of_yesterday) \
+        .order_by(Recipe.views.desc()) \
+        .first()
+
+    if not top_recipe:
+        # Fallback to the most viewed recipe of all time if no recipe was viewed yesterday
+        top_recipe = Recipe.query.order_by(Recipe.views.desc()).first()
+
+    # Render the feeding stages template with the top recipe
+    return render_template('feeding_stages.html', top_recipe=top_recipe)
+
+
+@other_routes.route('/signs')
+def signs():
+    # Calculate the date for the previous day
+    yesterday = datetime.now() - timedelta(days=1)
+    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
+    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
+
+    # Get the most viewed recipe from the previous day
+    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
+                                     Recipe.last_viewed <= end_of_yesterday) \
+        .order_by(Recipe.views.desc()) \
+        .first()
+
+    if not top_recipe:
+        # Fallback to the most viewed recipe of all time if no recipe was viewed yesterday
+        top_recipe = Recipe.query.order_by(Recipe.views.desc()).first()
+
+    # Render the signs template with the top recipe
+    return render_template('signs.html', top_recipe=top_recipe)
+
+
+@other_routes.route('/search', methods=['POST'])
+def search():
+    # Get the search term from the request form
+    search_term = request.form.get('search')
+    # Fetch articles for the page
+    articles = get_topics_logic()
+
+    logger = current_app.logger
+    logger.info(f"Searching for recipes with query: {search_term}")
+
+    if not search_term:
+        # Flash an error message and redirect if no search term is provided
+        flash('Please enter a search term.', 'error')
+        return redirect(url_for('other_routes.recipes'))
+
+    try:
+        # Perform the search in the database for recipes matching the search term in title or age group
+        recipes_query = Recipe.query.filter(
+            Recipe.title.ilike(f"%{search_term}%") |
+            Recipe.age_group.ilike(f"%{search_term}%")
+        )
+
+        # Pass the pre-filtered query to the paginate_recipes function for pagination
+        pagination_data = paginate_recipes(recipes_query=recipes_query, template_name='search_results.html',
+                                           search_query=search_term)
+
+        # Render the search results template with the pagination data and articles
+        return render_template('search_results.html', **pagination_data, articles=articles)
+
+    except Exception as e:
+        # Log any errors during the search process and flash an error message
+        logger.error(f"Error processing the search: {e}", exc_info=True)
+        flash('An error occurred while searching for recipes.', 'error')
+        return redirect(url_for('other_routes.recipes'))
 
 
 @other_routes.route('/healthy_eating', methods=['GET', 'POST'])

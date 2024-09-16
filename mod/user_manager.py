@@ -40,7 +40,7 @@ class RegistrationForm(FlaskForm):
                                          EqualTo('confirm_password', message='Passwords do not match.')])  # Ensure passwords match
     confirm_password = PasswordField('confirm_password',
                                      validators=[InputRequired(message="Password required"), ])  # Ensure password confirmation is provided
-    profile_image = SelectField('Profile Image', choices=[  # Dropdown for profile image selection
+    profile_image = SelectField('Profile Image', choices=[  # Profile image selection
         ('avo.jpg', 'Avocado'),
         ('cherries.jpg', 'Cherries'),
         ('orange.jpg', 'Orange'),

@@ -26,17 +26,17 @@
                 {% endfor %}
             </div>
             <div>
-                {{ render_field(form.username, placeholder='Username') }}
-                {{ render_field(form.first_name, placeholder='First Name') }}
-                {{ render_field(form.last_name, placeholder='Last Name') }}
-                {{ render_field(form.email, placeholder='Email') }}
-                {{ render_field(form.password, placeholder='Password') }}
-                {{ render_field(form.confirm_password, placeholder='Confirm Password') }}
+                {{ render_field(form.username, placeholder='Username', autocomplete='username') }}
+                {{ render_field(form.first_name, placeholder='First Name', autocomplete='given-name') }}
+                {{ render_field(form.last_name, placeholder='Last Name', autocomplete='family-name') }}
+                {{ render_field(form.email, placeholder='Email', autocomplete='email') }}
+                {{ render_field(form.password, placeholder='Password', autocomplete='new-password') }}
+                {{ render_field(form.confirm_password, placeholder='Confirm Password', autocomplete='new-password') }}
             </div>
             <p><input type="submit" value="Register"></p>
         </form>
 
-        <!-- Link for users to navigate to the login page -->
+        <!-- Link for users to navigate to the login page or Home page -->
         <div class="login-link">
             <p>Already a user? <a href="{{ url_for('other_routes.login') }}">Login here</a>.</p>
             <p> Or return <a href="{{ url_for('other_routes.index') }}">Home</a>.</p>

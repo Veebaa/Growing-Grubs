@@ -8,6 +8,7 @@
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/right-sidebar.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/healthyeating.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
@@ -188,19 +189,9 @@
                </section>
         </main>
 
+         <!-- Sidebar with Top Stories -->
         <aside class="container__right-sidebar" id="sidebar">
-            <h1>Today's Top Stories</h1>
-            {% if articles %}
-                {% for article in articles %}
-                    <div>
-                        <h2 id="topstory_title">{{ article.name }}</h2>
-                        <p id="topstory_description">{{ article.description }}</p>
-                        <a href="{{ article.url }}" id="topstory_url">Read more</a>
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p>No stories available.</p>
-            {% endif %}
+            {% include 'right-sidebar.html' %}
         </aside>
     </div>
 

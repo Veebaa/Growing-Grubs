@@ -1,24 +1,33 @@
 .container__right-sidebar {
-    flex: 1;
-    background-color: #A0DAB3;
+    background-color: #87a96b;
+    color: black;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    width: 350px;
+    position: relative;
 }
 
 .container__right-sidebar h1 {
     font-size: 1.5em;
     margin-bottom: 15px;
+    color: black;
 }
+
 .container__right-sidebar ul {
     list-style-type: none;
     padding: 0;
 }
+
 .container__right-sidebar li {
     margin-bottom: 10px;
 }
+
 .container__right-sidebar a {
     text-decoration: none;
     color: #333;
 }
 
+.container__right-sidebar a:hover {
+    text-decoration: underline;
+}

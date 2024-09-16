@@ -4,8 +4,7 @@
     flex-direction: column;
     height: 100vh;
     overflow-x: hidden;
-    padding-bottom: 60px;
-
+    padding: 0;
 }
 
 .feeding-stages-page {
@@ -20,7 +19,7 @@
 .feeding-stages-container__main-content {
     flex: 1;
     padding: 10px;
-    background-color: #FFF8F0;
+    background-color: #ebf4ee;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-right: 20px;
@@ -30,7 +29,7 @@
     width: 250px; /* Fixed width for the sidebar */
     padding: 20px;
     margin-right: 20px; /* Space between sidebar and main content */
-    background-color: #FFF8F0;
+    background-color: #ebf4ee;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
@@ -79,7 +78,7 @@
     position: relative;
     right: 20px;
     width: 250px;
-    background-color: #A0DAB3;
+    background-color: #87a96b;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-left: 20px;
@@ -90,7 +89,7 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background-color: #A0DAB3;
+    background-color: #87a96b;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;

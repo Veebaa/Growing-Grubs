@@ -1,0 +1,99 @@
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div id="flash-overlay" class="flash-overlay show">
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+
+<script>
+  window.onload = function() {
+    setTimeout(function() {
+      const flashMessages = document.querySelector('.flash-messages-overlay');
+      if (flashMessages) {
+        flashMessages.style.transition = 'opacity 0.5s ease-out';
+        flashMessages.style.opacity = '0';
+        setTimeout(() => flashMessages.remove(), 500);  // Remove from the DOM after fading out
+      }
+    }, 3000);  // Message visible for 3 seconds
+  };
+</script>
+
+<style>
+    .flash-messages {
+        margin: 20px 0;
+    }
+
+    .flash-message {
+        padding: 10px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        color: #fff;
+    }
+
+    .flash-message.success {
+        background-color: #69c587;  /* Green for success */
+    }
+
+    .flash-message.info {
+        background-color: #5bc0de;  /* Blue for info */
+    }
+
+    .flash-message.error {
+        background-color: #d9534f;  /* Red for errors */
+    }
+
+    /* Flash overlay styling */
+    .flash-overlay {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 9999;
+        width: 80%;
+        max-width: 400px;
+        text-align: center;
+        display: none; /* Hidden by default */
+    }
+
+    .flash-message {
+        padding: 15px;
+        margin-bottom: 10px;
+        border-radius: 5px;
+        color: #fff;
+        font-size: 16px;
+    }
+
+    .flash-message.success {
+        background-color: #69c587;  /* Green for success */
+    }
+
+    .flash-message.info {
+        background-color: #5bc0de;  /* Blue for info */
+    }
+
+    .flash-message.error {
+        background-color: #d9534f;  /* Red for errors */
+    }
+
+    /* Optional: animation for sliding the message in and out */
+    .flash-overlay.show {
+        display: block;
+        animation: slide-down 0.3s ease-out;
+    }
+
+    @keyframes slide-down {
+        from {
+            transform: translateX(-50%) translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+    }
+</style>
