@@ -16,6 +16,7 @@
 </head>
 
 <body class="homepage">
+    <!-- Header -->
     <header class="header">
         <img class="header-image" src="static/images/growinggrubs_header_3.png" alt="header-image">
     </header>
@@ -25,6 +26,7 @@
         {% include 'navbar.html' %}
     </nav>
 
+    <!-- Main content section -->
     <main>
     <div class="profile-container">
         <div class="profile-header">
@@ -78,6 +80,7 @@
             {% include 'flash-messages.html' %}
         </div>
 
+        <!-- Favourite recipes section -->
         <h2>My Favourite Recipes</h2>
         <div class="favourite-recipes">
             {% if user.favourites %}
@@ -118,7 +121,6 @@
         </form>
     </div>
 
-
     <script>
         function toggleEditForm() {
           var form = document.getElementById('edit-profile-form');
@@ -141,8 +143,6 @@
             document.getElementById('delete-confirmation').style.display = 'none';
         }
 </script>
-
-    </script>
 
 </body>
 </html>

@@ -8,14 +8,14 @@
     display: flex;
     flex-wrap: wrap;
     padding: 20px;
-    background-color: #F9F9F9; /* Light background to make the content pop */
+    background-color: #F9F9F9;
 }
 
 /* Main Content Area */
 .container__main-content {
     flex: 3;
     margin-right: 20px;
-    background-color: #FFFFFF; /* Clean, white background for content area */
+    background-color: #FFFFFF;
     border-radius: 10px; /* Rounded corners for a softer look */
     padding: 20px; /* Extra padding for a more spacious feel */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
@@ -38,7 +38,7 @@ p {
 
 /* Top Recipes Section */
 .container__main-content__top-recipes {
-    background-color: #9bc5a8; /* Very light background for a soft look */
+    background-color: #9bc5a8;
     padding: 20px;
     border-radius: 8px;
     margin-top: 20px;

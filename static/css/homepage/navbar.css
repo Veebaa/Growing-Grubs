@@ -84,7 +84,7 @@
     width: 350px; /* Expand input field when focused */
     outline: none; /* Remove default outline */
     background-color: #fff; /* Lighter background on focus */
-    border: 2px solid #87a96b; /* Sage Green border to match navbar */
+    border: 2px solid #87a96b;
 }
 
 
@@ -94,14 +94,14 @@
     top: 8px;
     padding: 10px;
     margin-right: 10px;
-    background-color: #87a96b; /* Sage Green */
+    background-color: #87a96b;
     color: #fff;
     font-size: 15px;
     border: none;
     border-radius: 50%;
     cursor: pointer;
     transition: background-color 0.3s ease-in-out, transform 0.2s ease-in-out;
-    width: 40px; /* Make the button round */
+    width: 40px;
     height: 40px;
     display: flex;
     justify-content: center;

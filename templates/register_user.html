@@ -9,6 +9,7 @@
 
 <body>
     <div class="container">
+        <!-- Registration form -->
         {% from "_formhelpers.html" import render_field %}
         <form class="container_form" action="/register" method="POST">
             {{ form.csrf_token }}

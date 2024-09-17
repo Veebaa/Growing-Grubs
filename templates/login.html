@@ -17,6 +17,7 @@
         <div id="flash-overlay" class="flash-overlay show"></div>
         <div id="popup" class="popup"></div>
 
+        <!-- Login Form -->
         <form class="container_form" method="POST" action="{{ url_for('other_routes.login') }}">
             {{ form.hidden_tag() }} <!-- CSRF token -->
             <div>
@@ -42,8 +43,6 @@
         </form>
         <p class="register-link">Not Registered? <a href="{{ url_for('other_routes.register_user') }}">Create an account</a>.</p> <!-- Registration link -->
         <p class="register-link"> Or return <a href="{{ url_for('other_routes.index') }}">Home</a>.</p>
-    </div>
-
     </div>
 
 </body>

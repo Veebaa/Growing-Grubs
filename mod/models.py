@@ -33,6 +33,7 @@ class Users(UserMixin, db.Model):
 
 
 class Favourites(db.Model):
+    """ Table for Favourites """
     __tablename__ = 'favourites'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -42,6 +43,7 @@ class Favourites(db.Model):
 
 
 class Recipe(db.Model):
+    """ Table for Recipes """
     __tablename__ = 'recipes'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)

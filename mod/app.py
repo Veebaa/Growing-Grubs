@@ -174,7 +174,7 @@ def login():
         login_user(user, remember=form.remember.data)
         logger.info(f'User {user.username} logged in successfully.')
 
-        # Redirect to the 'next' parameter if it exists (e.g., from a protected route)
+        # Redirect to the 'next' parameter
         next_page = request.args.get('next')
         if next_page:
             return redirect(next_page)
@@ -297,7 +297,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         next_page = pagination.next_num if pagination.has_next else None  # Number of the next page, if it exists
         prev_page = pagination.prev_num if pagination.has_prev else None  # Number of the previous page, if it exists
 
-        # Convert recipes to a serializable format (e.g., dictionary) for easier rendering in templates
+        # Convert recipes to dictionary for easier rendering in templates
         recipes_list = [recipe.to_dict() for recipe in recipes]
 
         # Return a dictionary of pagination data to be used in rendering
@@ -449,7 +449,7 @@ def meal_detail(meal_id):
                 logger.error(f"Meal ID {meal_id} not found in the database.")
                 return render_template('404.html'), 404
 
-            # Log the view of the meal (e.g., increment view count)
+            # Log the view of the meal (increment view count)
             meal_info.log_view()
 
             # Check if 'no_flush' parameter is set in the request arguments
@@ -463,7 +463,7 @@ def meal_detail(meal_id):
                 db.session.flush()
 
             # Ensure the image URL is not None; set a default image if it is
-            meal_info.image_url = meal_info.image_url or '/static/images/default-recipe.jpg'
+            meal_info.image_url = meal_info.image_url or '/static/images/comingsoon.jpg'
             # Provide a default message if the method (instructions) is None
             meal_info.method = meal_info.method or 'No instructions provided.'
 
@@ -660,9 +660,9 @@ def get_portion_sizes(age_group):
         # Extract food items from the response
         foods = data.get('branded', []) + data.get('common', [])
         portion_sizes = [{
-            'food_name': food['food_name'],  # Food name
-            'serving_qty': food.get('serving_qty', 'N/A'),  # Serving quantity (if available)
-            'serving_unit': food.get('serving_unit', 'N/A')  # Serving unit (if available)
+            'food_name': food['food_name'],
+            'serving_qty': food.get('serving_qty', 'N/A'),
+            'serving_unit': food.get('serving_unit', 'N/A')
         } for food in foods]
 
         return portion_sizes

@@ -24,7 +24,7 @@ class RegistrationForm(FlaskForm):
     """Form for user registration."""
 
     username = StringField('username',
-                           validators=[InputRequired(message="Username required"),  # Ensure username is provided
+                           validators=[InputRequired(message="Username required"),
                                        Length(min=4, max=25, message="Username must be between 4 and 25 characters"),
                                        Regexp('^[A-Za-z][A-Za-z0-9_.]*$', 0,
                                               'Usernames must have only letters, numbers, dots, or underscores', )])
@@ -49,8 +49,8 @@ class RegistrationForm(FlaskForm):
         ('orange.jpg', 'Orange'),
         ('strawberry.jpg', 'Strawberry'),
         ('watermelon.jpg', 'Watermelon'),
-    ], validators=[InputRequired(message="Please select a profile image")])  # Ensure profile image is selected
-    submit = SubmitField('Register')  # Submit button for the form
+    ], validators=[InputRequired(message="Please select a profile image")])
+    submit = SubmitField('Register')
 
     def validate_email(self, field):
         """Check if the email is already registered in the database."""
