@@ -44,13 +44,6 @@ def login_user(client, username, password):
 
 # Test the profile route
 def test_profile_route(client):
-    # Add test user to the database
-    user = Users(username='testuser', first_name='testname', last_name='testlast', profile_image='avo.jpg',
-                 email='test@example.com')
-    user.set_password('password1234')
-    db.session.add(user)
-    db.session.commit()
-
     # Simulate user login
     login_response = login_user(client, 'testuser', 'password1234')
 
@@ -85,12 +78,6 @@ def test_search_route(client):
 
 # Test meal detail route
 def test_meal_detail_route(client):
-    # Add test user to the database
-    user = Users(username='testuser', first_name='testname', last_name='testlast', profile_image='avo.jpg',
-                 email='test@example.com', password='password1234')
-    user.set_password('password1234')  # Make sure the password is hashed correctly
-    db.session.add(user)
-    db.session.commit()
 
     # Add test recipe to the database
     recipe = Recipe(title='Test Recipe', description='A detailed recipe for testing.',
@@ -115,13 +102,6 @@ def test_meal_detail_route(client):
 
 # Test route for editing a user profile
 def test_edit_profile_route(client):
-    # Add test user to the database
-    user = Users(username='testuser', first_name='testname', last_name='testlast', profile_image='avo.jpg',
-                 email='test@example.com')
-    user.set_password('password1234')  # Make sure the password is hashed correctly
-    db.session.add(user)
-    db.session.commit()
-
     # Simulate user login
     login_response = login_user(client, 'testuser', 'password1234')
     assert login_response.status_code == 200  # Ensure login was successful and followed redirect
@@ -145,17 +125,22 @@ def test_edit_profile_route(client):
 
 # Test route for logging out
 def test_logout_route(client):
-    # Add test user to the database
-    user = Users(username='testuser', first_name='testname', last_name='testlast', profile_image='avo.jpg',
-                 email='test@example.com')
-    user.set_password('password1234')  # Make sure the password is hashed correctly
-    db.session.add(user)
-    db.session.commit()
-
     # Simulate user login
     login_response = login_user(client, 'testuser', 'password1234')
     assert login_response.status_code == 200  # Ensure login was successful and followed redirect
 
     # Test logout response
     response = client.post(url_for('other_routes.logout'))  # Changed to POST request
+    assert response.status_code == 302  # Assuming a redirect after logout
+
+
+# Test route for deleting account
+def test_delete_account_route(client):
+
+    # Simulate user login
+    login_response = login_user(client, 'testuser', 'password1234')
+    assert login_response.status_code == 200  # Ensure login was successful and followed redirect
+
+    # Test logout response
+    response = client.post(url_for('other_routes.delete_account'))  # Changed to POST request
     assert response.status_code == 302  # Assuming a redirect after logout

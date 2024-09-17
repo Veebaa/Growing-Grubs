@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 from mod import create_app
-from mod.models import db, Recipe
+from mod.models import db, Recipe, Users
 from mod.app import other_routes
 
 
@@ -19,6 +19,11 @@ def client():
 
     with app.app_context():
         db.create_all()
+        user = Users(username='testuser', first_name='testname', last_name='testlast', profile_image='avo.jpg',
+                     email='test@example.com')
+        user.set_password('password1234')  # Make sure the password is hashed correctly
+        db.session.add(user)
+        db.session.commit()
         yield app.test_client()
         db.drop_all()
 
