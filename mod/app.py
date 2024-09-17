@@ -539,11 +539,9 @@ def unfavourite_recipe(recipe_id):
         # If the favourite is found, remove it from the user's favourites
         current_user.favourites.remove(favourite)  # Remove the favourite association
         db.session.commit()  # Commit the changes to the database
-        flash('Recipe removed from favourites!', 'success')  # Notify the user of success
+        return jsonify({'success': True, 'recipe_id': recipe_id, 'message': 'Recipe removed from favourites!'})
     else:
-        flash('Recipe not found in favourites.', 'error')  # Notify the user if the recipe is not in favourites
-
-    return redirect(url_for('other_routes.profile'))  # Redirect to the user's profile page
+        return jsonify({'success': False, 'message': 'Recipe not found in favourites.'})
 
 
 @other_routes.route('/feeding_stages')

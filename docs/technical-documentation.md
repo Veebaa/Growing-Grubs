@@ -76,6 +76,17 @@ The frontend is primarily structured using HTML, styled using CSS, and made inte
 The backend is built using Flask, serving as a bridge between the database and the frontend, and handling HTTP requests
 and business logic.
 
+```mermaid
+graph TD
+    A[User's Web Browser] -->|HTTP Request| B[Flask Web Framework]
+    B -->|Fetch/Store Data| D[SQLite Database]
+    B -->|Render HTML| C[HTML Templates]
+    C -->|Send HTML| A
+    E[CSS] -->|Apply Styles| A
+    F[JavaScript] -->|Client-side Interactions| A
+    F -->|AJAX Requests| B
+```
+
 ### Application Architecture
 
 The application follows a modular structure, with the main components being:
@@ -98,61 +109,6 @@ Defined in `mod/models.py,` these models represent the core data structures, suc
 The main request handlers are located in `mod/app.py`. These routes handle user interactions like searching recipes,
 managing user profiles, and retrieving recipe details.
 
-```plantuml
-@startuml
-!define RECTANGLE class
-
-' Define styling
-skinparam rectangle {
-  BackgroundColor #E0F2F1
-  BorderColor #004D40
-  BorderThickness 2
-}
-skinparam arrow {
-  Color #004D40
-  Thickness 2
-}
-skinparam {
-  BackgroundColor #FFFFFF
-  Shadowing false
-}
-skinparam title {
-  BackgroundColor #004D40
-  FontColor #FFFFFF
-  FontSize 16
-  FontStyle bold
-}
-
-' Define components
-RECTANGLE "User's Web Browser" as A
-RECTANGLE "HTML Templates" as C
-RECTANGLE "CSS" as E
-RECTANGLE "JavaScript" as F
-RECTANGLE "Flask Application" as B
-RECTANGLE "SQLite Database" as D
-
-' Define interactions
-A --> B : HTTP Request
-B --> C : Render HTML
-B --> D : Fetch Data
-D --> B : Data
-
-E --> C : Styles HTML
-F --> A : Client-side Interactions
-F --> B : AJAX Requests
-
-' Define layout
-A -down-> B
-B -down-> C
-B -down-> D
-D -down-> A
-E -left-> C
-F -left-> A
-
-' Add a title
-title Web Application Architecture
-@enduml
-```
 
 ## Directory Structure
 

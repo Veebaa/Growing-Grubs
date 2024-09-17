@@ -86,21 +86,20 @@
         <div class="favourite-recipes">
             {% if user.favourites %}
             {% for favourite in user.favourites %}
-            <div class="card">
+            <div class="card" id="recipe-{{ favourite.recipe_id }}">
                 <a href="{{ url_for('other_routes.meal_detail', meal_id=favourite.recipe_id) }}">
-                  <img src="{{ favourite.recipe_image }}" alt="{{ favourite.recipe_title }}">
-                  <h3>{{ favourite.recipe_title }}</h3>
+                    <img src="{{ favourite.recipe_image }}" alt="{{ favourite.recipe_title }}">
+                    <h3>{{ favourite.recipe_title }}</h3>
                 </a>
                 <!-- Remove the recipe from favourites -->
-                <form method="POST" action="{{ url_for('other_routes.unfavourite_recipe', recipe_id=favourite.recipe_id) }}">
-                  <button type="submit" class="action-button">Remove from Favourites</button>
-                </form>
+                <button type="button" class="action-button" onclick="removeFromFavourites({{ favourite.recipe_id }})">Remove from Favourites</button>
             </div>
             {% endfor %}
             {% else %}
             <p>No favourites found. Go check out some recipes to add to your favourites.</p>
             {% endif %}
         </div>
+
     </div>
     </main>
 
@@ -122,6 +121,7 @@
         </form>
     </div>
 
+    <script src="{{ url_for('other_routes.static', filename='js/unfavourite.js') }}"></script>
     <script>
         function toggleEditForm() {
           var form = document.getElementById('edit-profile-form');

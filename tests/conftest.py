@@ -54,3 +54,25 @@ def test_no_top_recipe(client, mocker):
     response = client.get('/')
     assert response.status_code == 200
     assert b'No stories available.' in response.data  # Check if "No stories" is displayed
+
+
+@pytest.fixture
+def db_session(client):
+    with client.application.app_context():
+        yield db.session
+        db.session.remove()
+        db.drop_all()
+
+
+# Sample data for testing
+def add_sample_data():
+    # Add a sample recipe to the database
+    recipe = Recipe(title='Test Recipe', description='A test recipe.')
+    db.session.add(recipe)
+    db.session.commit()
+    return recipe
+
+
+@pytest.fixture
+def sample_recipe():
+    return add_sample_data()
