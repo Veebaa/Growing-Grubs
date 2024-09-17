@@ -22,20 +22,20 @@ h2, h3 {
 
 .container {
     width: 400px;
-    padding: 20px;
+    padding: 15px;
     background: #FFE5B4;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .container_form {
-    margin: 20px 0;
+    margin: 10px 0;
 }
 
 input {
     width: 100%;
-    padding: 15px;
-    margin: 5px 0 22px 0;
+    padding: 10px;
+    margin: 5px 0 20px 0;
     border: 1px solid #ccc; /* Soft border color */
     border-radius: 5px;
     background: #f1f1f1;
@@ -79,12 +79,12 @@ dl {
 
 /* Vertical space between fields */
 dl > * {
-    margin-bottom: 15px;
+    margin-bottom: 5px;
 }
 
 .login-link {
     text-align: center; /* Center the link */
-    margin-top: 20px; /* Space above the link */
+    margin-top: 10px; /* Space above the link */
 }
 
 .login-link a {
