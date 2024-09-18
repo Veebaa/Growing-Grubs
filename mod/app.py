@@ -116,14 +116,14 @@ def register_user():
             flash('You have been successfully registered.', 'success')
 
             logger.info(f"User {form.username.data} registered successfully!")
-            logger.info(f"Hashed Password: {user.password}")
             # Redirect the user to the login page after successful registration
             return redirect(url_for('other_routes.login'))
 
         except SQLAlchemyError as e:
             # Log an error if the registration fails and roll back the session
-            logger.error("Registration failed!")
+            logger.error(f"IntegrityError during registration: {e}")
             db.session.rollback()
+            flash('A database error occurred. Please try again.', 'error')
             return f"Commit failed. Error: {e}"
 
     # Render the registration form template if the form is not submitted or invalid
@@ -692,7 +692,6 @@ def proxy():
         return jsonify(response.json())  # Return the JSON response from the API
     except requests.exceptions.HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')  # Log HTTP errors
-        print(f'Response content: {response.content}')  # Log the response content
         return jsonify({'error': 'HTTP error occurred'}), 500
     except requests.exceptions.ConnectionError as conn_err:
         print(f'Connection error occurred: {conn_err}')  # Log connection errors

@@ -1,8 +1,8 @@
 import json
 from flask import url_for
 from werkzeug.security import check_password_hash
-
 from mod.models import db, Users, Recipe, Favourites, user_favourites
+import requests
 
 
 # Test the debug route
@@ -78,9 +78,9 @@ def test_successful_registration(client):
         'first_name': 'New',
         'last_name': 'User',
         'email': 'newuser@example.com',
-        'profile_image': 'default.jpg',
+        'profile_image': 'avo.jpg',  # valid profile image choice
         'password': 'password123',
-        'password_confirm': 'password123'
+        'confirm_password': 'password123'
     }, follow_redirects=True)
 
     assert response.status_code == 200
@@ -93,16 +93,21 @@ def test_successful_registration(client):
     assert check_password_hash(user.password, 'password123')
 
 
-# Test registration with missing fields
 def test_registration_missing_fields(client):
     response = client.post(url_for('other_routes.register_user'), data={
         'username': 'incompleteuser',
         'first_name': 'Incomplete',
-        # Missing last_name, email, password
+        # Missing last_name, email, password, and confirm_password
+        'profile_image': 'avo.jpg',
     }, follow_redirects=True)
 
     assert response.status_code == 200
-    assert b'This field is required.' in response.data
+
+    # Check for specific field validation error messages
+    assert b'Last name required' in response.data
+    assert b'Email required' in response.data
+    assert b'Password required' in response.data
+    assert b'Please select a profile image' not in response.data  # Since profile image is provided
 
 
 # Test registration with duplicate username
@@ -113,9 +118,9 @@ def test_registration_duplicate_username(client):
         'first_name': 'Duplicate',
         'last_name': 'User',
         'email': 'duplicateuser@example.com',
-        'profile_image': 'default.jpg',
+        'profile_image': 'avo.jpg',  # valid profile image choice
         'password': 'password123',
-        'password_confirm': 'password123'
+        'confirm_password': 'password123'  # corrected field name
     }, follow_redirects=True)
 
     # Try to create another user with the same username
@@ -124,13 +129,13 @@ def test_registration_duplicate_username(client):
         'first_name': 'Another',
         'last_name': 'User',
         'email': 'another@example.com',
-        'profile_image': 'default.jpg',
+        'profile_image': 'cherries.jpg',  # another valid profile image
         'password': 'password123',
-        'password_confirm': 'password123'
+        'confirm_password': 'password123'  # corrected field name
     }, follow_redirects=True)
 
     assert response.status_code == 200
-    assert b'Username already exists.' in response.data
+    assert b'Sorry! Username already in use.' in response.data  # updated to correct message
 
 
 # Test registration with invalid email
@@ -307,18 +312,6 @@ def test_healthy_eating_post(client):
     assert b'Portion Sizes' in response.data  # Adjust based on the content of your template
 
 
-def test_proxy_success(client):
-    response = client.get(url_for('other_routes.proxy', age_group='children'))
-    assert response.status_code == 200
-    assert b'food_name' in response.data  # Check for a key in the JSON response
-
-
-def test_proxy_missing_age_group(client):
-    response = client.get(url_for('other_routes.proxy'))
-    assert response.status_code == 400
-    assert b'Missing age_group parameter' in response.data
-
-
 def test_feeding_stages(client, sample_recipe):
     response = client.get(url_for('other_routes.feeding_stages'))
     assert response.status_code == 200
@@ -329,3 +322,67 @@ def test_signs(client, sample_recipe):
     response = client.get(url_for('other_routes.signs'))
     assert response.status_code == 200
     assert b'Test Recipe' in response.data  # Assuming 'Test Recipe' is the top recipe
+
+
+# Test for a successful proxy request
+def test_proxy_success(client, mocker):
+    mock_response = {
+        'foods': [
+            {'food_name': 'apple', 'calories': 95},
+            {'food_name': 'banana', 'calories': 105},
+        ]
+    }
+    # Mock requests.get to return a successful response
+    mock_get = mocker.patch('requests.get')
+    mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = mock_response
+
+    response = client.get('/proxy?age_group=adults')
+
+    assert response.status_code == 200
+    assert b'apple' in response.data
+    assert b'banana' in response.data
+
+
+# Test for missing age_group parameter
+def test_proxy_missing_age_group(client):
+    response = client.get('/proxy')
+
+    assert response.status_code == 400
+    assert b'Missing age_group parameter' in response.data
+
+
+# Test for an HTTP error from the external API
+def test_proxy_http_error(client, mocker):
+    # Mock requests.get to raise an HTTPError
+    mock_get = mocker.patch('requests.get')
+    mock_get.side_effect = requests.exceptions.HTTPError
+
+    response = client.get('/proxy?age_group=adults')
+
+    assert response.status_code == 500
+    assert b'HTTP error occurred' in response.data
+
+
+# Test for a connection error
+def test_proxy_connection_error(client, mocker):
+    # Mock requests.get to raise a ConnectionError
+    mock_get = mocker.patch('requests.get')
+    mock_get.side_effect = requests.exceptions.ConnectionError
+
+    response = client.get('/proxy?age_group=adults')
+
+    assert response.status_code == 500
+    assert b'Connection error occurred' in response.data
+
+
+# Test for a timeout error
+def test_proxy_timeout_error(client, mocker):
+    # Mock requests.get to raise a Timeout
+    mock_get = mocker.patch('requests.get')
+    mock_get.side_effect = requests.exceptions.Timeout
+
+    response = client.get('/proxy?age_group=adults')
+
+    assert response.status_code == 500
+    assert b'Request timed out' in response.data
