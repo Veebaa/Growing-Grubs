@@ -1,4 +1,6 @@
 import json
+import os
+
 import requests
 import logging
 import random
@@ -9,8 +11,11 @@ from mod import db
 from mod.models import Users, Favourites, user_favourites, Recipe
 from mod.user_manager import RegistrationForm, LoginForm
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
 
 other_routes = Blueprint("other_routes", __name__, static_folder='static', template_folder='../templates')
+
+load_dotenv()
 
 if logging.getLogger('growing_grubs_logger') is None:
     logging.basicConfig(level=logging.DEBUG)
@@ -52,7 +57,7 @@ def index():
 
 
 def get_topics_logic():
-    api_key = '4cf8144bb46d4122b603ebcadbd688cc'
+    api_key = os.getenv('NHS_API_KEY')
     endpoint = 'https://api.nhs.uk/conditions'
     headers = {
         'subscription-key': api_key,
@@ -636,26 +641,27 @@ def healthy_eating():
     return render_template('healthy_eating.html', portion_sizes=portion_sizes, age_group=age_group, articles=articles)
 
 
-def get_portion_sizes(age_group):
-    portions_api_key = '4f704df26c022d7001e8c639f94ed667'  # API key for Nutritionix
-    app_id = 'c51d8bff'  # App ID for Nutritionix
+def get_portion_sizes(age_group, offset=0, limit=5):
+    portions_api_key = '4f704df26c022d7001e8c639f94ed667'
+    app_id = 'c51d8bff'
     headers = {
         'x-app-id': app_id,
         'x-app-key': portions_api_key,
         'Content-Type': 'application/json'
     }
 
-    query = f'{age_group} food'  # Query for food items related to the age group
-    endpoint = 'https://trackapi.nutritionix.com/v2/search/instant'  # Nutritionix API endpoint
-    params = {'query': query}  # Query parameters for the API request
+    query = f'{age_group} food'
+    endpoint = 'https://trackapi.nutritionix.com/v2/search/instant'
+    params = {
+        'query': query
+    }
 
     try:
-        response = requests.get(endpoint, headers=headers, params=params, timeout=10)  # Make the API request
-        response.raise_for_status()  # Raise an exception for HTTP errors
-        data = response.json()  # Parse the response JSON
+        response = requests.get(endpoint, headers=headers, params=params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
         print(data)  # Debugging log to check the API response
 
-        # Extract food items from the response
         foods = data.get('branded', []) + data.get('common', [])
         portion_sizes = [{
             'food_name': food['food_name'],
@@ -663,16 +669,23 @@ def get_portion_sizes(age_group):
             'serving_unit': food.get('serving_unit', 'N/A')
         } for food in foods]
 
-        return portion_sizes
+        # Simulate pagination if possible (if you get all items and handle pagination manually)
+        paginated_items = portion_sizes[offset:offset + limit]
+
+        return {
+            'portion_sizes': paginated_items,
+            'total_items': len(portion_sizes)  # Provide total number of items for pagination controls
+        }
     except requests.exceptions.RequestException as e:
-        print(f'Error fetching portion sizes: {e}')  # Log the error
-        return []  # Return an empty list in case of an error
+        print(f'Error fetching portion sizes: {e}')
+        return {'portion_sizes': [], 'total_items': 0}
 
 
 @other_routes.route('/proxy', methods=['GET'])
 def proxy():
     age_group = request.args.get('age_group')  # Get the age group from query parameters
-    print(f'Received age_group parameter: {age_group}')  # Debugging log to check the received parameter
+    offset = int(request.args.get('offset', 0))  # Get the offset parameter, default to 0
+    limit = int(request.args.get('limit', 5))  # Get the limit parameter, default to 5
 
     # If no age_group is provided, return a 400 error
     if not age_group:
@@ -680,16 +693,29 @@ def proxy():
 
     url = 'https://trackapi.nutritionix.com/v2/search/instant'  # Nutritionix API endpoint
     headers = {
-        'x-app-id': 'c51d8bff',  # App ID for Nutritionix
-        'x-app-key': '4f704df26c022d7001e8c639f94ed667',  # API key for Nutritionix
+        'x-app-id': os.getenv('NUTRITIONIX_APP_ID'),   # Use environment variables for sensitive info
+        'x-app-key': os.getenv('NUTRITIONIX_API_KEY'),   # Use environment variables for sensitive info
         'Content-Type': 'application/json'
     }
-    params = {'query': age_group}  # Query parameters for the API request
+    params = {'query': age_group}
 
     try:
         response = requests.get(url, headers=headers, params=params, timeout=10)  # Make the API request
         response.raise_for_status()  # Raise an exception for HTTP errors
-        return jsonify(response.json())  # Return the JSON response from the API
+        data = response.json()  # Parse the response JSON
+
+        # Extract food items from the response
+        foods = data.get('branded', []) + data.get('common', [])
+        paginated_items = foods[offset:offset + limit]
+
+        # Debugging print statements
+        print(f"Response Data: {data}")
+        print(f"Paginated Items: {paginated_items}")
+
+        return jsonify({
+            'portion_sizes': paginated_items,
+            'total_items': len(foods)  # Provide total number of items for pagination controls
+        })
     except requests.exceptions.HTTPError as http_err:
         print(f'HTTP error occurred: {http_err}')  # Log HTTP errors
         return jsonify({'error': 'HTTP error occurred'}), 500

@@ -324,24 +324,33 @@ def test_signs(client, sample_recipe):
     assert b'Test Recipe' in response.data  # Assuming 'Test Recipe' is the top recipe
 
 
-# Test for a successful proxy request
 def test_proxy_success(client, mocker):
     mock_response = {
-        'foods': [
-            {'food_name': 'apple', 'calories': 95},
-            {'food_name': 'banana', 'calories': 105},
+        'branded': [
+            {'food_name': 'Spring Mix Baby Lettuce, Baby Greens', 'brand_name': 'Organic Marketside',
+             'serving_qty': 3, 'serving_unit': 'cups'},
+            {'food_name': 'Baby-Cut Carrots', 'brand_name': 'Bolthouse Farms', 'serving_qty': 3, 'serving_unit': 'oz.'},
+        ],
+        'common': [
+            {'food_name': 'apple', 'serving_qty': '1', 'serving_unit': 'unit'},
+            {'food_name': 'banana', 'serving_qty': '1', 'serving_unit': 'unit'},
         ]
     }
+
     # Mock requests.get to return a successful response
-    mock_get = mocker.patch('requests.get')
+    mock_get = mocker.patch('mod.app.requests.get')
     mock_get.return_value.status_code = 200
     mock_get.return_value.json.return_value = mock_response
 
     response = client.get('/proxy?age_group=adults')
 
+    print(response.data)  # Print the response data for debugging
+
     assert response.status_code == 200
     assert b'apple' in response.data
     assert b'banana' in response.data
+    assert b'Spring Mix Baby Lettuce, Baby Greens' in response.data
+    assert b'Baby-Cut Carrots' in response.data
 
 
 # Test for missing age_group parameter
