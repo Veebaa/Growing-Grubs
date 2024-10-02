@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 db = SQLAlchemy()
 
@@ -8,6 +9,7 @@ db = SQLAlchemy()
 def create_app(test_config=None):
     application = Flask(__name__, static_folder='../static')
     basedir = os.path.abspath(os.path.dirname(__file__))
+    migrate = Migrate(application, db)
 
     # Default configuration
     application.config.from_mapping(

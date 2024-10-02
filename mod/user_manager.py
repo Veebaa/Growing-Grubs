@@ -1,8 +1,9 @@
 from flask_login import LoginManager
 from flask_wtf import FlaskForm
-from wtforms.fields.choices import SelectField
+from wtforms.fields.choices import SelectField, SelectMultipleField
+from wtforms.fields.form import FormField
 from wtforms.fields.simple import StringField, PasswordField, SubmitField, BooleanField
-from wtforms.validators import InputRequired, Length, Regexp, Email, EqualTo, ValidationError
+from wtforms.validators import InputRequired, Length, Regexp, Email, EqualTo, ValidationError, DataRequired
 from mod.models import Users
 
 # Create a LoginManager instance to manage user sessions
@@ -89,3 +90,24 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     # Submit button for the form
     submit = SubmitField('Login')
+
+
+class DayMealForm(FlaskForm):
+    breakfast = SelectField('Breakfast', coerce=int)
+    lunch = SelectField('Lunch', coerce=int)
+    dinner = SelectField('Dinner', coerce=int)
+
+
+class MealPlanForm(FlaskForm):
+    name = StringField('Meal Plan Name', validators=[DataRequired()])
+
+    # Add one form for each day of the week
+    monday = FormField(DayMealForm)
+    tuesday = FormField(DayMealForm)
+    wednesday = FormField(DayMealForm)
+    thursday = FormField(DayMealForm)
+    friday = FormField(DayMealForm)
+    saturday = FormField(DayMealForm)
+    sunday = FormField(DayMealForm)
+
+    submit = SubmitField('Create Meal Plan')

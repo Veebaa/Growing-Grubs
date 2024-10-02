@@ -1,6 +1,5 @@
 import json
 import os
-
 import requests
 import logging
 import random
@@ -8,8 +7,8 @@ from flask import Blueprint, current_app, render_template, request, redirect, ur
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy.exc import SQLAlchemyError
 from mod import db
-from mod.models import Users, Favourites, user_favourites, Recipe
-from mod.user_manager import RegistrationForm, LoginForm
+from mod.models import Users, Favourites, user_favourites, Recipe, MealPlan, MealPlanDay
+from mod.user_manager import RegistrationForm, LoginForm, MealPlanForm
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -202,7 +201,7 @@ def logout():
     return redirect(url_for('other_routes.index'))
 
 
-@other_routes.route('/profile')
+@other_routes.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
     # Get the current logger instance for logging information
@@ -224,8 +223,44 @@ def profile():
     # Log the user's favourites for debugging purposes
     logger.info(f"User favourites: {user_info['favourites']}")
 
-    # Render the profile template with user information and available profile images
-    return render_template('profile.html', user=user_info, available_profile_images=available_profile_images)
+    form = MealPlanForm()
+
+    # Populate the choices for breakfast, lunch, and dinner for each day
+    favourites = [(recipe.id, recipe.title) for recipe in current_user.favourites]
+
+    for day_form in [form.monday, form.tuesday, form.wednesday, form.thursday, form.friday, form.saturday,
+                     form.sunday]:
+        day_form.breakfast.choices = favourites
+        day_form.lunch.choices = favourites
+        day_form.dinner.choices = favourites
+
+    if form.validate_on_submit():
+        meal_plan = MealPlan(name=form.name.data, user=current_user)
+        db.session.add(meal_plan)
+        db.session.flush()  # So that we can get the meal_plan_id before committing
+
+        # Save each day’s meals
+        for day_name, day_form in [('Monday', form.monday), ('Tuesday', form.tuesday), ('Wednesday', form.wednesday),
+                                   ('Thursday', form.thursday), ('Friday', form.friday), ('Saturday', form.saturday),
+                                   ('Sunday', form.sunday)]:
+            meal_plan_day = MealPlanDay(
+                day=day_name,
+                meal_plan_id=meal_plan.id,
+                breakfast_id=day_form.breakfast.data,
+                lunch_id=day_form.lunch.data,
+                dinner_id=day_form.dinner.data
+            )
+            db.session.add(meal_plan_day)
+
+        db.session.commit()
+        flash('Meal plan created successfully!')
+
+    # Fetch the user's existing meal plan to render
+    meal_plan = MealPlan.query.filter_by(user_id=current_user.id).first()
+
+    # Render the profile template with user information, form, and meal plan
+    return render_template('profile.html', user=user_info, available_profile_images=available_profile_images, form=form, meal_plan=meal_plan)
+
 
 
 @other_routes.route('/edit_profile', methods=['POST'])
@@ -547,6 +582,18 @@ def unfavourite_recipe(recipe_id):
         return jsonify({'success': True, 'recipe_id': recipe_id, 'message': 'Recipe removed from favourites!'})
     else:
         return jsonify({'success': False, 'message': 'Recipe not found in favourites.'})
+
+
+@other_routes.route('/meal-plan/<int:meal_plan_id>')
+@login_required
+def view_meal_plan(meal_plan_id):
+    meal_plan = MealPlan.query.get_or_404(meal_plan_id)
+
+    if meal_plan.user != current_user:
+        flash('You do not have permission to view this meal plan.')
+        return redirect(url_for('index'))
+
+    return render_template('profile.html', meal_plan=meal_plan)
 
 
 @other_routes.route('/feeding_stages')

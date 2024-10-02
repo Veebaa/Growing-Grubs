@@ -139,3 +139,11 @@ __pycache__
 .coverage
 coverage.xml
 xunit-results.xml
+
+recipes(1).csv
+recipes.csv
+recipes_backup.csv
+csv_to_db.py
+
+# database migrations
+migrations
