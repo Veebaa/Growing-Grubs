@@ -1,3 +1,5 @@
+import json
+
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from mod import db
@@ -6,7 +8,8 @@ from datetime import datetime
 # Association table for the many-to-many relationship
 user_favourites = db.Table('user_favourites',
                            db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
-                           db.Column('favourite_id', db.Integer, db.ForeignKey('favourites.id'), primary_key=True)
+                           db.Column('favourite_id', db.Integer, db.ForeignKey('favourites.id'), primary_key=True),
+                           extend_existing=True
                            )
 
 
@@ -38,9 +41,11 @@ class Favourites(db.Model):
     __tablename__ = 'favourites'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    recipe_id = db.Column(db.Integer, nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
     recipe_title = db.Column(db.String(200), nullable=False)
     recipe_image = db.Column(db.String(200), nullable=False)
+
+    recipe = db.relationship('Recipe', backref='favourites')  # Establish relationship to Recipe
 
 
 class Recipe(db.Model):
@@ -65,6 +70,10 @@ class Recipe(db.Model):
 
     def log_view(self):
         """Increment the view count and update the last viewed date."""
+        # Convert views to integer if it's a string
+        if isinstance(self.views, str):
+            self.views = int(self.views) if self.views.isdigit() else 0
+
         self.views = self.views + 1 if self.views is not None else 1
         self.last_viewed = datetime.utcnow()
         db.session.add(self)
@@ -79,8 +88,8 @@ class Recipe(db.Model):
             'prep_time': self.prep_time,
             'cook_time': self.cook_time,
             'age_group': self.age_group,
-            'ingredients': self.ingredients,
-            'method': self.method,
+            'ingredients': ' '.join(json.loads(self.ingredients)) if self.ingredients else '',
+            'method': ' '.join(json.loads(self.method)) if self.method else '',
             'recipe_url': self.recipe_url,
             'dietary_info': self.dietary_info,
             'image_url': self.image_url,

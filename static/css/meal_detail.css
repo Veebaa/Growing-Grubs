@@ -62,6 +62,7 @@ body.meal_detail {
     line-height: 1.5;
 }
 
+/* Recipe Meta Data */
 .recipe-meta {
     display: flex;
     flex-wrap: wrap;
@@ -81,6 +82,11 @@ body.meal_detail {
 
 .recipe-meta div strong {
     color: #A75D5D;
+}
+
+/* Additional styling for dietary info if needed */
+.recipe-meta div:nth-child(5) {
+    background-color: #99cc99;
 }
 
 /* Description and Ingredients */

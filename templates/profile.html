@@ -101,41 +101,53 @@
         </div>
 
         <!-- Meal plan section -->
-        <form method="POST">
-            {{ form.hidden_tag() }}
-            <div>
-                {{ form.name.label }} {{ form.name() }}
+        <div class="meal-plan-container">
+            <div class="meal-plan-form">
+                <h2>Create Meal Plan</h2>
+                <form method="POST" action="{{ url_for('other_routes.profile') }}">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ form.name.label }} {{ form.name() }}
+                    </div>
+
+                    {% for day_form, day_name in [
+                        (form.monday, 'Monday'), (form.tuesday, 'Tuesday'),
+                        (form.wednesday, 'Wednesday'), (form.thursday, 'Thursday'),
+                        (form.friday, 'Friday'), (form.saturday, 'Saturday'),
+                        (form.sunday, 'Sunday')] %}
+                        <h3>{{ day_name }}</h3>
+                        <div class="form-group">
+                            {{ day_form.breakfast.label }} {{ day_form.breakfast() }}
+                        </div>
+                        <div class="form-group">
+                            {{ day_form.lunch.label }} {{ day_form.lunch() }}
+                        </div>
+                        <div class="form-group">
+                            {{ day_form.dinner.label }} {{ day_form.dinner() }}
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+                        {{ form.submit() }}
+                    </div>
+                </form>
             </div>
 
-            {% for day_form, day_name in [
-                (form.monday, 'Monday'), (form.tuesday, 'Tuesday'),
-                (form.wednesday, 'Wednesday'), (form.thursday, 'Thursday'),
-                (form.friday, 'Friday'), (form.saturday, 'Saturday'), (form.sunday, 'Sunday')] %}
-                <h3>{{ day_name }}</h3>
-                <div>
-                    {{ day_form.breakfast.label }} {{ day_form.breakfast() }}
-                </div>
-                <div>
-                    {{ day_form.lunch.label }} {{ day_form.lunch() }}
-                </div>
-                <div>
-                    {{ day_form.dinner.label }} {{ day_form.dinner() }}
-                </div>
-            {% endfor %}
-
-            <div>
-                {{ form.submit() }}
+            <div class="meal-plan-display">
+                <h2>Your Meal Plan: {{ meal_plan.name if meal_plan else 'No Meal Plan Created' }}</h2>
+                {% if meal_plan_days %}
+                    {% for day in meal_plan_days %}
+                        <h3>{{ day.day }}</h3>
+                        <p>Breakfast: {{ day.breakfast.title if day.breakfast else 'No meal selected' }}</p>
+                        <p>Lunch: {{ day.lunch.title if day.lunch else 'No meal selected' }}</p>
+                        <p>Dinner: {{ day.dinner.title if day.dinner else 'No meal selected' }}</p>
+                    {% endfor %}
+                {% else %}
+                    <p>No meals planned for this week.</p>
+                {% endif %}
             </div>
-        </form>
 
-
-        <h2>{{ meal_plan.name }}</h2>
-            {% for day in meal_plan.days %}
-                <h3>{{ day.day }}</h3>
-                <p>Breakfast: {{ day.breakfast.title if day.breakfast else 'No meal selected' }}</p>
-                <p>Lunch: {{ day.lunch.title if day.lunch else 'No meal selected' }}</p>
-                <p>Dinner: {{ day.dinner.title if day.dinner else 'No meal selected' }}</p>
-            {% endfor %}
+        </div>
 
     </div>
     </main>

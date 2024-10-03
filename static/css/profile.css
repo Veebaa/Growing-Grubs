@@ -1,46 +1,75 @@
 .profile-container {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 20px;
-  background: #ebf4ee;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #ebf4ee;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
 }
 
 .profile-header {
-  display: flex;
-  align-items: center;
-  border-bottom: 4px solid #e0e0e0;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    border-bottom: 4px solid #e0e0e0;
+    padding-bottom: 20px;
+    margin-bottom: 20px;
 }
 
 .profile-image img {
-  border-radius: 50%;
-  width: 150px;
-  height: 150px;
-  object-fit: cover;
-  margin-right: 20px;
+    border-radius: 50%;
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    margin-right: 20px;
 }
 
 .profile-info {
-  flex-grow: 1;
+    flex-grow: 1;
 }
 
 .profile-info h1 {
-  margin: 0;
-  font-size: 2em;
+    margin: 0;
+    font-size: 2em;
 }
-
 .profile-info p {
   margin: 5px 0;
   color: #666;
 }
 
 .profile-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.meal-plan-container {
+    display: flex;
+    flex-direction: row; /* Keep meal plan sections side by side */
+    justify-content: space-between; /* Space between the two sections */
+    margin-top: 20px; /* Spacing from the top */
+}
+
+.meal-plan-form,
+.meal-plan-display {
+    width: 48%; /* Each section takes up nearly half of the container */
+    background-color: #f8f8f8; /* Light background for contrast */
+    padding: 15px; /* Add padding */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Light shadow */
+}
+
+@media (max-width: 768px) {
+    .meal-plan-container {
+        flex-direction: column; /* Stack meal plan sections on smaller screens */
+    }
+
+    .meal-plan-form,
+    .meal-plan-display {
+        width: 100%; /* Full width for smaller screens */
+        margin-bottom: 20px; /* Space between stacked sections */
+    }
 }
 
 .profile-actions button, .edit-profile button {
@@ -75,20 +104,32 @@
   border-radius: 5px;
 }
 
+/* Ensure cards are responsive */
 .favourite-recipes {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+.card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    text-align: center;
+    width: calc(33.333% - 20px); /* Adjust based on available space */
 }
 
-.card {
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  transition: transform 0.3s ease;
-  text-align: center;
-  width: calc(33.333% - 20px);
+@media (max-width: 768px) {
+    .card {
+        width: calc(50% - 20px); /* Change card width on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        width: 100%; /* Full width on extra small screens */
+    }
 }
 
 .card:hover {
@@ -106,18 +147,6 @@
   padding: 10px;
   background: #f8f8f8;
   font-size: 1.2em;
-}
-
-@media (max-width: 768px) {
-  .card {
-    width: calc(50% - 20px);
-  }
-}
-
-@media (max-width: 480px) {
-  .card {
-    width: 100%;
-  }
 }
 
 /* Styling for the Remove from Favourites button */
@@ -209,3 +238,4 @@
     border: 1px solid #ccc;
     z-index: 1002;
 }
+

@@ -204,13 +204,10 @@ def logout():
 @other_routes.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    # Get the current logger instance for logging information
     logger = current_app.logger
 
-    # Define a list of available profile images for the user to select
     available_profile_images = ['avo.jpg', 'cherries.jpg', 'orange.jpg', 'strawberry.jpg', 'watermelon.jpg']
 
-    # Create a dictionary with the current user's profile information
     user_info = {
         'profile_image': current_user.profile_image,
         'username': current_user.username,
@@ -220,13 +217,11 @@ def profile():
         'favourites': current_user.favourites
     }
 
-    # Log the user's favourites for debugging purposes
     logger.info(f"User favourites: {user_info['favourites']}")
 
     form = MealPlanForm()
 
-    # Populate the choices for breakfast, lunch, and dinner for each day
-    favourites = [(recipe.id, recipe.title) for recipe in current_user.favourites]
+    favourites = [(favourite.recipe_id, favourite.recipe.title) for favourite in current_user.favourites]
 
     for day_form in [form.monday, form.tuesday, form.wednesday, form.thursday, form.friday, form.saturday,
                      form.sunday]:
@@ -235,9 +230,13 @@ def profile():
         day_form.dinner.choices = favourites
 
     if form.validate_on_submit():
+        logger.info('Form submitted, creating new meal plan.')
+
         meal_plan = MealPlan(name=form.name.data, user=current_user)
         db.session.add(meal_plan)
         db.session.flush()  # So that we can get the meal_plan_id before committing
+
+        logger.info(f'Meal plan created with ID: {meal_plan.id}')
 
         # Save each day’s meals
         for day_name, day_form in [('Monday', form.monday), ('Tuesday', form.tuesday), ('Wednesday', form.wednesday),
@@ -250,17 +249,29 @@ def profile():
                 lunch_id=day_form.lunch.data,
                 dinner_id=day_form.dinner.data
             )
+            logger.info(f'Saving {day_name} meals: Breakfast - {day_form.breakfast.data}, Lunch - {day_form.lunch.data}, Dinner - {day_form.dinner.data}')
             db.session.add(meal_plan_day)
 
         db.session.commit()
         flash('Meal plan created successfully!')
+        logger.info(f'Meal plan with ID {meal_plan.id} committed to database.')
+
+    else:
+        logger.warning(f'Form submission failed. Errors: {form.errors}')
 
     # Fetch the user's existing meal plan to render
     meal_plan = MealPlan.query.filter_by(user_id=current_user.id).first()
+    logger.info(f'Fetched meal plan: {meal_plan}')
 
-    # Render the profile template with user information, form, and meal plan
-    return render_template('profile.html', user=user_info, available_profile_images=available_profile_images, form=form, meal_plan=meal_plan)
+    # Make sure to also get the meal plan days to display in the profile
+    if meal_plan:
+        meal_plan_days = MealPlanDay.query.filter_by(meal_plan_id=meal_plan.id).all()
+        logger.info(f'Fetched {len(meal_plan_days)} meal plan days for meal plan ID {meal_plan.id}.')
+    else:
+        meal_plan_days = []  # Empty list if no meal plan is found
+        logger.info('No meal plan found for current user.')
 
+    return render_template('profile.html', user=user_info, available_profile_images=available_profile_images, form=form, meal_plan=meal_plan, meal_plan_days=meal_plan_days)
 
 
 @other_routes.route('/edit_profile', methods=['POST'])
@@ -470,65 +481,56 @@ def view_recipe(recipe_id):
 
 @other_routes.route('/meal/<int:meal_id>')
 def meal_detail(meal_id):
-    # Fetch the top stories articles using the logic defined in get_topics_logic
-    articles = get_topics_logic()
+    articles = get_topics_logic()  # Fetch articles logic
 
-    # Get the current logger instance from the Flask app for logging information
     logger = current_app.logger
     logger.info(f"Fetching details for meal ID: {meal_id}")
 
     try:
-        # Use a context manager to perform operations without auto-flushing changes
         with db.session.no_autoflush:
-            # Retrieve the meal information from the database by primary key (meal_id)
             meal_info = db.session.get(Recipe, meal_id)
 
-            # Check if the meal information was found
             if not meal_info:
-                # Log an error if the meal ID is not found and return a 404 page
                 logger.error(f"Meal ID {meal_id} not found in the database.")
                 return render_template('404.html'), 404
 
-            # Log the view of the meal (increment view count)
+            # Log the view count
             meal_info.log_view()
 
             # Check if 'no_flush' parameter is set in the request arguments
             no_flush = request.args.get('no_flush') == 'true'
 
             if not no_flush:
-                # Commit the session if no_flush is not true
                 db.session.commit()
             else:
-                # Flush the session (send changes to the database) if no_flush is true
                 db.session.flush()
 
-            # Ensure the image URL is not None; set a default image if it is
+            # Default image and method handling
             meal_info.image_url = meal_info.image_url or '/static/images/comingsoon.jpg'
-            # Provide a default message if the method (instructions) is None
             meal_info.method = meal_info.method or 'No instructions provided.'
 
-            # Try to parse the ingredients JSON data; default to an empty list if parsing fails
-            try:
-                meal_info.ingredients = json.loads(meal_info.ingredients)
-            except (json.JSONDecodeError, TypeError):
-                meal_info.ingredients = []
+            logger.info(f"Raw ingredients data: {meal_info.ingredients}")
 
-            # Try to parse the method JSON data; default to an empty list if parsing fails
+            # Parsing ingredients and method
             try:
-                meal_info.method = json.loads(meal_info.method)
-            except (json.JSONDecodeError, TypeError):
-                meal_info.method = []
+                meal_info.ingredients = json.loads(meal_info.ingredients) if isinstance(meal_info.ingredients,
+                                                                                        str) else []
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON decoding error for ingredients: {e}")
+                meal_info.ingredients = []  # Fallback to an empty list or handle accordingly
 
-            # Log successful retrieval of meal details
+            try:
+                meal_info.method = json.loads(meal_info.method) if isinstance(meal_info.method, str) else []
+            except json.JSONDecodeError as e:
+                logger.error(f"JSON decoding error for method: {e}")
+                meal_info.method = []  # Fallback to an empty list or handle accordingly
+
             logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
-            # Render the meal detail template with the meal information and articles
             return render_template('meal_detail.html', meal=meal_info, articles=articles)
 
     except Exception as e:
-        # Log any unexpected errors and roll back the database session
         logger.error(f"Unexpected error occurred: {e}", exc_info=True)
         db.session.rollback()
-        # Return a 404 page in case of an unexpected error
         return render_template('404.html'), 404
 
 
@@ -584,16 +586,20 @@ def unfavourite_recipe(recipe_id):
         return jsonify({'success': False, 'message': 'Recipe not found in favourites.'})
 
 
-@other_routes.route('/meal-plan/<int:meal_plan_id>')
-@login_required
-def view_meal_plan(meal_plan_id):
-    meal_plan = MealPlan.query.get_or_404(meal_plan_id)
+# @other_routes.route('/meal-plan/<int:meal_plan_id>')
+# @login_required
+# def view_meal_plan(meal_plan_id):
+#     meal_plan = MealPlan.query.get_or_404(meal_plan_id)
+#
+#     if meal_plan.user != current_user:
+#         flash('You do not have permission to view this meal plan.')
+#         return redirect(url_for('index'))
+#
+#     print("Meal Plan ID:", meal_plan_id)  # Debugging line
+#     print("Meal Plan Name:", meal_plan.name)  # Debugging line
+#
+#     return render_template('profile.html', meal_plan=meal_plan)
 
-    if meal_plan.user != current_user:
-        flash('You do not have permission to view this meal plan.')
-        return redirect(url_for('index'))
-
-    return render_template('profile.html', meal_plan=meal_plan)
 
 
 @other_routes.route('/feeding_stages')

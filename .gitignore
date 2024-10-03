@@ -147,3 +147,6 @@ csv_to_db.py
 
 # database migrations
 migrations
+
+fix_recipe_data.py
+backup_database.db
