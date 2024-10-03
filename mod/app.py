@@ -219,26 +219,33 @@ def profile():
 
     logger.info(f"User favourites: {user_info['favourites']}")
 
-    form = MealPlanForm()
+    # Fetch the user's existing meal plan to render
+    meal_plans = MealPlan.query.filter_by(user_id=current_user.id).all()
+    logger.info(f'Fetched {len(meal_plans)} meal plans for user ID {current_user.id}.')
 
+    return render_template('profile.html', user=user_info, available_profile_images=available_profile_images, meal_plans=meal_plans)
+
+
+@other_routes.route('/meal-planner', methods=['GET', 'POST'])
+@login_required
+def meal_planner():
+    logger = current_app.logger
+
+    form = MealPlanForm()
     favourites = [(favourite.recipe_id, favourite.recipe.title) for favourite in current_user.favourites]
 
-    for day_form in [form.monday, form.tuesday, form.wednesday, form.thursday, form.friday, form.saturday,
-                     form.sunday]:
+    # Set meal choices for the form
+    for day_form in [form.monday, form.tuesday, form.wednesday, form.thursday, form.friday, form.saturday, form.sunday]:
         day_form.breakfast.choices = favourites
         day_form.lunch.choices = favourites
         day_form.dinner.choices = favourites
 
     if form.validate_on_submit():
-        logger.info('Form submitted, creating new meal plan.')
-
+        # Meal plan creation logic
         meal_plan = MealPlan(name=form.name.data, user=current_user)
         db.session.add(meal_plan)
-        db.session.flush()  # So that we can get the meal_plan_id before committing
+        db.session.flush()
 
-        logger.info(f'Meal plan created with ID: {meal_plan.id}')
-
-        # Save each day’s meals
         for day_name, day_form in [('Monday', form.monday), ('Tuesday', form.tuesday), ('Wednesday', form.wednesday),
                                    ('Thursday', form.thursday), ('Friday', form.friday), ('Saturday', form.saturday),
                                    ('Sunday', form.sunday)]:
@@ -249,29 +256,13 @@ def profile():
                 lunch_id=day_form.lunch.data,
                 dinner_id=day_form.dinner.data
             )
-            logger.info(f'Saving {day_name} meals: Breakfast - {day_form.breakfast.data}, Lunch - {day_form.lunch.data}, Dinner - {day_form.dinner.data}')
             db.session.add(meal_plan_day)
 
         db.session.commit()
         flash('Meal plan created successfully!')
-        logger.info(f'Meal plan with ID {meal_plan.id} committed to database.')
+        return redirect(url_for('other_routes.meal_planner', meal_plan_id=meal_plan.id))
 
-    else:
-        logger.warning(f'Form submission failed. Errors: {form.errors}')
-
-    # Fetch the user's existing meal plan to render
-    meal_plan = MealPlan.query.filter_by(user_id=current_user.id).first()
-    logger.info(f'Fetched meal plan: {meal_plan}')
-
-    # Make sure to also get the meal plan days to display in the profile
-    if meal_plan:
-        meal_plan_days = MealPlanDay.query.filter_by(meal_plan_id=meal_plan.id).all()
-        logger.info(f'Fetched {len(meal_plan_days)} meal plan days for meal plan ID {meal_plan.id}.')
-    else:
-        meal_plan_days = []  # Empty list if no meal plan is found
-        logger.info('No meal plan found for current user.')
-
-    return render_template('profile.html', user=user_info, available_profile_images=available_profile_images, form=form, meal_plan=meal_plan, meal_plan_days=meal_plan_days)
+    return render_template('meal_planner.html', form=form)
 
 
 @other_routes.route('/edit_profile', methods=['POST'])
@@ -586,20 +577,34 @@ def unfavourite_recipe(recipe_id):
         return jsonify({'success': False, 'message': 'Recipe not found in favourites.'})
 
 
-# @other_routes.route('/meal-plan/<int:meal_plan_id>')
-# @login_required
-# def view_meal_plan(meal_plan_id):
-#     meal_plan = MealPlan.query.get_or_404(meal_plan_id)
-#
-#     if meal_plan.user != current_user:
-#         flash('You do not have permission to view this meal plan.')
-#         return redirect(url_for('index'))
-#
-#     print("Meal Plan ID:", meal_plan_id)  # Debugging line
-#     print("Meal Plan Name:", meal_plan.name)  # Debugging line
-#
-#     return render_template('profile.html', meal_plan=meal_plan)
+@other_routes.route('/meal-plan/<int:meal_plan_id>')
+@login_required
+def view_meal_plan(meal_plan_id):
+    logger = current_app.logger  # Initialize the logger
 
+    meal_plan = MealPlan.query.get_or_404(meal_plan_id)
+
+    if meal_plan.user != current_user:
+        flash('You do not have permission to view this meal plan.')
+        return redirect(url_for('index'))
+
+    logger.info(f"User {current_user.username} is viewing meal plan: {meal_plan.name}")
+
+    # Fetch meal plan details for JSON response
+    meal_plan_days = MealPlanDay.query.filter_by(meal_plan_id=meal_plan.id).all()
+    days = [
+        {
+            'day': meal_plan_day.day,
+            'breakfast': meal_plan_day.breakfast.title,
+            'lunch': meal_plan_day.lunch.title,
+            'dinner': meal_plan_day.dinner.title
+        }
+        for meal_plan_day in meal_plan_days
+    ]
+
+    logger.info(f"Meal plan details for {meal_plan.name}: {days}")
+
+    return jsonify({'name': meal_plan.name, 'days': days})
 
 
 @other_routes.route('/feeding_stages')

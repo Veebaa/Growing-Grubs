@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <title>Meal Planner Page</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main-content.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/profile.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('other_routes.static', filename='images/favicon.png') }}">
+</head>
+
+<body class="meal-planner-page">
+    <!-- Header -->
+    <header class="header">
+        <img class="header-image" src="static/images/growinggrubs_header_3.png" alt="header-image">
+    </header>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        {% include 'navbar.html' %}
+    </nav>
+
+    <!-- Main content section -->
+    <main>
+        <div class="tab-container">
+            <button class="tablink" onclick="window.location.href='{{ url_for('other_routes.profile') }}'">Profile</button>
+        </div>
+
+        <div class="meal-plan-container">
+            <form method="POST" action="{{ url_for('other_routes.meal_planner') }}">
+              {{ form.hidden_tag() }}
+                <div class="form-group">
+                {{ form.name.label }} {{ form.name() }}
+                </div>
+                  {% for day_form, day_name in [(form.monday, 'Monday'), (form.tuesday, 'Tuesday'), (form.wednesday, 'Wednesday'),
+                                        (form.thursday, 'Thursday'), (form.friday, 'Friday'), (form.saturday, 'Saturday'),
+                                        (form.sunday, 'Sunday')] %}
+                <h3>{{ day_name }}</h3>
+                <div class="form-group">
+                  {{ day_form.breakfast.label }} {{ day_form.breakfast() }}
+                </div>
+                <div class="form-group">
+                  {{ day_form.lunch.label }} {{ day_form.lunch() }}
+                </div>
+                <div class="form-group">
+                  {{ day_form.dinner.label }} {{ day_form.dinner() }}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn">Save Meal Plan</button>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p class="footer_text">&#169 Copyright Growing Grubs - Created 2024</p>
+    </footer>
+
+    <div id="flash-overlay" class="flash-overlay show"></div>
+    <div id="popup" class="popup"></div>
+
+    <script src="{{ url_for('other_routes.static', filename='js/unfavourite.js') }}"></script>
+    <script src="{{ url_for('other_routes.static', filename='js/tab_function.js') }}"></script>
+
+    <script>
+        function toggleEditForm() {
+          var form = document.getElementById('edit-profile-form');
+          form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function toggleEditForm() {
+          var form = document.getElementById('edit-profile-form');
+          form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // Confirmation popup for Delete Account
+        function confirmDelete() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('delete-confirmation').style.display = 'block';
+        }
+
+        function closeConfirmation() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('delete-confirmation').style.display = 'none';
+        }
+</script>
+
+</body>
+</html>

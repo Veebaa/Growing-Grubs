@@ -239,3 +239,31 @@
     z-index: 1002;
 }
 
+
+  .tab-container {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tablink {
+  background-color: #f1f1f1;
+  border: none;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-size: 17px;
+}
+
+.tablink:hover {
+  background-color: #ddd;
+}
+
+.tablink.active {
+  background-color: #ccc;
+}
+
+.tabcontent {
+  display: none;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-top: none;
+}

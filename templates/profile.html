@@ -16,7 +16,7 @@
     <link rel="icon" type="image/x-icon" href="{{ url_for('other_routes.static', filename='images/favicon.png') }}">
 </head>
 
-<body class="homepage">
+<body class="profile-page">
     <!-- Header -->
     <header class="header">
         <img class="header-image" src="static/images/growinggrubs_header_3.png" alt="header-image">
@@ -29,127 +29,97 @@
 
     <!-- Main content section -->
     <main>
-    <div class="profile-container">
-        <div class="profile-header">
-            <div class="profile-image">
-              <img src="{{ url_for('static', filename='images/profiles/' + (user.profile_image if user.profile_image else 'default.jpg')) }}" alt="Profile Image">
-            </div>
-            <div class="profile-info">
-              <h1>{{ user.username }}</h1>
-              <p>{{ user.first_name }} {{ user.last_name }}</p>
-              <p>{{ user.email }}</p>
-            </div>
-        </div>
-
-        <div class="profile-actions">
-            <button onclick="toggleEditForm()">Edit Profile</button>
-            <form method="POST" action="{{ url_for('other_routes.logout') }}">
-                <button type="submit">Logout</button>
-                <button type="button" onclick="confirmDelete()">Delete Account</button>
-            </form>
-        </div>
-
-        <!-- Edit Profile Form -->
-        <form class="edit-profile" id="edit-profile-form" style="display:none;" method="POST" action="{{ url_for('other_routes.edit_profile') }}">
-            <div class="form-group">
-              <label for="first_name">First Name</label>
-              <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
-            </div>
-            <div class="form-group">
-              <label for="last_name">Last Name</label>
-              <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
-            </div>
-            <div class="form-group">
-              <label for="email">Email</label>
-              <input type="email" id="email" name="email" value="{{ user.email }}" required>
-            </div>
-            <div class="form-group">
-                <label>Profile Image</label>
-                <div class="profile-image-options">
-                    {% for image in available_profile_images %}
-                    <label class="profile-image-option">
-                        <input type="radio" name="profile_image" value="{{ image }}" {% if user.profile_image == image %} checked {% endif %}>
-                        <img src="{{ url_for('other_routes.static', filename='images/profiles/' + image) }}" alt="Profile Image" class="profile-thumbnail">
-                    </label>
-                    {% endfor %}
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-image">
+                    <img src="{{ url_for('static', filename='images/profiles/' + (user.profile_image if user.profile_image else 'default.jpg')) }}" alt="Profile Image">
+                </div>
+                <div class="profile-info">
+                    <h1>{{ user.username }}</h1>
+                    <p>{{ user.first_name }} {{ user.last_name }}</p>
+                    <p>{{ user.email }}</p>
                 </div>
             </div>
-            <button type="submit">Save Changes</button>
-        </form>
 
-        <div class="flash-messages">
-            {% include 'flash-messages.html' %}
-        </div>
-
-        <!-- Favourite recipes section -->
-        <h2>My Favourite Recipes</h2>
-        <div class="favourite-recipes">
-            {% if user.favourites %}
-            {% for favourite in user.favourites %}
-            <div class="card" id="recipe-{{ favourite.recipe_id }}">
-                <a href="{{ url_for('other_routes.meal_detail', meal_id=favourite.recipe_id) }}">
-                    <img src="{{ favourite.recipe_image }}" alt="{{ favourite.recipe_title }}">
-                    <h3>{{ favourite.recipe_title }}</h3>
-                </a>
-                <!-- Remove the recipe from favourites -->
-                <button type="button" class="action-button" onclick="removeFromFavourites({{ favourite.recipe_id }})">Remove from Favourites</button>
+            <div class="profile-actions">
+                <form method="POST" action="{{ url_for('other_routes.logout') }}">
+                    <button type="submit">Logout</button>
+                    <button type="button" onclick="confirmDelete()">Delete Account</button>
+                </form>
             </div>
-            {% endfor %}
-            {% else %}
-            <p>No favourites found. Go check out some recipes to add to your favourites.</p>
-            {% endif %}
         </div>
 
-        <!-- Meal plan section -->
-        <div class="meal-plan-container">
-            <div class="meal-plan-form">
-                <h2>Create Meal Plan</h2>
-                <form method="POST" action="{{ url_for('other_routes.profile') }}">
-                    {{ form.hidden_tag() }}
-                    <div class="form-group">
-                        {{ form.name.label }} {{ form.name() }}
-                    </div>
+        <div class="tab-container">
+            <button class="tablink" onclick="openTab(event, 'Edit_Profile')">Edit Profile</button>
+            <button class="tablink" onclick="openTab(event, 'Recipes')">Favourite Recipes</button>
+            <button class="tablink" onclick="window.location.href='{{ url_for('other_routes.meal_planner') }}'">Meal Planner</button>
+            <button class="tablink" onclick="openTab(event, 'MyMealPlans')">My Meal Plans</button>
+        </div>
 
-                    {% for day_form, day_name in [
-                        (form.monday, 'Monday'), (form.tuesday, 'Tuesday'),
-                        (form.wednesday, 'Wednesday'), (form.thursday, 'Thursday'),
-                        (form.friday, 'Friday'), (form.saturday, 'Saturday'),
-                        (form.sunday, 'Sunday')] %}
-                        <h3>{{ day_name }}</h3>
-                        <div class="form-group">
-                            {{ day_form.breakfast.label }} {{ day_form.breakfast() }}
-                        </div>
-                        <div class="form-group">
-                            {{ day_form.lunch.label }} {{ day_form.lunch() }}
-                        </div>
-                        <div class="form-group">
-                            {{ day_form.dinner.label }} {{ day_form.dinner() }}
-                        </div>
-                    {% endfor %}
-
+            <div id="Edit_Profile" class="tabcontent" style="display:none;">
+                <!-- Edit Profile Form -->
+                <form class="edit-profile" id="edit-profile-form" method="POST" action="{{ url_for('other_routes.edit_profile') }}">
                     <div class="form-group">
-                        {{ form.submit() }}
+                        <label for="first_name">First Name</label>
+                        <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
                     </div>
+                    <div class="form-group">
+                        <label for="last_name">Last Name</label>
+                        <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Profile Image</label>
+                        <div class="profile-image-options">
+                            {% for image in available_profile_images %}
+                            <label class="profile-image-option">
+                                <input type="radio" name="profile_image" value="{{ image }}" {% if user.profile_image == image %} checked {% endif %}>
+                                <img src="{{ url_for('other_routes.static', filename='images/profiles/' + image) }}" alt="Profile Image" class="profile-thumbnail">
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button type="submit">Save Changes</button>
                 </form>
             </div>
 
-            <div class="meal-plan-display">
-                <h2>Your Meal Plan: {{ meal_plan.name if meal_plan else 'No Meal Plan Created' }}</h2>
-                {% if meal_plan_days %}
-                    {% for day in meal_plan_days %}
-                        <h3>{{ day.day }}</h3>
-                        <p>Breakfast: {{ day.breakfast.title if day.breakfast else 'No meal selected' }}</p>
-                        <p>Lunch: {{ day.lunch.title if day.lunch else 'No meal selected' }}</p>
-                        <p>Dinner: {{ day.dinner.title if day.dinner else 'No meal selected' }}</p>
+            <div id="Recipes" class="tabcontent" style="display:none;">
+                <!-- Favourite recipes section -->
+                <h2>My Favourite Recipes</h2>
+                <div class="favourite-recipes">
+                    {% if user.favourites %}
+                    {% for favourite in user.favourites %}
+                    <div class="card" id="recipe-{{ favourite.recipe_id }}">
+                        <a href="{{ url_for('other_routes.meal_detail', meal_id=favourite.recipe_id) }}">
+                            <img src="{{ favourite.recipe_image }}" alt="{{ favourite.recipe_title }}">
+                            <h3>{{ favourite.recipe_title }}</h3>
+                        </a>
+                        <button type="button" class="action-button" onclick="removeFromFavourites({{ favourite.recipe_id }})">Remove from Favourites</button>
+                    </div>
                     {% endfor %}
-                {% else %}
-                    <p>No meals planned for this week.</p>
-                {% endif %}
+                    {% else %}
+                    <p>No favourites found. Go check out some recipes to add to your favourites.</p>
+                    {% endif %}
+                </div>
             </div>
 
-        </div>
-
-    </div>
+            <div id="MyMealPlans" class="tabcontent" style="display:none;">
+                <!-- Display user's meal plans -->
+                <h2>My Meal Plans</h2>
+                <div class="meal-plans">
+                    {% for meal_plan in meal_plans %}
+                        <div class="meal-plan" onclick="showMealPlanDetails({{ meal_plan.id }})">
+                            <h4>{{ meal_plan.name }}</h4>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div id="meal-plan-details" style="display:none;">
+                    <!-- This is where the meal plan details will be displayed -->
+                </div>
+            </div>
     </main>
 
     <footer class="footer">
@@ -171,6 +141,9 @@
     </div>
 
     <script src="{{ url_for('other_routes.static', filename='js/unfavourite.js') }}"></script>
+    <script src="{{ url_for('other_routes.static', filename='js/tab_function.js') }}"></script>
+    <script src="{{ url_for('other_routes.static', filename='js/meal_plan_details.js') }}"></script>
+
     <script>
         function toggleEditForm() {
           var form = document.getElementById('edit-profile-form');
