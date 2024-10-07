@@ -107,19 +107,44 @@
             </div>
 
             <div id="MyMealPlans" class="tabcontent" style="display:none;">
-                <!-- Display user's meal plans -->
                 <h2>My Meal Plans</h2>
                 <div class="meal-plans">
                     {% for meal_plan in meal_plans %}
-                        <div class="meal-plan" onclick="showMealPlanDetails({{ meal_plan.id }})">
+                        <div class="meal-plan">
                             <h4>{{ meal_plan.name }}</h4>
+                            <button onclick="toggleMealPlanDetails({{ meal_plan.id }})">View Details</button>
+                            <form action="{{ url_for('other_routes.delete_meal_plan', meal_plan_id=meal_plan.id) }}" method="POST" style="display:inline;">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" onclick="return confirm('Are you sure you want to delete this meal plan?');">Delete</button>
+                            </form>
+
+                            <!-- Meal plan details -->
+                            <div id="details-{{ meal_plan.id }}" class="meal-plan-details" style="display:none;">
+                                <h5>Details for {{ meal_plan.name }}</h5>
+                                <table id="meal-plan-{{ meal_plan.id }}">
+                                    <thead>
+                                        <tr>
+                                            <th>Day</th>
+                                            <th>Breakfast</th>
+                                            <th>Lunch</th>
+                                            <th>Dinner</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for day in meal_plan_details[meal_plan.id].days %}
+                                            <tr>
+                                                <td>{{ day.day }}</td>
+                                                <td>{{ day.breakfast if day.breakfast else 'N/A' }}</td>
+                                                <td>{{ day.lunch if day.lunch else 'N/A' }}</td>
+                                                <td>{{ day.dinner if day.dinner else 'N/A' }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
                 </div>
-                <div id="meal-plan-details" style="display:none;">
-                    <!-- This is where the meal plan details will be displayed -->
-                </div>
-            </div>
     </main>
 
     <footer class="footer">
@@ -143,6 +168,7 @@
     <script src="{{ url_for('other_routes.static', filename='js/unfavourite.js') }}"></script>
     <script src="{{ url_for('other_routes.static', filename='js/tab_function.js') }}"></script>
     <script src="{{ url_for('other_routes.static', filename='js/meal_plan_details.js') }}"></script>
+
 
     <script>
         function toggleEditForm() {

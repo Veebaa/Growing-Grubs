@@ -27,10 +27,27 @@
     </nav>
 
     <!-- Main content section -->
-    <main>
-        <div class="tab-container">
-            <button class="tablink" onclick="window.location.href='{{ url_for('other_routes.profile') }}'">Profile</button>
+    <main class="container">
+
+        <div class="profile-section">
+        <div class="profile-header">
+            <div class="profile-image">
+                <img src="{{ url_for('static', filename='images/profiles/' + (user.profile_image if user.profile_image else 'default.jpg')) }}" alt="Profile Image">
+            </div>
+            <div class="profile-info">
+                <h1>{{ user.username }}</h1>
+                <p>{{ user.first_name }} {{ user.last_name }}</p>
+                <p>{{ user.email }}</p>
+            </div>
         </div>
+
+        <div class="profile-actions">
+            <form method="POST" action="{{ url_for('other_routes.logout') }}">
+                <button type="submit">Logout</button>
+                <button type="button" onclick="confirmDelete()">Delete Account</button>
+            </form>
+        </div>
+    </div>
 
         <div class="meal-plan-container">
             <form method="POST" action="{{ url_for('other_routes.meal_planner') }}">
@@ -55,6 +72,7 @@
                 <button type="submit" class="btn">Save Meal Plan</button>
             </form>
         </div>
+
     </main>
 
     <footer class="footer">
