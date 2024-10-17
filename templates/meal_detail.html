@@ -66,6 +66,7 @@
 
             <!-- Favourite Button -->
             <form action="{{ url_for('other_routes.favourite_recipe', recipe_id=meal.id) }}" method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <input type="hidden" name="recipe_title" value="{{ meal.title }}">
                 <input type="hidden" name="recipe_image" value="{{ meal.image_url }}">
                 <button type="submit" class ='favourite-button'>

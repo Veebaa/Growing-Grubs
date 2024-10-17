@@ -1,0 +1,122 @@
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #ebf4ee;  /* Sage background */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: 18px;
+}
+
+/* Profile Section */
+.profile-section {
+    margin-bottom: 20px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 15px;
+}
+
+.profile-image img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    margin-right: 15px;
+}
+
+.profile-info h1 {
+    margin: 0;
+    font-size: 2.5em;
+    color: #333;
+}
+
+.profile-info p {
+    font-size: 1.2em;
+    margin: 5px 0;
+}
+
+/* Meal Plan Section */
+.meal-plan-container {
+    background: #f8f8f8;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h3 {
+    font-size: 1.8em;
+    margin-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+/* Day and Meal Layout */
+.day-section {
+    margin-bottom: 20px;
+}
+
+.meal-types {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.meal-types .form-group {
+    width: 30%;
+}
+
+/* Button */
+.action-button {
+    display: block;
+    margin: 20px 0;
+    padding: 10px 20px;
+    background-color: #87a96b;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1.2em;
+}
+
+.action-button:hover {
+    background-color: #69c587;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 10px 0;
+    background: #333;
+    color: white;
+    margin-top: 30px;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .meal-types {
+        flex-direction: column;
+    }
+
+    .meal-types .form-group {
+        width: 100%; /* Full width for meal types on mobile */
+        margin-bottom: 15px;
+    }
+}

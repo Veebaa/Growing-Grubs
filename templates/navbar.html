@@ -26,6 +26,7 @@
         <!-- If the user is logged in, show the Logout and My Profile button -->
       <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
         <form method="POST" action="{{ url_for('other_routes.logout') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <button type="submit" class="navbar-logout">Logout</button>
         </form>
     {% else %}

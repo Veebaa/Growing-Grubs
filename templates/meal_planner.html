@@ -7,11 +7,10 @@
     <title>Meal Planner Page</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/header.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/main-content.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/footer.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/homepage/navbar.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/profile.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('other_routes.static', filename='css/meal_planner.css') }}">
     <link rel="icon" type="image/x-icon" href="{{ url_for('other_routes.static', filename='images/favicon.png') }}">
 </head>
 
@@ -28,48 +27,48 @@
 
     <!-- Main content section -->
     <main class="container">
-
+        <!-- Profile section -->
         <div class="profile-section">
-        <div class="profile-header">
-            <div class="profile-image">
-                <img src="{{ url_for('static', filename='images/profiles/' + (user.profile_image if user.profile_image else 'default.jpg')) }}" alt="Profile Image">
-            </div>
-            <div class="profile-info">
-                <h1>{{ user.username }}</h1>
-                <p>{{ user.first_name }} {{ user.last_name }}</p>
-                <p>{{ user.email }}</p>
+            <div class="profile-header">
+                <div class="profile-image">
+                    <img src="{{ url_for('static', filename='images/profiles/' + (user.profile_image if user.profile_image else 'default.jpg')) }}" alt="Profile Image">
+                </div>
+                <div class="profile-info">
+                    <h1> <a href="{{ url_for('other_routes.profile') }}">{{ user.username }}</a> </h1>
+                    <p>{{ user.first_name }} {{ user.last_name }}</p>
+                    <p>{{ user.email }}</p>
+                </div>
             </div>
         </div>
 
-        <div class="profile-actions">
-            <form method="POST" action="{{ url_for('other_routes.logout') }}">
-                <button type="submit">Logout</button>
-                <button type="button" onclick="confirmDelete()">Delete Account</button>
-            </form>
-        </div>
-    </div>
-
+        <!-- Meal Plan Form -->
         <div class="meal-plan-container">
             <form method="POST" action="{{ url_for('other_routes.meal_planner') }}">
-              {{ form.hidden_tag() }}
+                {{ form.hidden_tag() }}
                 <div class="form-group">
-                {{ form.name.label }} {{ form.name() }}
+                    {{ form.name.label }} {{ form.name() }}
                 </div>
-                  {% for day_form, day_name in [(form.monday, 'Monday'), (form.tuesday, 'Tuesday'), (form.wednesday, 'Wednesday'),
-                                        (form.thursday, 'Thursday'), (form.friday, 'Friday'), (form.saturday, 'Saturday'),
-                                        (form.sunday, 'Sunday')] %}
-                <h3>{{ day_name }}</h3>
-                <div class="form-group">
-                  {{ day_form.breakfast.label }} {{ day_form.breakfast() }}
-                </div>
-                <div class="form-group">
-                  {{ day_form.lunch.label }} {{ day_form.lunch() }}
-                </div>
-                <div class="form-group">
-                  {{ day_form.dinner.label }} {{ day_form.dinner() }}
+
+                {% for day_form, day_name in [(form.monday, 'Monday'), (form.tuesday, 'Tuesday'), (form.wednesday, 'Wednesday'),
+                                              (form.thursday, 'Thursday'), (form.friday, 'Friday'), (form.saturday, 'Saturday'),
+                                              (form.sunday, 'Sunday')] %}
+                <div class="day-section">
+                    <h3>{{ day_name }}</h3>
+                    <div class="meal-types">
+                        <div class="form-group">
+                            {{ day_form.breakfast.label }} {{ day_form.breakfast() }}
+                        </div>
+                        <div class="form-group">
+                            {{ day_form.lunch.label }} {{ day_form.lunch() }}
+                        </div>
+                        <div class="form-group">
+                            {{ day_form.dinner.label }} {{ day_form.dinner() }}
+                        </div>
+                    </div>
                 </div>
                 {% endfor %}
-                <button type="submit" class="btn">Save Meal Plan</button>
+
+                <button type="submit" class="action-button">Save Meal Plan</button>
             </form>
         </div>
 
@@ -86,16 +85,6 @@
     <script src="{{ url_for('other_routes.static', filename='js/tab_function.js') }}"></script>
 
     <script>
-        function toggleEditForm() {
-          var form = document.getElementById('edit-profile-form');
-          form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-
-        function toggleEditForm() {
-          var form = document.getElementById('edit-profile-form');
-          form.style.display = form.style.display === 'none' ? 'block' : 'none';
-        }
-
         // Confirmation popup for Delete Account
         function confirmDelete() {
             document.getElementById('overlay').style.display = 'block';
@@ -106,7 +95,7 @@
             document.getElementById('overlay').style.display = 'none';
             document.getElementById('delete-confirmation').style.display = 'none';
         }
-</script>
+    </script>
 
 </body>
 </html>
