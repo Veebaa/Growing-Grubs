@@ -232,32 +232,45 @@ def test_delete_account_route(client):
 
 
 # Test route for adding favourite
-def test_favourite_recipe(client, mocker):
-    # Add a test recipe and user to the database
-    recipe = Recipe(title='Test Recipe', description='A test recipe for favouriting.')
-    db.session.add(recipe)
-    db.session.commit()
+def test_favourite_recipe(client, db_session, sample_recipe):
+    # Ensure sample user is already set up in conftest.py
+    user = Users.query.filter_by(username='testuser').first()
+    assert user is not None, "Test user should exist for the test to proceed."
 
-    # Simulate user login
-    login_response = login_user(client, 'testuser', 'password1234')
-    assert login_response.status_code == 200  # Ensure login was successful
+    # Log in the sample user
+    login_data = {
+        'username': 'testuser',
+        'password': 'password1234'
+    }
+    response = client.post('/login', data=login_data, follow_redirects=True)
+    assert response.status_code == 200  # Ensure login was successful
 
-    # Mock form data to pass recipe title and image
+    # Confirm session is active by accessing a protected route, e.g., /profile
+    response = client.get('/profile')
+    assert response.status_code == 200, "User should be able to access profile after login."
+
+    # Prepare form data for favoriting the recipe
     form_data = {
-        'recipe_title': recipe.title,
+        'recipe_title': sample_recipe.title,
         'recipe_image': 'test_image.jpg'
     }
 
-    # Simulate the favourite route
-    response = client.post(url_for('other_routes.favourite_recipe', recipe_id=recipe.id), data=form_data,
-                           follow_redirects=True)
+    # Send POST request to add the recipe to the user's favorites
+    response = client.post(
+        f'/favourite/{sample_recipe.id}',
+        data=form_data,
+        follow_redirects=True  # Follow redirects to handle any login redirects
+    )
 
-    # Check if the recipe is added to the user's favourites and the response is correct
-    assert response.status_code == 200
-    assert b'Recipe added to favourites!' in response.data  # Check for success message
-    # Check if the favourite was added in the database
-    favourited_recipe = db.session.query(Favourites).filter_by(recipe_id=recipe.id).first()
-    assert favourited_recipe is not None
+    # Check for successful addition and flash message
+    assert response.status_code == 200, f"Expected 200 but got {response.status_code}"
+    assert b'Recipe added to favourites!' in response.data, "Flash message should be present in response."
+
+    # Verify favorite in database
+    favourited_recipe = db_session.query(Favourites).filter_by(recipe_id=sample_recipe.id).first()
+    assert favourited_recipe is not None, "Favorite should be created in the database."
+    assert favourited_recipe.recipe_title == sample_recipe.title
+    assert favourited_recipe.recipe_image == form_data['recipe_image']
 
 
 # Test route for removing favourite

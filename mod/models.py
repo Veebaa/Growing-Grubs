@@ -13,7 +13,6 @@ user_favourites = db.Table('user_favourites',
                            )
 
 
-
 class Users(UserMixin, db.Model):
     """ Table for users """
     __tablename__ = 'users'
@@ -67,7 +66,6 @@ class Recipe(db.Model):
     views = db.Column(db.Integer, default=0, nullable=True)
     last_viewed = db.Column(db.DateTime, nullable=True)
 
-
     def log_view(self):
         """Increment the view count and update the last viewed date."""
         # Convert views to integer if it's a string
@@ -97,11 +95,12 @@ class Recipe(db.Model):
             'last_viewed': self.last_viewed.isoformat() if self.last_viewed else None
         }
 
+
 # Association table for many-to-many relationship between meal plans and recipes
 meal_plan_recipes = db.Table('meal_plan_recipes',
-    db.Column('meal_plan_id', db.Integer, db.ForeignKey('meal_plan.id'), primary_key=True),
-    db.Column('recipe_id', db.Integer, db.ForeignKey('recipes.id'), primary_key=True)
-)
+                             db.Column('meal_plan_id', db.Integer, db.ForeignKey('meal_plan.id'), primary_key=True),
+                             db.Column('recipe_id', db.Integer, db.ForeignKey('recipes.id'), primary_key=True)
+                             )
 
 
 class MealPlan(db.Model):

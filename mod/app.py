@@ -253,8 +253,6 @@ def profile():
 @other_routes.route('/meal-planner', methods=['GET', 'POST'])
 @login_required
 def meal_planner():
-    logger = current_app.logger
-
     form = MealPlanForm()
     favourites = [(favourite.recipe_id, favourite.recipe.title) for favourite in current_user.favourites]
 
@@ -647,7 +645,8 @@ def unfavourite_recipe(recipe_id):
 #     logger.info(f"Meal plan details for {meal_plan.name}: {days}")
 #
 #     # Render a separate template for viewing meal plan details
-#     return render_template('view_meal_plan.html', meal_plan_name=meal_plan.name, days=days, user=current_user, meal_plan_id=meal_plan.id)
+#     return render_template('view_meal_plan.html', meal_plan_name=meal_plan.name, days=days, user=current_user,
+#     meal_plan_id=meal_plan.id)
 
 
 @other_routes.route('/meal-plan/delete/<int:meal_plan_id>', methods=['POST'])
@@ -666,7 +665,6 @@ def delete_meal_plan(meal_plan_id):
 
     flash('Meal plan deleted successfully.')
     return redirect(url_for('other_routes.profile'))
-
 
 
 @other_routes.route('/feeding_stages')
