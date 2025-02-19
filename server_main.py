@@ -1,4 +1,6 @@
 import logging
+import os
+
 from mod import create_app
 from mod.app import other_routes
 from mod.user_manager import init_login_manager
@@ -43,7 +45,8 @@ def main():
         # Log application start
         application.logger.info('Starting the Flask application...')
         # Run the Flask server
-        application.run(debug=True, port=5000)
+        port = int(os.environ.get("PORT", 10000))
+        application.run(debug=False, host="0.0.0.0", port=port)
 
     except Exception as e:
         # Initialize logger
