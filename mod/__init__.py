@@ -16,8 +16,8 @@ def create_app(test_config=None):
     # Default configuration
     application.config.from_mapping(
         SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(basedir, 'database.db'),
-        SECRET_KEY='secret_key',
-        WTF_CSRF_SECRET_KEY='your_csrf_secret_key',
+        SECRET_KEY=os.environ.get('SECRET_KEY', 'default_secret_key'),  # Fallback to default for dev
+        WTF_CSRF_SECRET_KEY=os.environ.get('WTF_CSRF_SECRET_KEY', 'default_csrf_secret_key'),
         SESSION_TYPE='filesystem',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
