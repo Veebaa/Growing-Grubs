@@ -36,7 +36,6 @@ numpy>=2.0.1
 matplotlib>=3.10.0
 future>=0.18.3
 setuptools>=68.2.0
-PyGObject>=3.48.2
 certifi>=2024.7.4
 Markdown>=3.7
 image>=1.5.33
