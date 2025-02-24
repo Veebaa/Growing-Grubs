@@ -15,12 +15,18 @@ def create_app(test_config=None):
 
     # Default configuration
     application.config.from_mapping(
-        SQLALCHEMY_DATABASE_URI='sqlite:///' + os.path.join(basedir, 'database.db'),
         SECRET_KEY=os.environ.get('SECRET_KEY', 'default_secret_key'),  # Fallback to default for dev
         WTF_CSRF_SECRET_KEY=os.environ.get('WTF_CSRF_SECRET_KEY', 'default_csrf_secret_key'),
         SESSION_TYPE='filesystem',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
+
+    # Use DATABASE_URL from Render (PostgreSQL) if available
+    if 'DATABASE_URL' in os.environ:
+        application.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+    else:
+        # Fallback to SQLite for local dev if no DATABASE_URL is provided
+        application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 
     # Apply test configuration if provided
     if test_config:
