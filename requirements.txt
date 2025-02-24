@@ -59,3 +59,4 @@ jsonschema-specifications>=2023.12.1
 platformdirs>=4.3.2
 alembic>=1.13.2
 gunicorn>=23.0.0
+Flask-WTF==1.2.1
