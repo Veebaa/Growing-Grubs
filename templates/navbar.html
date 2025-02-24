@@ -24,21 +24,21 @@
     <a href="{{ url_for('other_routes.healthy_eating') }}">Healthy Eating</a>
     {% if current_user.is_authenticated %}
         <!-- If the user is logged in, show the Logout and My Profile button -->
-      <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
-        <form method="POST" action="{{ url_for('other_routes.logout') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="navbar-logout">Logout</button>
-        </form>
+        <a href="{{ url_for('other_routes.profile') }}" class="navbar-link">My Profile</a>
+            <form method="POST" action="{{ url_for('other_routes.logout') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="navbar-logout">Logout</button>
+            </form>
     {% else %}
         <!-- If the user is not logged in, show the Login and Register buttons -->
         <a href="{{ url_for('other_routes.login') }}">Login</a>
         <a href="{{ url_for('other_routes.register_user') }}">Register</a>
     {% endif %}
     <div class="search-container">
-      <form action="{{ url_for('other_routes.search') }}" method="post">
-          {{ form.hidden_tag() }}
-        <input type="text" placeholder="Search recipes.." name="search" required>
-        <button type="submit"><i class="fa fa-search"></i></button>
-      </form>
+        <form method="POST" action="{{ url_for('other_routes.search') }}">
+            {{ form.hidden_tag() }}
+            <input type="text" name="search" placeholder="Search...">
+            <button type="submit">Search</button>
+        </form>
     </div>
     </nav>
