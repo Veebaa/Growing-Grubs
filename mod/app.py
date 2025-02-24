@@ -20,6 +20,7 @@ if logging.getLogger('growing_grubs_logger') is None:
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger('growing_grubs_logger')
 
+
 @other_routes.route('/healthz')
 def health_check():
     return "OK", 200

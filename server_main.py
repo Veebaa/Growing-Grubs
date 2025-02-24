@@ -1,6 +1,10 @@
 import logging
 import os
 
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
+
 from mod import create_app
 from mod.app import other_routes
 from mod.user_manager import init_login_manager
@@ -31,14 +35,24 @@ def create_logger():
     return logger
 
 
-# Create the app and initialize the logger
+# Create the Flask app
 application = create_app()
 application.logger = create_logger()  # Set the logger in the app
 
 application.register_blueprint(other_routes)
 
-# Initialize the login manager here
+# Initialize the login manager
 init_login_manager(application)
+
+# Define the search form
+class SearchForm(FlaskForm):
+    search = StringField('Search', validators=[DataRequired()])
+    submit = SubmitField('Search')
+
+# Make the search form available in all templates
+@application.context_processor
+def inject_search_form():
+    return {'form': SearchForm()}
 
 # Log application start
 application.logger.info('Starting the Flask application...')
