@@ -31,19 +31,21 @@ def create_logger():
     return logger
 
 
+# Create the app and initialize the logger
+application = create_app()
+application.logger = create_logger()  # Set the logger in the app
+
+application.register_blueprint(other_routes)
+
+# Initialize the login manager here
+init_login_manager(application)
+
+# Log application start
+application.logger.info('Starting the Flask application...')
+
+
 def main():
     try:
-        # Create the app and initialize the logger
-        application = create_app()
-        application.logger = create_logger()  # Set the logger in the app
-
-        application.register_blueprint(other_routes)
-
-        # Initialize the login manager here
-        init_login_manager(application)
-
-        # Log application start
-        application.logger.info('Starting the Flask application...')
         # Run the Flask server
         port = int(os.environ.get("PORT", 10000))
         application.run(debug=False, host="0.0.0.0", port=port)
