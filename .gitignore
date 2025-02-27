@@ -152,3 +152,5 @@ fix_recipe_data.py
 backup_database.db
 .venv
 venv
+/mod/update_db.py
+/clean_recipes.csv

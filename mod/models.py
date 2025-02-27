@@ -40,11 +40,11 @@ class Favourites(db.Model):
     __tablename__ = 'favourites'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id'), nullable=False)
+    recipe_id = db.Column(db.Integer, db.ForeignKey('recipes.id', ondelete="CASCADE"), nullable=False)
     recipe_title = db.Column(db.String(200), nullable=False)
     recipe_image = db.Column(db.String(200), nullable=False)
 
-    recipe = db.relationship('Recipe', backref='favourites')  # Establish relationship to Recipe
+    recipe = db.relationship('Recipe', backref=db.backref('favourites', cascade="all, delete"))
 
 
 class Recipe(db.Model):
