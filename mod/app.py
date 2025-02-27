@@ -1,3 +1,4 @@
+import ast
 import json
 import os
 import requests
@@ -61,14 +62,14 @@ def index():
 
 def get_topics_logic():
     api_key = os.getenv('NHS_API_KEY')
-    endpoint = 'https://api.service.nhs.uk/nhs-website-content/'
+    endpoint = 'https://api.nhs.uk/conditions'
     headers = {
         'subscription-key': api_key,
         'Content-Type': 'application/json'
     }
     logger = current_app.logger
     try:
-        response = requests.get(endpoint, headers=headers, params={'topic': 'children development, childhood illness'})
+        response = requests.get(endpoint, headers=headers)
         response.raise_for_status()
         data = response.json()
 
@@ -86,7 +87,7 @@ def get_topics_logic():
             return articles
 
     except requests.RequestException as e:
-        current_app.logger.error(f"Error fetching data from NHS API: {e}")
+        logger.error(f"Error fetching data from NHS API: {e}")
         return []
 
 
@@ -548,17 +549,23 @@ def meal_detail(meal_id):
 
             # Parsing ingredients and method
             try:
-                meal_info.ingredients = json.loads(meal_info.ingredients) if isinstance(meal_info.ingredients,
-                                                                                        str) else []
-            except json.JSONDecodeError as e:
-                logger.error(f"JSON decoding error for ingredients: {e}")
-                meal_info.ingredients = []  # Fallback to an empty list or handle accordingly
+                # Step 1: Convert the string to a Python list
+                raw_ingredients = json.loads(meal_info.ingredients) if isinstance(meal_info.ingredients,
+                                                                                  str) else meal_info.ingredients
+                # Step 2: Extract the actual list from within the nested list
+                meal_info.ingredients = ast.literal_eval(raw_ingredients[0]) if raw_ingredients and isinstance(
+                    raw_ingredients, list) else []
+            except (json.JSONDecodeError, ValueError, SyntaxError) as e:
+                logger.error(f"Error parsing ingredients: {e}")
+                meal_info.ingredients = []  # Fallback to an empty list
 
             try:
-                meal_info.method = json.loads(meal_info.method) if isinstance(meal_info.method, str) else []
-            except json.JSONDecodeError as e:
-                logger.error(f"JSON decoding error for method: {e}")
-                meal_info.method = []  # Fallback to an empty list or handle accordingly
+                raw_method = json.loads(meal_info.method) if isinstance(meal_info.method, str) else meal_info.method
+                meal_info.method = ast.literal_eval(raw_method[0]) if raw_method and isinstance(raw_method,
+                                                                                                list) else []
+            except (json.JSONDecodeError, ValueError, SyntaxError) as e:
+                logger.error(f"Error parsing method: {e}")
+                meal_info.method = []  # Fallback to an empty list
 
             logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
             return render_template('meal_detail.html', meal=meal_info, articles=articles)
