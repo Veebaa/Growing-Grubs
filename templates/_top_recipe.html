@@ -2,7 +2,7 @@
     <h1>Today's Top Recipe</h1>
         <div class="main-content__top-recipes">
             <img class="toprecipe_image"
-                 src="{{ top_recipe.image_url if top_recipe else url_for('static', filename='images/comingsoon.jpg') }}"
+                 src="{{ recipe.image_url if recipe.image_url else url_for('static', filename='images/comingsoon.jpg') }}"
                  alt="recipe image"
                  id="toprecipe_image">
             <div class="toprecipe_info">

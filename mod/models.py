@@ -86,8 +86,8 @@ class Recipe(db.Model):
             'prep_time': self.prep_time,
             'cook_time': self.cook_time,
             'age_group': self.age_group,
-            'ingredients': ' '.join(json.loads(self.ingredients)) if self.ingredients else '',
-            'method': ' '.join(json.loads(self.method)) if self.method else '',
+            'ingredients': json.loads(self.ingredients) if self.ingredients else [],  # Convert JSON to list
+            'method': json.loads(self.method) if self.method else [],  # Convert JSON to list
             'recipe_url': self.recipe_url,
             'dietary_info': self.dietary_info,
             'image_url': self.image_url,

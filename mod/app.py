@@ -61,7 +61,7 @@ def index():
 
 def get_topics_logic():
     api_key = os.getenv('NHS_API_KEY')
-    endpoint = 'https://api.nhs.uk/conditions'
+    endpoint = 'https://api.service.nhs.uk/nhs-website-content/'
     headers = {
         'subscription-key': api_key,
         'Content-Type': 'application/json'
