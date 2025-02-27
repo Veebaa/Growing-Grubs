@@ -439,7 +439,7 @@ def recipes1():
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
-    keywords = ["6Months", "4to6Months", "9Months", "7Months"]
+    keywords = ["6Months", "4-6Months", "9Months", "7Months"]
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes1.html')
 
