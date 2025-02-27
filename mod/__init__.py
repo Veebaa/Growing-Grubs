@@ -3,19 +3,26 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_wtf.csrf import CSRFProtect
+from dotenv import load_dotenv
+
+env_path = os.path.join(os.path.dirname(__file__), '../.env')
+load_dotenv(env_path)
 
 db = SQLAlchemy()
 
-
 def create_app(test_config=None):
     application = Flask(__name__, static_folder='../static')
+
+    print("NHS_API_KEY:", os.getenv("NHS_API_KEY"))  # Check if NHS_API_KEY is loaded
+
     basedir = os.path.abspath(os.path.dirname(__file__))
     migrate = Migrate(application, db)
     csrf = CSRFProtect(application)
 
+
     # Default configuration
     application.config.from_mapping(
-        SECRET_KEY=os.environ.get('SECRET_KEY', 'default_secret_key'),  # Fallback to default for dev
+        SECRET_KEY=os.environ.get('SECRET_KEY', 'default_secret_key'),
         WTF_CSRF_SECRET_KEY=os.environ.get('WTF_CSRF_SECRET_KEY', 'default_csrf_secret_key'),
         SESSION_TYPE='filesystem',
         SQLALCHEMY_TRACK_MODIFICATIONS=False,

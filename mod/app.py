@@ -62,29 +62,44 @@ def index():
 
 def get_topics_logic():
     api_key = os.getenv('NHS_API_KEY')
-    endpoint = 'https://api.nhs.uk/conditions'
+    if not api_key:
+        current_app.logger.error("NHS_API_KEY is missing!")
+        return []
+
+    endpoint = "https://sandbox.api.service.nhs.uk/nhs-website-content/conditions"
+
     headers = {
-        'subscription-key': api_key,
-        'Content-Type': 'application/json'
+        "accept": "application/json",
+        "apikey": api_key
     }
+
+    params = {
+        "page": 1,
+        "category": "A",
+        "orderBy": "lastReviewed",
+        "startDate": "2020-01-01",
+        "endDate": "2021-01-01",
+        "order": "newest",
+        "synonyms": "true"
+    }
+
     logger = current_app.logger
+
     try:
-        response = requests.get(endpoint, headers=headers)
+        response = requests.get(endpoint, headers=headers, params=params)
         response.raise_for_status()
         data = response.json()
 
         articles = []
-        for item in data.get('significantLink', []):
-            name = item.get('name', 'No Title')
-            description = item.get('description', 'No Description')
-            url = item.get('url', '#')
-            articles.append({'name': name, 'description': description, 'url': url})
+        for item in data.get("significantLink", []):  # Update if needed
+            name = item.get("name", "No Title")
+            description = item.get("description", "No Description")
+            url = item.get("url", "#")
+            articles.append({"name": name, "description": description, "url": url})
 
-        if len(articles) >= 2:
-            logger.info(articles)  # Log random articles
-            return random.sample(articles, 2)
-        else:
-            return articles
+        logger.info(f"Fetched {len(articles)} articles from NHS API.")
+
+        return random.sample(articles, 2) if len(articles) >= 2 else articles
 
     except requests.RequestException as e:
         logger.error(f"Error fetching data from NHS API: {e}")
