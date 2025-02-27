@@ -1,14 +1,28 @@
 <div class="container__main-content__top-recipes">
     <h1>Today's Top Recipe</h1>
+
+    {% if top_recipe %}
         <div class="main-content__top-recipes">
             <img class="toprecipe_image"
-                 src="{{ recipe.image_url if recipe.image_url else url_for('static', filename='images/comingsoon.jpg') }}"
-                 alt="recipe image"
-                 id="toprecipe_image">
+                 src="{{ top_recipe.image_url if top_recipe.image_url else url_for('static', filename='images/comingsoon.jpg') }}"
+                 alt="recipe image">
             <div class="toprecipe_info">
-                <h2 id="toprecipe_title">{{ top_recipe.title if top_recipe else 'No Recipe Available' }}</h2>
-                <a href="{{ url_for('other_routes.meal_detail', meal_id=top_recipe.id) if top_recipe else '404' }}" id="toprecipe_link">View Recipe</a>
+                <h2 class="toprecipe_title">{{ top_recipe.title }}</h2>
+                <a href="{{ url_for('other_routes.meal_detail', meal_id=top_recipe.id) }}" class="toprecipe_link">View Recipe</a>
             </div>
         </div>
+    {% else %}
+        <div class="main-content__top-recipes no-recipe">
+            <img class="toprecipe_image"
+                 src="{{ url_for('static', filename='images/comingsoon.jpg') }}"
+                 alt="No recipe available">
+            <div class="toprecipe_info">
+                <h2 class="toprecipe_title">No Recipe Available</h2>
+                <p>Check back later for more delicious recipes!</p>
+            </div>
+        </div>
+    {% endif %}
 </div>
+
+
 
