@@ -12,9 +12,6 @@ db = SQLAlchemy()
 
 def create_app(test_config=None):
     application = Flask(__name__, static_folder='../static')
-
-    print("NHS_API_KEY:", os.getenv("NHS_API_KEY"))  # Check if NHS_API_KEY is loaded
-
     basedir = os.path.abspath(os.path.dirname(__file__))
     migrate = Migrate(application, db)
     csrf = CSRFProtect(application)

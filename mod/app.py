@@ -90,10 +90,11 @@ def get_topics_logic():
         response.raise_for_status()
         data = response.json()
 
-        logger.info(f"Full API Response: {data}")
+        logger.info(f"Keys in API Response: {data.keys()}")
 
+        # Extract articles from response
         articles = []
-        for item in data.get("significantLink", []):  # Update if needed
+        for item in data.get("significantLink", []):
             name = item.get("name", "No Title")
             description = item.get("description", "No Description")
             url = item.get("url", "#")
