@@ -140,9 +140,7 @@ __pycache__
 coverage.xml
 xunit-results.xml
 
-recipes(1).csv
-recipes.csv
-recipes_backup.csv
+*.csv
 csv_to_db.py
 
 # database migrations
@@ -154,3 +152,5 @@ backup_database.db
 venv
 /mod/update_db.py
 /clean_recipes.csv
+/nhs_public_key.json
+*.pem
