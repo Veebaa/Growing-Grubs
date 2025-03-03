@@ -4,6 +4,7 @@ import os
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
+from flask_migrate import upgrade
 
 from mod import create_app
 from mod.app import other_routes
@@ -37,6 +38,10 @@ def create_logger():
 
 # Create the Flask app
 application = create_app()
+
+with application.app_context():
+    upgrade()
+
 application.logger = create_logger()  # Set the logger in the app
 
 application.register_blueprint(other_routes)

@@ -16,7 +16,6 @@ def create_app(test_config=None):
     migrate = Migrate(application, db)
     csrf = CSRFProtect(application)
 
-
     # Default configuration
     application.config.from_mapping(
         SECRET_KEY=os.environ.get('SECRET_KEY', 'default_secret_key'),
@@ -31,6 +30,8 @@ def create_app(test_config=None):
     else:
         # Fallback to SQLite for local dev if no DATABASE_URL is provided
         application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
+
+    print(os.environ.get("DATABASE_URL"))
 
     # Apply test configuration if provided
     if test_config:
