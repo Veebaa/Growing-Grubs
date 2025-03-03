@@ -5,6 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_migrate import upgrade
+from import_recipes import import_recipes
 
 from mod import create_app
 from mod.app import other_routes
@@ -48,6 +49,9 @@ application.register_blueprint(other_routes)
 
 # Initialize the login manager
 init_login_manager(application)
+
+if os.environ.get("RUN_MIGRATIONS") == "true":
+    import_recipes()
 
 # Define the search form
 class SearchForm(FlaskForm):
