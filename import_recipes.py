@@ -1,4 +1,5 @@
 import csv
+import logging
 import os
 from flask import Flask
 from mod.app import db
@@ -8,12 +9,15 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
+logging.basicConfig(level=logging.DEBUG)
+
 # Create a temporary app context
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL")
 db.init_app(app)
 
 def import_recipes():
+    logging.debug("📥 Starting recipe import...")
     with app.app_context():
         csv_file = "clean_recipes.csv"
 
@@ -37,7 +41,7 @@ def import_recipes():
                 db.session.add(recipe)
 
             db.session.commit()
-            print("✅ Recipes imported successfully!")
+            logging.debug("✅ Recipes imported successfully!")
 
 if __name__ == "__main__":
     import_recipes()
