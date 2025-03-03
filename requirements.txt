@@ -62,3 +62,4 @@ gunicorn>=23.0.0
 Flask-WTF==1.2.1
 dnspython>=2.7.0
 email-validator>=2.2.0
+psycopg2-binary<=2.9.10
