@@ -878,3 +878,9 @@ def proxy():
     except Exception as err:
         print(f'Other error occurred: {err}')  # Log any other errors
         return jsonify({'error': 'An error occurred'}), 500
+
+
+@other_routes.route('/debug/recipes-count')
+def check_recipes():
+    count = db.session.query(Recipe).count()
+    return f"📊 Total Recipes in Database: {count}"
