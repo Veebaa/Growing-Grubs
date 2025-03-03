@@ -50,9 +50,6 @@ application.register_blueprint(other_routes)
 # Initialize the login manager
 init_login_manager(application)
 
-if os.environ.get("RUN_MIGRATIONS") == "true":
-    import_recipes()
-
 # Define the search form
 class SearchForm(FlaskForm):
     search = StringField('Search', validators=[DataRequired()])
@@ -66,6 +63,10 @@ def inject_search_form():
 # Log application start
 application.logger.info('Starting the Flask application...')
 
+@application.route('/debug/run-import')
+def run_import():
+    import_recipes()
+    return "✅ Import script executed!"
 
 def main():
     try:
