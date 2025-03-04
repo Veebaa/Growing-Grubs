@@ -1,6 +1,8 @@
 import ast
 import json
 import os
+import sys
+
 import requests
 import logging
 import random
@@ -15,6 +17,8 @@ from dotenv import load_dotenv
 
 other_routes = Blueprint("other_routes", __name__, static_folder='static', template_folder='../templates')
 
+debug_routes = Blueprint("debug_routes", __name__)
+
 load_dotenv()
 
 if logging.getLogger('growing_grubs_logger') is None:
@@ -24,6 +28,15 @@ if logging.getLogger('growing_grubs_logger') is None:
 @other_routes.route('/healthz')
 def health_check():
     return "OK", 200
+
+
+@debug_routes.route("/debug")
+def debug():
+    logging.debug("🟢 Debug Route Hit!")
+    print("🟢 Debug Route Hit!", flush=True)  # ✅ Flush ensures it appears in logs
+    sys.stdout.flush()  # ✅ Forces Render to display logs
+    return jsonify({"status": "debugging"}), 200
+
 
 @other_routes.errorhandler(404)
 def not_found_error(e):
@@ -387,7 +400,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         recipes_query = Recipe.query
 
     # 🔹 Log total recipes BEFORE filtering
-    logger.debug(f"🟡 Paginate Debug | Before Filtering | Total Recipes in DB: {recipes_query.count()}")
+    print(f"🟡 Paginate Debug | Before Filtering | Total Recipes in DB: {recipes_query.count()}")
 
     # Apply keyword filtering if keywords are provided
     if keywords:
@@ -396,7 +409,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
     total_recipes = recipes_query.count()
 
     # 🔹 Log total recipes AFTER filtering
-    logger.debug(f"🟡 Paginate Debug | After Filtering | Filtered Recipes: {total_recipes} | Keywords: {keywords}")
+    print(f"🟡 Paginate Debug | After Filtering | Filtered Recipes: {total_recipes} | Keywords: {keywords}")
 
     # Pagination parameters
     per_page = 15  # Number of recipes to display per page
@@ -413,7 +426,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         # Convert recipes to dictionary for easier rendering in templates
         recipes_list = [recipe.to_dict() for recipe in recipes]
 
-        logger.debug(f"🟢 Paginate Debug | Template: {template_name} | Page: {page} | Recipes Found: {total_recipes}")
+        print(f"🟢 Paginate Debug | Template: {template_name} | Page: {page} | Recipes Found: {total_recipes}")
 
         # Return a dictionary of pagination data to be used in rendering
         return {
@@ -479,7 +492,7 @@ def recipes():
             template_name='recipes.html'
         )
 
-        logger.debug(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
+        print(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
 
         return render_template(
             'recipes.html',
@@ -501,6 +514,7 @@ def recipes():
 def recipes1():
     logger = current_app.logger
     logger.debug("🟢 Route Debug | Entered /recipes1 route.")
+    print("🔴 Route /recipes1 was accessed!")
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -508,7 +522,7 @@ def recipes1():
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes1.html')
 
-    logger.debug(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    print(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
 
     # Render the recipes1 template with the pagination data and articles
     return render_template(
@@ -527,6 +541,7 @@ def recipes1():
 def recipes2():
     logger = current_app.logger
     logger.debug("🟢 Route Debug | Entered /recipes2 route.")
+    print("🔴 Route /recipes2 was accessed!")
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -534,7 +549,7 @@ def recipes2():
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes2.html')
 
-    logger.debug(f"🟢 Route Debug | /recipes2 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    print(f"🟢 Route Debug | /recipes2 | Recipes Found: {len(paginated_recipes['recipes'])}")
 
     # Render the recipes2 template with the pagination data and articles
     return render_template(
@@ -553,6 +568,7 @@ def recipes2():
 def recipes3():
     logger = current_app.logger
     logger.debug("🟢 Route Debug | Entered /recipes3 route.")
+    print("🔴 Route /recipes3 was accessed!")
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -560,7 +576,7 @@ def recipes3():
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes3.html')
 
-    logger.debug(f"🟢 Route Debug | /recipes3 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    print(f"🟢 Route Debug | /recipes3 | Recipes Found: {len(paginated_recipes['recipes'])}")
 
     # Render the recipes3 template with the pagination data and articles
     return render_template(
