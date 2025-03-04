@@ -22,7 +22,7 @@ def create_logger():
 
     # Create a console handler to log messages to the console
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)  # Log INFO and above to the console
+    console_handler.setLevel(logging.DEBUG)
 
     # Create a formatter and set it for the handlers
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -42,7 +42,10 @@ application = create_app()
 with application.app_context():
     upgrade()
 
-application.logger = create_logger()  # Set the logger in the app
+logger = create_logger()
+application.logger.handlers = logger.handlers  # ✅ Add handlers without overriding
+application.logger.setLevel(logging.DEBUG)  # Ensure it logs everything
+
 
 application.register_blueprint(other_routes)
 
