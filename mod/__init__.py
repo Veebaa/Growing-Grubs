@@ -1,5 +1,7 @@
 import logging
 import os
+import sys
+
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -49,9 +51,18 @@ def create_app(test_config=None):
 
     application.jinja_env.filters['yesno'] = yesno
 
-    # Set up logging
+    # Set up logging for both file and console
     log_file = "app_errors.log"
-    logging.basicConfig(filename=log_file, level=logging.DEBUG)
+    logging.basicConfig(
+        level=logging.DEBUG,  # Ensure DEBUG level logs appear
+        format="[%(levelname)s] %(message)s",
+        handlers=[
+            logging.FileHandler(log_file),  # Log to file
+            logging.StreamHandler(sys.stdout)  # Log to Render's console
+        ]
+    )
+
+    application.logger.debug("🟢 Logging Debug | Flask app has started.")
 
     application.config["DEBUG"] = True
     application.config["PROPAGATE_EXCEPTIONS"] = True
