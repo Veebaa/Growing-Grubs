@@ -21,7 +21,6 @@ if logging.getLogger('growing_grubs_logger') is None:
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger('growing_grubs_logger')
 
-
 @other_routes.route('/healthz')
 def health_check():
     return "OK", 200
@@ -387,11 +386,17 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
     if recipes_query is None:
         recipes_query = Recipe.query
 
+    # 🔹 Log total recipes BEFORE filtering
+    logger.debug(f"🟡 Paginate Debug | Before Filtering | Total Recipes in DB: {recipes_query.count()}")
+
     # Apply keyword filtering if keywords are provided
     if keywords:
         recipes_query = recipes_query.filter(Recipe.age_group.in_(keywords))
 
     total_recipes = recipes_query.count()
+
+    # 🔹 Log total recipes AFTER filtering
+    logger.debug(f"🟡 Paginate Debug | After Filtering | Filtered Recipes: {total_recipes} | Keywords: {keywords}")
 
     # Pagination parameters
     per_page = 15  # Number of recipes to display per page
@@ -439,26 +444,31 @@ def recipes():
     # Fetch articles for the page
     articles = get_topics_logic()
 
-    # Fetch paginated recipes with the base query for all recipes
-    paginated_recipes = paginate_recipes(
-        recipes_query=Recipe.query,  # Base query to retrieve recipes
-        template_name='recipes.html'
-    )
+    recipes = Recipe.query.all()
 
-    logger.debug(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    logger.debug(f"🔍 Route Debug | /recipes | Direct Query Found: {len(recipes)} recipes")
+
+    # # Fetch paginated recipes with the base query for all recipes
+    # paginated_recipes = paginate_recipes(
+    #     recipes_query=Recipe.query,  # Base query to retrieve recipes
+    #     template_name='recipes.html'
+    # )
+    #
+    # logger.debug(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
 
     # Render the recipes template with the pagination data and articles
-    return render_template(
-        'recipes.html',
-        recipes=paginated_recipes['recipes'],  # Extract the list of recipes
-        next_page=paginated_recipes['next_page'],
-        prev_page=paginated_recipes['prev_page'],
-        current_page=paginated_recipes['current_page'],
-        total_pages=paginated_recipes['total_pages'],
-        search_query=paginated_recipes['search_query'],
-        articles=articles  # Pass the articles to the template
-    )
+    # return render_template(
+    #     'recipes.html',
+    #     recipes=paginated_recipes['recipes'],  # Extract the list of recipes
+    #     next_page=paginated_recipes['next_page'],
+    #     prev_page=paginated_recipes['prev_page'],
+    #     current_page=paginated_recipes['current_page'],
+    #     total_pages=paginated_recipes['total_pages'],
+    #     search_query=paginated_recipes['search_query'],
+    #     articles=articles  # Pass the articles to the template
+    # )
 
+    return render_template('recipes.html', recipes=recipes, articles=articles )
 
 @other_routes.route('/recipes1')
 def recipes1():
@@ -493,7 +503,7 @@ def recipes2():
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes2.html')
 
-    logger.debug(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    logger.debug(f"🟢 Route Debug | /recipes2 | Recipes Found: {len(paginated_recipes['recipes'])}")
 
     # Render the recipes2 template with the pagination data and articles
     return render_template(
@@ -517,7 +527,7 @@ def recipes3():
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes3.html')
 
-    logger.debug(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    logger.debug(f"🟢 Route Debug | /recipes3 | Recipes Found: {len(paginated_recipes['recipes'])}")
 
     # Render the recipes3 template with the pagination data and articles
     return render_template(

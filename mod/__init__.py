@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
@@ -24,14 +25,13 @@ def create_app(test_config=None):
         SQLALCHEMY_TRACK_MODIFICATIONS=False,
     )
 
-    # Use DATABASE_URL from Render (PostgreSQL) if available
+    # Use DATABASE_URL from Render (PostgreSQL)
     if 'DATABASE_URL' in os.environ:
         application.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
     else:
         # Fallback to SQLite for local dev if no DATABASE_URL is provided
         application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'database.db')
 
-    print(os.environ.get("DATABASE_URL"))
 
     # Apply test configuration if provided
     if test_config:
@@ -48,5 +48,12 @@ def create_app(test_config=None):
         return yes if value else no
 
     application.jinja_env.filters['yesno'] = yesno
+
+    # Set up logging
+    logging.basicConfig(level=logging.DEBUG)
+
+    # Log the database connection URL
+    db_url = os.getenv("DATABASE_URL")
+    application.logger.debug(f"🔵 DB Debug | Connected to Database: {db_url}")
 
     return application
