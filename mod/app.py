@@ -32,9 +32,8 @@ def health_check():
 
 @debug_routes.route("/debug")
 def debug():
-    logging.debug("🟢 Debug Route Hit!")
-    print("🟢 Debug Route Hit!", flush=True)  # ✅ Flush ensures it appears in logs
-    sys.stdout.flush()  # ✅ Forces Render to display logs
+    print("🟢 Debug Route Hit!", flush=True)
+    sys.stdout.flush()
     return jsonify({"status": "debugging"}), 200
 
 
@@ -401,6 +400,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
 
     # 🔹 Log total recipes BEFORE filtering
     print(f"🟡 Paginate Debug | Before Filtering | Total Recipes in DB: {recipes_query.count()}")
+    sys.stdout.flush()
 
     # Apply keyword filtering if keywords are provided
     if keywords:
@@ -410,6 +410,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
 
     # 🔹 Log total recipes AFTER filtering
     print(f"🟡 Paginate Debug | After Filtering | Filtered Recipes: {total_recipes} | Keywords: {keywords}")
+    sys.stdout.flush()
 
     # Pagination parameters
     per_page = 15  # Number of recipes to display per page
@@ -427,6 +428,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         recipes_list = [recipe.to_dict() for recipe in recipes]
 
         print(f"🟢 Paginate Debug | Template: {template_name} | Page: {page} | Recipes Found: {total_recipes}")
+        sys.stdout.flush()
 
         # Return a dictionary of pagination data to be used in rendering
         return {
@@ -482,8 +484,10 @@ def recipes():
     logger = current_app.logger
 
     logger.debug("🟢 Route Debug | Entered /recipes route.")
+    sys.stdout.flush()
 
     print("🔴 Route /recipes was accessed!")
+    sys.stdout.flush()
 
     try:
         articles = get_topics_logic()
@@ -493,6 +497,7 @@ def recipes():
         )
 
         print(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
+        sys.stdout.flush()
 
         return render_template(
             'recipes.html',
@@ -515,6 +520,7 @@ def recipes1():
     logger = current_app.logger
     logger.debug("🟢 Route Debug | Entered /recipes1 route.")
     print("🔴 Route /recipes1 was accessed!")
+    sys.stdout.flush()
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -523,6 +529,7 @@ def recipes1():
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes1.html')
 
     print(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    sys.stdout.flush()
 
     # Render the recipes1 template with the pagination data and articles
     return render_template(
@@ -541,7 +548,9 @@ def recipes1():
 def recipes2():
     logger = current_app.logger
     logger.debug("🟢 Route Debug | Entered /recipes2 route.")
+    sys.stdout.flush()
     print("🔴 Route /recipes2 was accessed!")
+    sys.stdout.flush()
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -550,6 +559,7 @@ def recipes2():
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes2.html')
 
     print(f"🟢 Route Debug | /recipes2 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    sys.stdout.flush()
 
     # Render the recipes2 template with the pagination data and articles
     return render_template(
@@ -568,7 +578,9 @@ def recipes2():
 def recipes3():
     logger = current_app.logger
     logger.debug("🟢 Route Debug | Entered /recipes3 route.")
+    sys.stdout.flush()
     print("🔴 Route /recipes3 was accessed!")
+    sys.stdout.flush()
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -577,6 +589,7 @@ def recipes3():
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes3.html')
 
     print(f"🟢 Route Debug | /recipes3 | Recipes Found: {len(paginated_recipes['recipes'])}")
+    sys.stdout.flush()
 
     # Render the recipes3 template with the pagination data and articles
     return render_template(
@@ -598,9 +611,11 @@ def view_recipe(recipe_id):
     recipe = Recipe.query.get(recipe_id)
     if not recipe:
         logger.debug(f"🔴 Error | Recipe with ID {recipe_id} not found!")
+        sys.stdout.flush()
         abort(404)  # Return a 404 error if the recipe is not found
 
     logger.debug(f"🟢 Route Debug | Viewing Recipe ID: {recipe_id} | Title: {recipe.title}")
+    sys.stdout.flush()
 
     # Log the view for the recipe
     recipe.log_view()
@@ -883,7 +898,6 @@ def get_portion_sizes(age_group, offset=0, limit=5):
         response = requests.get(endpoint, headers=headers, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
-        print(data)  # Debugging log to check the API response
 
         foods = data.get('branded', []) + data.get('common', [])
         portion_sizes = [{

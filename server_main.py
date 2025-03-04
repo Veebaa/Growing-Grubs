@@ -42,9 +42,14 @@ application = create_app()
 with application.app_context():
     upgrade()
 
-logger = create_logger()
-application.logger.handlers = logger.handlers  # ✅ Add handlers without overriding
-application.logger.setLevel(logging.DEBUG)  # Ensure it logs everything
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(sys.stdout)]
+)
+
+logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 
 
 application.register_blueprint(other_routes)
@@ -70,7 +75,7 @@ def main():
         # Run the Flask server
         port = int(os.environ.get("PORT", 10000))
         application.run(debug=True, host="0.0.0.0", port=port)
-        sys.stdout.reconfigure(line_buffering=True)
+        # sys.stdout.reconfigure(line_buffering=True)
 
     except Exception as e:
         # Initialize logger
