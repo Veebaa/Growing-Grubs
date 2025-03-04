@@ -1,6 +1,6 @@
 import logging
 import os
-
+import sys
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -67,6 +67,7 @@ def main():
         # Run the Flask server
         port = int(os.environ.get("PORT", 10000))
         application.run(debug=False, host="0.0.0.0", port=port)
+        sys.stdout.reconfigure(line_buffering=True)
 
     except Exception as e:
         # Initialize logger
