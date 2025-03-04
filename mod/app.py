@@ -426,7 +426,6 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         }
     except Exception as e:
         # Log any unexpected errors that occur during pagination
-        logger = current_app.logger
         logger.error(f"Unexpected error occurred: {e}", exc_info=True)
         # Return a default dictionary with empty results and pagination info
         return {
@@ -467,6 +466,12 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
 
 @other_routes.route('/recipes')
 def recipes():
+    logger = current_app.logger
+
+    logger.debug("🟢 Route Debug | Entered /recipes route.")
+
+    print("🔴 Route /recipes was accessed!")
+
     try:
         articles = get_topics_logic()
         paginated_recipes = paginate_recipes(
@@ -474,7 +479,7 @@ def recipes():
             template_name='recipes.html'
         )
 
-        current_app.logger.debug(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
+        logger.debug(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
 
         return render_template(
             'recipes.html',
@@ -494,6 +499,8 @@ def recipes():
 
 @other_routes.route('/recipes1')
 def recipes1():
+    logger = current_app.logger
+    logger.debug("🟢 Route Debug | Entered /recipes1 route.")
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -518,6 +525,8 @@ def recipes1():
 
 @other_routes.route('/recipes2')
 def recipes2():
+    logger = current_app.logger
+    logger.debug("🟢 Route Debug | Entered /recipes2 route.")
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -542,6 +551,8 @@ def recipes2():
 
 @other_routes.route('/recipes3')
 def recipes3():
+    logger = current_app.logger
+    logger.debug("🟢 Route Debug | Entered /recipes3 route.")
     # Fetch articles for the page
     articles = get_topics_logic()
     # Define keywords for filtering recipes
@@ -566,6 +577,7 @@ def recipes3():
 
 @other_routes.route('/recipe/<int:recipe_id>')
 def view_recipe(recipe_id):
+    logger = current_app.logger
     # Fetch the recipe by its ID from the database
     recipe = Recipe.query.get(recipe_id)
     if not recipe:

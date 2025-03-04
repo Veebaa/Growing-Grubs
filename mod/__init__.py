@@ -71,4 +71,6 @@ def create_app(test_config=None):
     db_url = os.getenv("DATABASE_URL")
     application.logger.debug(f"🔵 DB Debug | Connected to Database: {db_url}")
 
+    application.logger.debug(f"🛠 Debug Mode: {application.debug}")
+
     return application
