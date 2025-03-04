@@ -50,7 +50,11 @@ def create_app(test_config=None):
     application.jinja_env.filters['yesno'] = yesno
 
     # Set up logging
-    logging.basicConfig(level=logging.DEBUG)
+    log_file = "app_errors.log"
+    logging.basicConfig(filename=log_file, level=logging.DEBUG)
+
+    application.config["DEBUG"] = True
+    application.config["PROPAGATE_EXCEPTIONS"] = True
 
     # Log the database connection URL
     db_url = os.getenv("DATABASE_URL")

@@ -439,36 +439,58 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         }
 
 
+# @other_routes.route('/recipes')
+# def recipes():
+#     # Fetch articles for the page
+#     articles = get_topics_logic()
+#
+#     # Fetch paginated recipes with the base query for all recipes
+#     paginated_recipes = paginate_recipes(
+#         recipes_query=Recipe.query,  # Base query to retrieve recipes
+#         template_name='recipes.html'
+#     )
+#
+#     logger.debug(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
+#
+#     # Render the recipes template with the pagination data and articles
+#     return render_template(
+#         'recipes.html',
+#         recipes=paginated_recipes['recipes'],  # Extract the list of recipes
+#         next_page=paginated_recipes['next_page'],
+#         prev_page=paginated_recipes['prev_page'],
+#         current_page=paginated_recipes['current_page'],
+#         total_pages=paginated_recipes['total_pages'],
+#         search_query=paginated_recipes['search_query'],
+#         articles=articles  # Pass the articles to the template
+#     )
+
+
 @other_routes.route('/recipes')
 def recipes():
-    # Fetch articles for the page
-    articles = get_topics_logic()
+    try:
+        articles = get_topics_logic()
+        paginated_recipes = paginate_recipes(
+            recipes_query=Recipe.query,
+            template_name='recipes.html'
+        )
 
-    recipes = Recipe.query.all()
+        current_app.logger.debug(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
 
-    logger.debug(f"🔍 Route Debug | /recipes | Direct Query Found: {len(recipes)} recipes")
+        return render_template(
+            'recipes.html',
+            recipes=paginated_recipes['recipes'],
+            next_page=paginated_recipes['next_page'],
+            prev_page=paginated_recipes['prev_page'],
+            current_page=paginated_recipes['current_page'],
+            total_pages=paginated_recipes['total_pages'],
+            search_query=paginated_recipes['search_query'],
+            articles=articles
+        )
 
-    # # Fetch paginated recipes with the base query for all recipes
-    # paginated_recipes = paginate_recipes(
-    #     recipes_query=Recipe.query,  # Base query to retrieve recipes
-    #     template_name='recipes.html'
-    # )
-    #
-    # logger.debug(f"🟢 Route Debug | /recipes | Recipes Found: {len(paginated_recipes['recipes'])}")
+    except Exception as e:
+        current_app.logger.error(f"🔴 ERROR in /recipes: {e}", exc_info=True)
+        return "Internal Server Error", 500
 
-    # Render the recipes template with the pagination data and articles
-    # return render_template(
-    #     'recipes.html',
-    #     recipes=paginated_recipes['recipes'],  # Extract the list of recipes
-    #     next_page=paginated_recipes['next_page'],
-    #     prev_page=paginated_recipes['prev_page'],
-    #     current_page=paginated_recipes['current_page'],
-    #     total_pages=paginated_recipes['total_pages'],
-    #     search_query=paginated_recipes['search_query'],
-    #     articles=articles  # Pass the articles to the template
-    # )
-
-    return render_template('recipes.html', recipes=recipes, articles=articles )
 
 @other_routes.route('/recipes1')
 def recipes1():
@@ -904,4 +926,28 @@ def proxy():
     except Exception as err:
         print(f'Other error occurred: {err}')  # Log any other errors
         return jsonify({'error': 'An error occurred'}), 500
+
+
+@other_routes.route('/debug-db')
+def debug_db():
+    try:
+        total_recipes = Recipe.query.count()
+        first_recipe = Recipe.query.first()
+
+        current_app.logger.debug(f"🟢 Debug DB | Total Recipes: {total_recipes}")
+
+        if first_recipe:
+            return f"Total Recipes: {total_recipes}<br>First Recipe: {first_recipe.title}"
+        else:
+            return "⚠️ No recipes found in the database!"
+
+    except Exception as e:
+        current_app.logger.error(f"🔴 Database Query Error: {e}", exc_info=True)
+        return f"Database Query Error: {e}", 500
+
+
+@other_routes.route('/show-log')
+def show_log():
+    with open("app_errors.log", "r") as f:
+        return f"<pre>{f.read()}</pre>"
 
