@@ -8,6 +8,7 @@ import logging
 import random
 from flask import Blueprint, current_app, render_template, request, redirect, url_for, flash, jsonify, abort
 from flask_login import login_user, current_user, logout_user, login_required
+from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
 from mod import db
 from mod.models import Users, Favourites, user_favourites, Recipe, MealPlan, MealPlanDay
@@ -404,7 +405,13 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
 
     # Apply keyword filtering if keywords are provided
     if keywords:
-        recipes_query = recipes_query.filter(Recipe.age_group.in_(keywords))
+        recipes_query = recipes_query.filter(
+            or_(*(Recipe.age_group.ilike(f"%{kw}%") for kw in keywords))
+        )
+
+    print(f"🔎 Debug | Filtering Recipes with Keywords: {keywords}")
+    print(f"🔎 Debug | Recipes After Filtering: {recipes_query.count()}")
+    sys.stdout.flush()
 
     total_recipes = recipes_query.count()
 
@@ -425,7 +432,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         prev_page = pagination.prev_num if pagination.has_prev else None  # Number of the previous page, if it exists
 
         # Convert recipes to dictionary for easier rendering in templates
-        recipes_list = [recipe.to_dict() for recipe in recipes]
+        recipes_list = recipes
 
         print(f"🟢 Paginate Debug | Template: {template_name} | Page: {page} | Recipes Found: {total_recipes}")
         sys.stdout.flush()
@@ -531,6 +538,7 @@ def recipes1():
     print(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
     sys.stdout.flush()
 
+
     # Render the recipes1 template with the pagination data and articles
     return render_template(
         'recipes1.html',
@@ -630,6 +638,7 @@ def meal_detail(meal_id):
 
     logger = current_app.logger
     logger.info(f"Fetching details for meal ID: {meal_id}")
+    sys.stdout.flush()
 
     try:
         with db.session.no_autoflush:
@@ -637,6 +646,7 @@ def meal_detail(meal_id):
 
             if not meal_info:
                 logger.error(f"Meal ID {meal_id} not found in the database.")
+                sys.stdout.flush()
                 return render_template('404.html'), 404
 
             # Log the view count
@@ -654,29 +664,36 @@ def meal_detail(meal_id):
             meal_info.image_url = meal_info.image_url or '/static/images/comingsoon.jpg'
             meal_info.method = meal_info.method or 'No instructions provided.'
 
-            logger.info(f"Raw ingredients data: {meal_info.ingredients}")
+            logger.info(f"Raw ingredients from DB: {meal_info.ingredients} (Type: {type(meal_info.ingredients)})")
+            logger.info(f"Raw method from DB: {meal_info.method} (Type: {type(meal_info.method)})")
+            sys.stdout.flush()
 
             # Parsing ingredients and method
+            import ast
+
             try:
-                # Step 1: Convert the string to a Python list
-                raw_ingredients = json.loads(meal_info.ingredients) if isinstance(meal_info.ingredients,
-                                                                                  str) else meal_info.ingredients
-                # Step 2: Extract the actual list from within the nested list
-                meal_info.ingredients = ast.literal_eval(raw_ingredients[0]) if raw_ingredients and isinstance(
-                    raw_ingredients, list) else []
-            except (json.JSONDecodeError, ValueError, SyntaxError) as e:
+                if isinstance(meal_info.ingredients, str):  # If it's a string, convert it to a list
+                    meal_info.ingredients = ast.literal_eval(meal_info.ingredients)
+                if not isinstance(meal_info.ingredients, list):  # Ensure it's always a list
+                    meal_info.ingredients = []
+            except (ValueError, SyntaxError) as e:
                 logger.error(f"Error parsing ingredients: {e}")
                 meal_info.ingredients = []  # Fallback to an empty list
 
             try:
-                raw_method = json.loads(meal_info.method) if isinstance(meal_info.method, str) else meal_info.method
-                meal_info.method = ast.literal_eval(raw_method[0]) if raw_method and isinstance(raw_method,
-                                                                                                list) else []
-            except (json.JSONDecodeError, ValueError, SyntaxError) as e:
+                if isinstance(meal_info.method, str):
+                    meal_info.method = ast.literal_eval(meal_info.method)
+                if not isinstance(meal_info.method, list):
+                    meal_info.method = []
+            except (ValueError, SyntaxError) as e:
                 logger.error(f"Error parsing method: {e}")
-                meal_info.method = []  # Fallback to an empty list
+                meal_info.method = []  # Fallback
+
 
             logger.info(f"Successfully retrieved details for meal ID: {meal_id}")
+            logger.info(f"Parsed ingredients: {meal_info.ingredients} (Type: {type(meal_info.ingredients)})")
+            logger.info(f"Parsed method: {meal_info.method} (Type: {type(meal_info.method)})")
+            sys.stdout.flush()
             return render_template('meal_detail.html', meal=meal_info, articles=articles)
 
     except Exception as e:
