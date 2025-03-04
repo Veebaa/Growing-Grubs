@@ -390,6 +390,8 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
     if keywords:
         recipes_query = recipes_query.filter(Recipe.age_group.in_(keywords))
 
+    total_recipes = recipes_query.count()
+
     # Pagination parameters
     per_page = 15  # Number of recipes to display per page
     page = request.args.get('page', 1, type=int)  # Get the current page number from query parameters, default to 1
@@ -404,6 +406,8 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
 
         # Convert recipes to dictionary for easier rendering in templates
         recipes_list = [recipe.to_dict() for recipe in recipes]
+
+        print(f"🟢 Paginate Debug | Template: {template_name} | Page: {page} | Recipes Found: {total_recipes}")
 
         # Return a dictionary of pagination data to be used in rendering
         return {
@@ -440,6 +444,8 @@ def recipes():
         template_name='recipes.html'
     )
 
+    print(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
+
     # Render the recipes template with the pagination data and articles
     return render_template(
         'recipes.html',
@@ -461,6 +467,8 @@ def recipes1():
     keywords = ["6Months", "4-6Months", "9Months", "7Months"]
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes1.html')
+
+    print(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
 
     # Render the recipes1 template with the pagination data and articles
     return render_template(
@@ -484,6 +492,8 @@ def recipes2():
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes2.html')
 
+    print(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
+
     # Render the recipes2 template with the pagination data and articles
     return render_template(
         'recipes2.html',
@@ -506,6 +516,8 @@ def recipes3():
     # Fetch paginated recipes with the specified keywords
     paginated_recipes = paginate_recipes(keywords=keywords, template_name='recipes3.html')
 
+    print(f"🟢 Route Debug | /recipes1 | Recipes Found: {len(paginated_recipes['recipes'])}")
+
     # Render the recipes3 template with the pagination data and articles
     return render_template(
         'recipes3.html',
@@ -524,7 +536,10 @@ def view_recipe(recipe_id):
     # Fetch the recipe by its ID from the database
     recipe = Recipe.query.get(recipe_id)
     if not recipe:
+        print(f"🔴 Error | Recipe with ID {recipe_id} not found!")
         abort(404)  # Return a 404 error if the recipe is not found
+
+    print(f"🟢 Route Debug | Viewing Recipe ID: {recipe_id} | Title: {recipe.title}")
 
     # Log the view for the recipe
     recipe.log_view()
@@ -879,8 +894,3 @@ def proxy():
         print(f'Other error occurred: {err}')  # Log any other errors
         return jsonify({'error': 'An error occurred'}), 500
 
-
-@other_routes.route('/debug/recipes-count')
-def check_recipes():
-    count = db.session.query(Recipe).count()
-    return f"📊 Total Recipes in Database: {count}"

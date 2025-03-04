@@ -5,7 +5,6 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_migrate import upgrade
-from import_recipes import import_recipes
 
 from mod import create_app
 from mod.app import other_routes
@@ -62,11 +61,6 @@ def inject_search_form():
 
 # Log application start
 application.logger.info('Starting the Flask application...')
-
-@application.route('/debug/run-import')
-def run_import():
-    import_recipes()
-    return "✅ Import script executed!"
 
 def main():
     try:
