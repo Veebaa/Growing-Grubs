@@ -1,0 +1,18 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Service Unavailable{% endblock %}
+
+{% block error_content %}
+    <div class="error-icon">🔧</div>
+    <div class="error-code">503</div>
+    <h1 class="error-title">Service Unavailable</h1>
+    <p class="error-message">We're currently performing maintenance. Please try again soon.</p>
+    
+    <div class="error-actions">
+        <button onclick="location.reload()" class="btn btn-primary">Try Again</button>
+    </div>
+
+    <div class="footer-text">
+        Expected to be back online shortly. Check back in a few minutes.
+    </div>
+{% endblock %}

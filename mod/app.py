@@ -1,18 +1,34 @@
 import ast
+"""Flask application routes and logic for Growing Grubs."""
+
 import json
 import os
 import sys
+import re
+from typing import Dict, Any, Optional, List, Tuple
 
 import requests
 import logging
 import random
-from flask import Blueprint, current_app, render_template, request, redirect, url_for, flash, jsonify, abort
+from flask import Blueprint, current_app, render_template, request, redirect, url_for, flash, jsonify, abort, Response
 from flask_login import login_user, current_user, logout_user, login_required
 from sqlalchemy import or_
 from sqlalchemy.exc import SQLAlchemyError
 from mod import db
 from mod.models import Users, Favourites, user_favourites, Recipe, MealPlan, MealPlanDay
 from mod.user_manager import RegistrationForm, LoginForm, MealPlanForm
+from mod.logging_config import get_logger
+from mod.config import (
+    AVAILABLE_PROFILE_IMAGES,
+    WEEKDAYS,
+    NHS_API_PARAMS,
+    NHS_ARTICLES_TO_FETCH,
+    RECIPES_PER_PAGE,
+    SUCCESS_MESSAGES,
+    ERROR_MESSAGES,
+    DEFAULT_PORTION_LIMIT,
+    DEFAULT_PORTION_OFFSET
+)
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
@@ -22,9 +38,7 @@ debug_routes = Blueprint("debug_routes", __name__)
 
 load_dotenv()
 
-if logging.getLogger('growing_grubs_logger') is None:
-    logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger('growing_grubs_logger')
+logger = get_logger(__name__)
 
 @other_routes.route('/healthz')
 def health_check():
@@ -45,37 +59,27 @@ def not_found_error(e):
     return render_template('404.html'), 404
 
 
-@other_routes.route('/debug')
-def debug():
-    return jsonify({'status': 'debugging'})
-
-
 @other_routes.route("/")
 def index():
+    """Display homepage with top articles and recipe."""
+    from mod.services import RecipeService
+    
     # Fetch the top stories articles
     articles = get_topics_logic()
-    # Top recipe function
-    # Calculate the date for the previous day
-    yesterday = datetime.now() - timedelta(days=1)
-    start_of_yesterday = datetime.combine(yesterday, datetime.min.time())
-    end_of_yesterday = datetime.combine(yesterday, datetime.max.time())
-    # Get the most viewed recipe from the previous day
-    top_recipe = Recipe.query.filter(Recipe.last_viewed >= start_of_yesterday,
-                                     Recipe.last_viewed <= end_of_yesterday)\
-                             .order_by(Recipe.views.desc())\
-                             .first()
-
-    if not top_recipe:
-        # Fallback to the most viewed recipe of all time if no recipe was viewed yesterday
-        top_recipe = Recipe.query.order_by(Recipe.views.desc()).first()
+    
+    # Get the most viewed recipe from yesterday
+    top_recipe = RecipeService.get_top_recipe_from_yesterday()
 
     return render_template("index.html", articles=articles, top_recipe=top_recipe)
 
 
 def get_topics_logic():
+    """Fetch health topics from NHS API with rate limiting and retries."""
+    from mod.api_client import APIClient, RateLimiter
+    
     api_key = os.getenv('NHS_API_KEY')
     if not api_key:
-        current_app.logger.error("NHS_API_KEY is missing!")
+        logger.error("NHS_API_KEY is missing!")
         return []
 
     endpoint = "https://sandbox.api.service.nhs.uk/nhs-website-content/conditions"
@@ -85,21 +89,22 @@ def get_topics_logic():
         "apikey": api_key
     }
 
-    params = {
-        "page": 1,
-        "category": "A",
-        "orderBy": "lastReviewed",
-        "startDate": "2020-01-01",
-        "endDate": "2021-01-01",
-        "order": "newest",
-        "synonyms": "true"
-    }
-
-    logger = current_app.logger
-
     try:
-        response = requests.get(endpoint, headers=headers, params=params)
-        response.raise_for_status()
+        # Use APIClient with rate limiting
+        rate_limiter = RateLimiter(requests_per_second=1.0, max_retries=3)
+        
+        with APIClient(timeout=10, max_retries=3) as client:
+            response = client.get(
+                endpoint,
+                headers=headers,
+                params=NHS_API_PARAMS,
+                rate_limiter=rate_limiter
+            )
+        
+        if not response:
+            logger.error("Failed to get response from NHS API after retries")
+            return []
+        
         data = response.json()
 
         logger.info(f"Keys in API Response: {data.keys()}")
@@ -114,10 +119,10 @@ def get_topics_logic():
 
         logger.info(f"Fetched {len(articles)} articles from NHS API.")
 
-        return random.sample(articles, 2) if len(articles) >= 2 else articles
+        return random.sample(articles, NHS_ARTICLES_TO_FETCH) if len(articles) >= NHS_ARTICLES_TO_FETCH else articles
 
-    except requests.RequestException as e:
-        logger.error(f"Error fetching data from NHS API: {e}")
+    except Exception as e:
+        logger.error(f"Error fetching data from NHS API: {e}", exc_info=True)
         return []
 
 
@@ -184,42 +189,28 @@ def login():
 
     # Check if the form was submitted and is valid
     if form.validate_on_submit():
-        logger.info("Login form validated successfully")
-
         # Retrieve the user by username
         user = Users.query.filter_by(username=form.username.data).first()
-        logger.info(f"Attempting login for username: {form.username.data}")
-
-        # Log whether the user was found and whether the password matches
-        logger.info(f"User found: {user is not None}")
-        if user:
-            logger.info(f"Password correct: {user.check_password(form.password.data)}")
-        else:
-            logger.info("User not found")
-
+        
         # Check if the user exists and if the password is correct
-        if user is None or not user.check_password(form.password.data):
-            # Log the error if login fails
-            logger.info(f"Login failed for user {form.username.data}")
-            logger.info(f"Provided password: {form.password.data}")
-            if user:
-                logger.info(f"Hashed password: {user.password}")
+        if user and user.check_password(form.password.data):
+            # Log the user in and remember their session based on the form input
+            login_user(user, remember=form.remember.data)
+            logger.info(f'User {user.username} logged in successfully.')
+
+            # Redirect to the 'next' parameter
+            next_page = request.args.get('next')
+            if next_page:
+                return redirect(next_page)
+            else:
+                return redirect(url_for('other_routes.profile'))
+        else:
+            # Log the error if login fails (without credentials)
+            logger.warning(f"Login failed for user {form.username.data}")
 
             # Flash an error message if the login fails
             flash('Invalid login credentials.', 'error')
             return redirect(url_for('other_routes.login'))
-
-        # Log the user in and remember their session based on the form input
-        login_user(user, remember=form.remember.data)
-        logger.info(f'User {user.username} logged in successfully.')
-
-        # Redirect to the 'next' parameter
-        next_page = request.args.get('next')
-        if next_page:
-            return redirect(next_page)
-        else:
-            logger.info(f'Redirecting user {user.username} to profile page.')
-            return redirect(url_for('other_routes.profile'))
 
     # Render the login form template if the form is not submitted or invalid
     return render_template('login.html', title='Log In', form=form)
@@ -239,9 +230,8 @@ def logout():
 @other_routes.route('/profile', methods=['GET', 'POST'])
 @login_required
 def profile():
-    logger = current_app.logger
-
-    available_profile_images = ['avo.jpg', 'cherries.jpg', 'orange.jpg', 'strawberry.jpg', 'watermelon.jpg']
+    """Display and manage user profile."""
+    logger_local = current_app.logger
 
     user_info = {
         'profile_image': current_user.profile_image,
@@ -252,16 +242,20 @@ def profile():
         'favourites': current_user.favourites
     }
 
-    logger.info(f"User favourites: {user_info['favourites']}")
+    logger_local.info(f"User favourites: {len(user_info['favourites'])}")
 
-    # Fetch the user's existing meal plan to render
-    meal_plans = MealPlan.query.filter_by(user_id=current_user.id).all()
-    logger.info(f'Fetched {len(meal_plans)} meal plans for user ID {current_user.id}.')
+    # Fetch the user's existing meal plans with eager loading to avoid N+1 queries
+    meal_plans = MealPlan.query.options(
+        db.joinedload(MealPlan.days).joinedload(MealPlanDay.breakfast),
+        db.joinedload(MealPlan.days).joinedload(MealPlanDay.lunch),
+        db.joinedload(MealPlan.days).joinedload(MealPlanDay.dinner)
+    ).filter_by(user_id=current_user.id).all()
+    
+    logger_local.info(f'Fetched {len(meal_plans)} meal plans for user ID {current_user.id}.')
 
-    # If you want to get details for all meal plans here, you'll need to structure your data accordingly
+    # Build meal plan details from already-loaded relationships
     meal_plan_details = {}
     for meal_plan in meal_plans:
-        meal_plan_days = MealPlanDay.query.filter_by(meal_plan_id=meal_plan.id).all()
         days = [
             {
                 'day': meal_plan_day.day,
@@ -269,18 +263,18 @@ def profile():
                 'lunch': meal_plan_day.lunch.title if meal_plan_day.lunch else None,
                 'dinner': meal_plan_day.dinner.title if meal_plan_day.dinner else None
             }
-            for meal_plan_day in meal_plan_days
+            for meal_plan_day in meal_plan.days
         ]
         meal_plan_details[meal_plan.id] = {
             'name': meal_plan.name,
             'days': days
         }
 
-        logger.info(f"Meal plan details for {meal_plan.name}: {days}")
+        logger_local.debug(f"Meal plan details for {meal_plan.name}: {len(days)} days")
 
     return render_template('profile.html',
                            user=user_info,
-                           available_profile_images=available_profile_images,
+                           available_profile_images=AVAILABLE_PROFILE_IMAGES,
                            meal_plans=meal_plans,
                            meal_plan_details=meal_plan_details)
 
@@ -288,11 +282,16 @@ def profile():
 @other_routes.route('/meal-planner', methods=['GET', 'POST'])
 @login_required
 def meal_planner():
+    """Create and manage meal plans."""
     form = MealPlanForm()
+    
+    # Get user's favorite recipes (already loaded by Flask-Login)
+    # The relationships are already available, no need for additional eager loading
     favourites = [(favourite.recipe_id, favourite.recipe.title) for favourite in current_user.favourites]
 
-    # Set meal choices for the form
-    for day_form in [form.monday, form.tuesday, form.wednesday, form.thursday, form.friday, form.saturday, form.sunday]:
+    # Set meal choices for the form using WEEKDAYS constant
+    for day_name in WEEKDAYS:
+        day_form = getattr(form, day_name.lower())
         day_form.breakfast.choices = favourites
         day_form.lunch.choices = favourites
         day_form.dinner.choices = favourites
@@ -305,8 +304,8 @@ def meal_planner():
 
         # Add the selected recipes to the meal plan
         selected_recipes = set()
-        for day_form in [form.monday, form.tuesday, form.wednesday, form.thursday, form.friday, form.saturday,
-                         form.sunday]:
+        for day_name in WEEKDAYS:
+            day_form = getattr(form, day_name.lower())
             if day_form.breakfast.data:
                 selected_recipes.add(day_form.breakfast.data)
             if day_form.lunch.data:
@@ -314,16 +313,15 @@ def meal_planner():
             if day_form.dinner.data:
                 selected_recipes.add(day_form.dinner.data)
 
-        # Associate the selected recipes with the meal plan
-        for recipe_id in selected_recipes:
-            recipe = Recipe.query.get(recipe_id)
-            if recipe:
+        # Fetch recipes by IDs to avoid N+1 (single query for multiple IDs)
+        if selected_recipes:
+            recipes = Recipe.query.filter(Recipe.id.in_(selected_recipes)).all()
+            for recipe in recipes:
                 meal_plan.recipes.append(recipe)
 
         # Save the meal plan days
-        for day_name, day_form in [('Monday', form.monday), ('Tuesday', form.tuesday), ('Wednesday', form.wednesday),
-                                   ('Thursday', form.thursday), ('Friday', form.friday), ('Saturday', form.saturday),
-                                   ('Sunday', form.sunday)]:
+        for day_name in WEEKDAYS:
+            day_form = getattr(form, day_name.lower())
             meal_plan_day = MealPlanDay(
                 day=day_name,
                 meal_plan_id=meal_plan.id,
@@ -334,7 +332,7 @@ def meal_planner():
             db.session.add(meal_plan_day)
 
         db.session.commit()
-        flash('Meal plan created successfully!')
+        flash(SUCCESS_MESSAGES['meal_plan_creation_success'])
         return redirect(url_for('other_routes.meal_planner'))
 
     return render_template('meal_planner.html', form=form, user=current_user)
@@ -343,26 +341,41 @@ def meal_planner():
 @other_routes.route('/edit_profile', methods=['POST'])
 @login_required
 def edit_profile():
-    # Retrieve the updated profile information from the request form
-    first_name = request.form.get('first_name')
-    last_name = request.form.get('last_name')
-    email = request.form.get('email')
-    profile_image = request.form.get('profile_image')
+    """Update user profile information with input validation."""
+    from mod.validators import validate_profile_update
+    
+    logger_local = current_app.logger
+    
+    # Retrieve and sanitize input
+    data = {
+        'first_name': request.form.get('first_name', '').strip(),
+        'last_name': request.form.get('last_name', '').strip(),
+        'email': request.form.get('email', '').strip(),
+        'profile_image': request.form.get('profile_image', '').strip()
+    }
+
+    # Validate input
+    is_valid, error_message = validate_profile_update(data)
+    if not is_valid:
+        flash(error_message, 'error')
+        return redirect(url_for('other_routes.profile'))
 
     try:
         # Update the current user's profile information
-        current_user.first_name = first_name
-        current_user.last_name = last_name
-        current_user.email = email
-        current_user.profile_image = profile_image
+        current_user.first_name = data['first_name']
+        current_user.last_name = data['last_name']
+        current_user.email = data['email']
+        current_user.profile_image = data['profile_image']
 
         # Commit the transaction to save the updated information to the database
         db.session.commit()
-        flash('Profile updated successfully!', 'success')
-    except Exception as e:
+        logger_local.info(f"User {current_user.username} updated profile successfully.")
+        flash(SUCCESS_MESSAGES['profile_update_success'], 'success')
+    except SQLAlchemyError as e:
         # Roll back the session and flash an error message if the update fails
         db.session.rollback()
-        flash('Error updating profile: ' + str(e), 'error')
+        logger_local.error(f"Error updating profile for user {current_user.username}: {e}", exc_info=True)
+        flash(ERROR_MESSAGES['update_error'], 'error')
 
     # Redirect the user back to their profile page after the update
     return redirect(url_for('other_routes.profile'))
@@ -394,14 +407,13 @@ def delete_account():
 
 
 def paginate_recipes(recipes_query=None, keywords=None, template_name=None, search_query=None):
-    logger = current_app.logger
+    """Paginate recipe results with filtering and search."""
     # If no query object is provided, start a new query
     if recipes_query is None:
         recipes_query = Recipe.query
 
     # 🔹 Log total recipes BEFORE filtering
-    print(f"🟡 Paginate Debug | Before Filtering | Total Recipes in DB: {recipes_query.count()}")
-    sys.stdout.flush()
+    logger.info(f"Before Filtering | Total Recipes in DB: {recipes_query.count()}")
 
     # Apply keyword filtering if keywords are provided
     if keywords:
@@ -420,7 +432,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
     sys.stdout.flush()
 
     # Pagination parameters
-    per_page = 15  # Number of recipes to display per page
+    per_page = RECIPES_PER_PAGE  # Number of recipes to display per page
     page = request.args.get('page', 1, type=int)  # Get the current page number from query parameters, default to 1
 
     try:
@@ -434,8 +446,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         # Convert recipes to dictionary for easier rendering in templates
         recipes_list = recipes
 
-        print(f"🟢 Paginate Debug | Template: {template_name} | Page: {page} | Recipes Found: {total_recipes}")
-        sys.stdout.flush()
+        logger.info(f"Template: {template_name} | Page: {page} | Recipes Found: {len(recipes)}")
 
         # Return a dictionary of pagination data to be used in rendering
         return {
@@ -448,7 +459,7 @@ def paginate_recipes(recipes_query=None, keywords=None, template_name=None, sear
         }
     except Exception as e:
         # Log any unexpected errors that occur during pagination
-        logger.error(f"Unexpected error occurred: {e}", exc_info=True)
+        logger.error(f"Unexpected error occurred during pagination: {e}", exc_info=True)
         # Return a default dictionary with empty results and pagination info
         return {
             'recipes': [],

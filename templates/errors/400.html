@@ -1,0 +1,26 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Bad Request{% endblock %}
+
+{% block error_content %}
+    <div class="error-icon">⚠️</div>
+    <div class="error-code">400</div>
+    <h1 class="error-title">Bad Request</h1>
+    <p class="error-message">The server cannot process your request because it contains invalid data or syntax.</p>
+    
+    {% if details %}
+    <div class="error-details">
+        <strong>Details:</strong><br>
+        {{ details }}
+    </div>
+    {% endif %}
+    
+    <div class="error-actions">
+        <a href="{{ url_for('health.index') }}" class="btn btn-primary">Go to Home</a>
+        <button onclick="history.back()" class="btn btn-secondary">Go Back</button>
+    </div>
+
+    <div class="footer-text">
+        If you believe this is an error, please <a href="mailto:support@growinggrubs.com" class="home-link">contact support</a>.
+    </div>
+{% endblock %}

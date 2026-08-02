@@ -1,0 +1,80 @@
+{# Form macros for consistent form rendering with CSRF protection #}
+
+{# Macro to render CSRF token field #}
+{% macro csrf_field() %}
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{% endmacro %}
+
+{# Macro to render a text input field #}
+{% macro text_input(field, class='form-control') %}
+    <div class="form-group">
+        {% if field.label %}
+            {{ field.label(class='form-label') }}
+        {% endif %}
+        {{ field(class=class, **kwargs) }}
+        {% if field.errors %}
+            <div class="alert alert-danger">
+                {% for error in field.errors %}
+                    <span>{{ error }}</span><br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{# Macro to render a password input field #}
+{% macro password_input(field, class='form-control') %}
+    <div class="form-group">
+        {% if field.label %}
+            {{ field.label(class='form-label') }}
+        {% endif %}
+        {{ field(class=class, type='password', **kwargs) }}
+        {% if field.errors %}
+            <div class="alert alert-danger">
+                {% for error in field.errors %}
+                    <span>{{ error }}</span><br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{# Macro to render a select field #}
+{% macro select_input(field, class='form-control') %}
+    <div class="form-group">
+        {% if field.label %}
+            {{ field.label(class='form-label') }}
+        {% endif %}
+        {{ field(class=class, **kwargs) }}
+        {% if field.errors %}
+            <div class="alert alert-danger">
+                {% for error in field.errors %}
+                    <span>{{ error }}</span><br>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endmacro %}
+
+{# Macro to render a form #}
+{% macro form(method='POST', action='', class='', csrf_enabled=True) %}
+    <form method="{{ method }}" action="{{ action }}" class="{{ class }}" {{ kwargs|safe }}>
+        {% if csrf_enabled %}
+            {{ csrf_field() }}
+        {% endif %}
+        {{ caller() }}
+    </form>
+{% endmacro %}
+
+{# Macro to render a submit button #}
+{% macro submit_button(text='Submit', class='btn btn-primary') %}
+    <button type="submit" class="{{ class }}">{{ text }}</button>
+{% endmacro %}
+
+{# Macro to render a delete form (POST with confirmation) #}
+{% macro delete_form(action, button_text='Delete', button_class='btn btn-danger') %}
+    <form method="POST" action="{{ action }}" onsubmit="return confirm('Are you sure you want to delete this?');">
+        {{ csrf_field() }}
+        <button type="submit" class="{{ button_class }}">{{ button_text }}</button>
+    </form>
+{% endmacro %}

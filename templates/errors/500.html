@@ -1,0 +1,26 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Server Error{% endblock %}
+
+{% block error_content %}
+    <div class="error-icon">💥</div>
+    <div class="error-code">500</div>
+    <h1 class="error-title">Server Error</h1>
+    <p class="error-message">Something went wrong on our end. We're working to fix it!</p>
+    
+    {% if error_id %}
+    <div class="error-details">
+        <strong>Error ID:</strong> {{ error_id }}<br>
+        <small>Please reference this ID when contacting support.</small>
+    </div>
+    {% endif %}
+    
+    <div class="error-actions">
+        <a href="{{ url_for('health.index') }}" class="btn btn-primary">Go to Home</a>
+        <button onclick="location.reload()" class="btn btn-secondary">Retry</button>
+    </div>
+
+    <div class="footer-text">
+        If the problem persists, please <a href="mailto:support@growinggrubs.com" class="home-link">contact support</a> with the error ID above.
+    </div>
+{% endblock %}

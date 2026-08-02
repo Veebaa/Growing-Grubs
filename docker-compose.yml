@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Main Flask application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: growing-grubs
+    ports:
+      - "10000:10000"
+    environment:
+      FLASK_ENV: development
+      DEBUG: 'True'
+      DATABASE_URL: sqlite:///./mod/database.db
+      LOG_LEVEL: INFO
+      ENABLE_DEBUG_ROUTES: 'True'
+      # Add your API keys here
+      # NHS_API_KEY: ${NHS_API_KEY}
+    volumes:
+      - .:/app
+      - logs:/app/logs
+    command: python server_main.py
+    networks:
+      - growing-grubs-network
+
+  # PostgreSQL database (optional, for production-like development)
+  db:
+    image: postgres:15-alpine
+    container_name: growing-grubs-db
+    environment:
+      POSTGRES_DB: growing_grubs
+      POSTGRES_USER: grubs_user
+      POSTGRES_PASSWORD: grubs_password_dev
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - growing-grubs-network
+    # Uncomment to enable in development
+    # profiles:
+    #   - dev
+
+  # Redis for session storage and caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: growing-grubs-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - growing-grubs-network
+    # Uncomment to enable in development
+    # profiles:
+    #   - dev
+
+volumes:
+  postgres_data:
+  redis_data:
+  logs:
+
+networks:
+  growing-grubs-network:
+    driver: bridge

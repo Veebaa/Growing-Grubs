@@ -1,0 +1,25 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Too Many Requests{% endblock %}
+
+{% block error_content %}
+    <div class="error-icon">⏱️</div>
+    <div class="error-code">429</div>
+    <h1 class="error-title">Too Many Requests</h1>
+    <p class="error-message">You've made too many requests in a short period of time. Please wait a moment and try again.</p>
+    
+    {% if retry_after %}
+    <div class="error-details">
+        <strong>Please wait {{ retry_after }} seconds before trying again.</strong>
+    </div>
+    {% endif %}
+    
+    <div class="error-actions">
+        <button onclick="setTimeout(() => location.reload(), {{ (retry_after|int * 1000) if retry_after else 60000 }})" class="btn btn-primary">Try Again in {{ retry_after or 60 }} seconds</button>
+        <a href="{{ url_for('health.index') }}" class="btn btn-secondary">Go to Home</a>
+    </div>
+
+    <div class="footer-text">
+        Rate limiting helps us keep the service stable for all users.
+    </div>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends "errors/base_error.html" %}
+
+{% block title %}Unauthorized{% endblock %}
+
+{% block error_content %}
+    <div class="error-icon">🔒</div>
+    <div class="error-code">401</div>
+    <h1 class="error-title">Unauthorized</h1>
+    <p class="error-message">You need to be logged in to access this resource.</p>
+    
+    <div class="error-actions">
+        <a href="{{ url_for('auth.login') }}" class="btn btn-primary">Log In</a>
+        <a href="{{ url_for('auth.register_user') }}" class="btn btn-secondary">Create Account</a>
+    </div>
+
+    <div class="footer-text">
+        Don't have an account? <a href="{{ url_for('auth.register_user') }}" class="home-link">Sign up here</a>.
+    </div>
+{% endblock %}
